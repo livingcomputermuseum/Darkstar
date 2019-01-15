@@ -1,0 +1,15 @@
+﻿Need to build a symbol table of sorts for 8085 code to allow mapping of ROM addresses
+to source lines & symbol names in source code.
+
+Current thoughts:
+Text file consisting of lines in the format:
+
+$<ROM Address>-[length]: <source file name>, <line number>
+
+to describe instruction mapping or label/constant value definition -> source line.
+Duplicate <ROM Address> fields may be present to describe symbols pointing to same address
+
+Start with ROM addresses that correspond directly to labels, see how interpolation (based on
+assembly of source, perhaps?) can deal with the intermediary addresses.
+
+

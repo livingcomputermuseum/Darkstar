@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0590465E-1D91-4591-946E-EE3F7D82834B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>D</RootNamespace>
+    <AssemblyName>Darkstar</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PacketDotNet, Version=0.13.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sharp_Pcap.4.2.0\lib\PacketDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="SDL2-CS, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SDL2-CS.dll.2.0.0.0\lib\net20\SDL2-CS.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpPcap, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sharp_Pcap.4.2.0\lib\SharpPcap.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Conversion.cs" />
+    <Compile Include="CP\AM2901.cs" />
+    <Compile Include="CP\CentralProcessor.cs" />
+    <Compile Include="CP\CentralProcessorIO.cs" />
+    <Compile Include="CP\MacroInstruction.cs" />
+    <Compile Include="CP\Microinstruction.cs" />
+    <Compile Include="Debugger\BreakpointManager.cs" />
+    <Compile Include="Debugger\CPDebugger.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Debugger\CPDebugger.Designer.cs">
+      <DependentUpon>CPDebugger.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Debugger\DebuggerMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Debugger\DebuggerMain.Designer.cs">
+      <DependentUpon>DebuggerMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Debugger\IOPDebugger.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Debugger\IOPDebugger.Designer.cs">
+      <DependentUpon>IOPDebugger.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Debugger\LoadMapDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Debugger\LoadMapDialog.Designer.cs">
+      <DependentUpon>LoadMapDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Debugger\MicrocodeLoadMap.cs" />
+    <Compile Include="Debugger\SourceDisplay.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Debugger\MicrocodeDisplay.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Debugger\SourceMap.cs" />
+    <Compile Include="Display\DisplayController.cs" />
+    <Compile Include="Ethernet\HostEthernet.cs" />
+    <Compile Include="Ethernet\IPacketInterface.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="UI\AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\AboutBox.Designer.cs">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ConfigurationDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ConfigurationDialog.Designer.cs">
+      <DependentUpon>ConfigurationDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\DWindow-IO.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\DWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\DWindow.Designer.cs">
+      <DependentUpon>DWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Ethernet\CRC32.cs" />
+    <Compile Include="Ethernet\EthernetController.cs" />
+    <Compile Include="HighResTimer.cs" />
+    <Compile Include="IOP\DMAController.cs" />
+    <Compile Include="IOP\FloppyController.cs" />
+    <Compile Include="IOP\Keyboard.cs" />
+    <Compile Include="IOP\Mouse.cs" />
+    <Compile Include="IOP\TODClock.cs" />
+    <Compile Include="IOP\Printer.cs" />
+    <Compile Include="IO\FloppyDisk.cs" />
+    <Compile Include="IO\FloppyDrive.cs" />
+    <Compile Include="IOP\i8085.cs" />
+    <Compile Include="IOP\I8085IOBus.cs" />
+    <Compile Include="IOP\I8085MemoryBus.cs" />
+    <Compile Include="IOP\IIOPDevice.cs" />
+    <Compile Include="IOP\IOProcessor.cs" />
+    <Compile Include="IOP\IOPMemoryBus.cs" />
+    <Compile Include="IOP\IOPIOBus.cs" />
+    <Compile Include="IOP\MiscIO.cs" />
+    <Compile Include="IO\SA1000.cs" />
+    <Compile Include="IO\ShugartController.cs" />
+    <Compile Include="Logging\Log.cs" />
+    <Compile Include="Memory\Memory.cs" />
+    <Compile Include="Memory\MemoryController.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scheduler.cs" />
+    <Compile Include="System.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="app.manifest" />
+    <None Include="Disks\130P26300-diags.IMD">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\130P26301-install.IMD">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\Harmony.img">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\Lyric.img">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\Medley.img">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\ViewPoint-11-9-1990-18-38.img">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\XDE.img">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Disks\XDE_5.0_BO1.IMD">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IOP\PROM\537P03029.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IOP\PROM\537P03030.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IOP\PROM\537P03032.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IOP\PROM\537P03700.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CP\Source\BootKernel_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\CPMemTest_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\FloppyInitial_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\load_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\Main_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\MoonCycle_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\MoonEthBTest_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\MoonPortIn_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\MoonPortOut_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\Phase0Protected_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\Phase0_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\SunlightO2_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\SunlightO4_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CP\Source\SunlightO5_map.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Dandelion.ico" />
+    <Content Include="IOP\Source\SourceMap.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Notes\IOP.txt" />
+    <Content Include="Notes\8085 code annotation.txt" />
+    <Content Include="Notes\Ethernet.txt" />
+    <Content Include="readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SDL2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Darkstar.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Debugger\CPDebugger.resx">
+      <DependentUpon>CPDebugger.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Debugger\DebuggerMain.resx">
+      <DependentUpon>DebuggerMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Debugger\IOPDebugger.resx">
+      <DependentUpon>IOPDebugger.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Debugger\LoadMapDialog.resx">
+      <DependentUpon>LoadMapDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\AboutBox.resx">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ConfigurationDialog.resx">
+      <DependentUpon>ConfigurationDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\DWindow.resx">
+      <DependentUpon>DWindow.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

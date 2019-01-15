@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  
+    BSD 2-Clause License
+
+    Copyright Vulcan Inc. 2017-2018 and Living Computer Museum + Labs 2018
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this
+      list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="B07D119A-F6BC-4509-A3DB-325FE64CDAFF" Name="Darkstar" Language="1033" Version="1.0.0" Manufacturer="Living Computers: Museum+Labs" UpgradeCode="CD10891B-0EB5-4638-A200-0BB948D52624">
+    <Package Id="*" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <Upgrade Id="127A2F07-2378-4A1A-BE51-570ECB918BF5">
+      <UpgradeVersion OnlyDetect="yes" Property="SELFFOUND"
+          Minimum="1.0.0" IncludeMinimum="yes"
+          Maximum="1.0.0" IncludeMaximum="yes" />
+      <UpgradeVersion OnlyDetect="yes" Property="NEWERFOUND"
+          Minimum="1.0.0" IncludeMinimum="no" />
+    </Upgrade>
+
+    <CustomAction Id="AlreadyUpdated" Error="[ProductName] 1.0.0 has already been updated to 1.0.0 or newer." />
+    <CustomAction Id="NoDowngrade" Error="A later version of [ProductName] is already installed." />
+
+    <InstallExecuteSequence>
+      <Custom Action="AlreadyUpdated" After="FindRelatedProducts">SELFFOUND</Custom>
+      <Custom Action="NoDowngrade" After="FindRelatedProducts">NEWERFOUND</Custom>
+    </InstallExecuteSequence>
+
+    <Media Id="1" Cabinet="Darkstar.cab" EmbedCab="yes"/>
+
+    <Feature Id="ProductFeature" Title="Darkstar" Description="The Darkstar Xerox Star Emulator" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="IOPComponents" />
+      <ComponentGroupRef Id="SourceComponentsIOP" />
+      <ComponentGroupRef Id="SourceComponentsCP" />
+      <ComponentRef Id="ProgramMenuDir" />
+    </Feature>
+
+    <Icon Id="Darkstar.exe" SourceFile="$(var.Darkstar.TargetPath)"/>
+
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <WixVariable Id="WixUILicenseRtf" Value="eula.rtf" />
+    
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="LCM" Name="Living Computers">
+          <Directory Id="INSTALLFOLDER" Name="Darkstar">
+            <Directory Id="IOPFOLDER" Name="IOP">
+              <Directory Id="PROMFOLDER" Name="PROM"/>
+              <Directory Id="IOPSOURCEFOLDER" Name="Source"/>
+            </Directory>
+            <Directory Id="CPFOLDER" Name="CP">
+              <Directory Id="CPSOURCEFOLDER" Name="Source"/>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="Darkstar">
+          <Component Id="ProgramMenuDir" Guid="122F0179-DC54-4279-A7D2-6B4DBFB9D5EA">
+            <RemoveFolder Id="ProgramMenuDir" On="uninstall"/>
+            <RegistryValue Root="HKCU" Key="Software\Living Computers\Darkstar" Type="string" Value="" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Main Darkstar EXE and dependencies-->
+      <Component Id="DarkstarExecutable" Guid="F345AB72-5693-47DC-AE7C-39DBFB759E4A">
+        <File Id="exe" Name="Darkstar.exe" Source="$(var.Darkstar.TargetPath)" KeyPath="yes">
+          <Shortcut Id="shortcut" Directory="ProgramMenuDir" Name="DarkStar"
+              WorkingDirectory="INSTALLFOLDER" Icon="Darkstar.exe" IconIndex="0" Advertise="yes" />
+        </File>
+
+        <!-- PCAP libs -->
+        <File Source="$(var.Darkstar.TargetDir)\PacketDotNet.dll"/>
+        <File Source="$(var.Darkstar.TargetDir)\SharpPcap.dll"/>
+
+        <!-- SDL2-CS and SDL 2.0 LIBS-->
+        <File Source="$(var.Darkstar.TargetDir)\SDL2.dll"/>
+        <File Source="$(var.Darkstar.TargetDir)\SDL2-CS.dll"/>
+
+      </Component>
+      <Component Id="DarkstarReadme" Guid="4D1E954C-FBA2-4B51-AEA0-E9B294ABA9E7">
+        <File Id="readme" Name="readme.txt" Source="$(var.Darkstar.TargetDir)\readme.txt">
+          <Shortcut Id="docshortcut" Directory="ProgramMenuDir" Name="Darkstar Readme" Advertise="yes" />
+        </File>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="IOPComponents" Directory="PROMFOLDER">
+      <!-- IOP ROM files -->
+      <Component Id="IOPPROMS" Guid="09662097-6EB9-4D92-8386-905FE5D9F6D1" KeyPath="yes">
+        <File Id="p537P03029_bin" Name="537P03029.bin" Source="$(var.Darkstar.TargetDir)\IOP\PROM\537P03029.bin"/>
+        <File Id="p537P03030_bin" Name="537P03030.bin" Source="$(var.Darkstar.TargetDir)\IOP\PROM\537P03030.bin"/>
+        <File Id="p537P03032_bin" Name="537P03032.bin" Source="$(var.Darkstar.TargetDir)\IOP\PROM\537P03032.bin"/>
+        <File Id="p537P03700_bin" Name="537P03700.bin" Source="$(var.Darkstar.TargetDir)\IOP\PROM\537P03700.bin"/>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="SourceComponentsIOP" Directory="IOPSOURCEFOLDER">
+      <!-- Source indexes -->
+      <Component Id="IOPSourceMap" Guid="0C0BA13A-6079-4E22-993B-2B6D5C1ACD28" KeyPath="yes">
+        <File Id="iopsourcemap" Name="SourceMap.txt" Source="$(var.Darkstar.TargetDir)\IOP\Source\SourceMap.txt"/>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="SourceComponentsCP" Directory="CPSOURCEFOLDER">
+      <!-- Source indexes -->
+      <Component Id="CPSourceMap" Guid="441D7BCE-D7C3-42D0-9A84-E4E61AE42974" KeyPath="yes">
+        <File Id="bootkernelmap" Name="BootKernel_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\BootKernel_map.txt"/>
+        <File Id="cpmemtestmap" Name="CPMemTest_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\CPMemTest_map.txt"/>
+        <File Id="floppyinitialmap" Name="FloppyInitial_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\FloppyInitial_map.txt"/>
+        <File Id="loadmap" Name="load_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\load_map.txt"/>
+        <File Id="mainmap" Name="Main_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\Main_map.txt"/>
+        <File Id="moonethbtestmap" Name="MoonEthBTest_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\MoonEthBTest_map.txt"/>
+        <File Id="moonportinmap" Name="MoonPortIn_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\MoonPortIn_map.txt"/>
+        <File Id="moonportoutmap" Name="MoonPortOut_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\MoonPortOut_map.txt"/>
+        <File Id="mooncyclemap" Name="MoonCycle_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\MoonCycle_map.txt"/>
+        <File Id="phase0map" Name="Phase0_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\Phase0_map.txt"/>
+        <File Id="phase0protectedmap" Name="Phase0Protected_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\Phase0Protected_map.txt"/>
+        <File Id="SunlightO2map" Name="SunlightO2_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\SunlightO2_map.txt"/>
+        <File Id="SunlightO4map" Name="SunlightO4_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\SunlightO4_map.txt"/>
+        <File Id="SunlightO5map" Name="SunlightO5_map.txt" Source="$(var.Darkstar.TargetDir)\CP\Source\SunlightO5_map.txt"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+</Wix>

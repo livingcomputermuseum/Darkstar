@@ -1,0 +1,46 @@
+# 
+                # This file maps assembly source symbols to PROM/microcode addresses and source lines, forming a crude
+                # symbol table.
+                #
+                # Each source file is given a header a la:
+                # [FooSource.asm]
+                # (with brackets)
+
+                # Each line's syntax is:
+                # <symbol name 1>, .. , <symbol name N>: <address or value (hex)>,<line number(decimal) in current source file>
+                # where '*none*' is a special symbol name meaning no symbol mapping is present.
+[Phase0.mc,v]
+go: 0x0108,97
+*none*: 0x011f,98
+*none*: 0x0146,99
+clear0: 0x0128,102
+*none*: 0x0148,103
+*none*: 0x014a,104
+Trident/SA: 0x013d,115
+*none*: 0x013c,108
+*none*: 0x014e,109
+*none*: 0x0168,110
+Trident: 0x013f,117
+enableIOP: 0x01ae,127
+*none*: 0x01b0,128
+*none*: 0x01c6,129
+*none*: 0x0130,134
+*none*: 0x01c7,135
+*none*: 0x01c8,136
+*none*: 0x016a,116
+SA: 0x013e,118
+pollDevices: 0x018a,120
+*none*: 0x019a,121
+*none*: 0x012b,123
+*none*: 0x012a,124
+
+[DiskBootDLion.mc,v]
+VerifyLp: 0x0255,97
+*none*: 0x0256,99
+MoreVerify: 0x01d4,101
+FinVerify: 0x01d5,105
+*none*: 0x0160,109
+FindSA1Sect0: 0x013a,110
+FindSA1Sect0Lp: 0x01a8,94
+Wait2: 0x013b,264
+

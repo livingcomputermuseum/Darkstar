@@ -1,0 +1,214 @@
+﻿IOP notes.  These are gleaned from various bits of documentation and source code.  
+There is no official IOP documentation available.
+
+Hardware:
+- CPU: 8085
+- FDC: WD FD1797
+- i8253 programmable interval timer
+- i8251 UART
+- i8257 dma controller
+- Z80-SIO for RS232C/RS366 (?? not present on PCB...)
+
+Memory Map (see SysDefs.asm):
+
+$0000-$1FFF :   PROM (8K)
+$2000-$5FFF :   RAM  (16K)
+
+$8000-$800F :   Host Addr PROM
+$8010-$FFFF :   Memory Mapped-I/O
+
+Map of PROM ICs to ROM Locations:
+
+3.1 :
+
+U129 - 537P03029        - $0000
+U130 - 537P03030        - $0800
+U131 - 537P03700        - $1000
+U132 - 537P03032        - $1800
+
+
+I/O addresses:
+
+$80-$83 - Alto PPI
+
+$84 - FDC Command (write)
+$84 - FDC Status (read)
+$85 - FDC Track register (write)
+$86 - FDC Sector register (write)
+$87 - FDC Data register (write, read?)
+
+$88 - Printer Data (read/write)
+$89 - Printer Commands (write)
+$89 - Printer Status (read)
+
+$8C - Timer Counter 0 (read/write)
+$8D - Timer Counter 1 (read/write)
+$8E - Timer Counter 2 (read/write)
+$8F - Timer Mode (commands) (write)
+
+$90 - LSEP Uart Data
+$91 - LSEP Uart Command
+$92 - LSEP Uart Status
+$94 - LSEP Timer Counter 0
+
+$95 - Counter for SIO
+$96 - Counter for Time Counter
+
+$97 - LSEP Timer Mode / Baud Rate Gen. Control Register (?)
+
+$98 - SIO Channel A Data Register
+$99 -     "       B     "
+$9A - SIO Channel A Control Register
+$9B -     "       B     "
+
+$9C - RS366 register
+
+$A0 - $A8 - DMA Controller
+
+$B0 - $BF - Host PROM data (read)
+
+
+$E0 - Keyset (read?)
+
+$E8 - FDC External State
+$E9 - KB, MP, TOD clocks (write)
+$E9 - Interrupt request bits (read)
+$EA - clear TOD interrupt (write)
+$EA - Keyboard data latch (read)
+
+$EB - CP data in (read)
+$EB - CP data out (write)
+$EC - CP (central processor) control register (write)
+$EC - CP status (read)
+
+$ED - Mouse X counter (read)
+$ED - Clear mouse X, Y counters (write)
+$EE - Mouse Y counter (read)
+$EE - Clear CP DMA Complete (write)
+
+$EF - Misc I/O devices (keyboard, clocks, etc.) input
+$EF - Misc control (write)
+
+$F8-$FF - Control Store read/write:
+
+;  Format of TPCHigh (write):  TPCAddr[0:2],,TPCData[0:4]';  Format of TPCLow (write):  don't care,,TPCData[5:11]'
+$FE - TPC High (inverted)
+$FF - TPC Low (inverted)
+$F8-$FD - 48 bits of control store, MSB -> LSB, bits inverted.
+
+
+
+
+Memory-Mapped IO:
+-----------------
+
+$80ec - CPControl - CP control register : IOPWait',,SwTAddr',,IOPAttn,,CPDmaMode,,CPDmaIn  (write)
+$80ec - CPStatus (read)
+$80eb - CP data in (read)
+$80eb - CP data out (write)
+
+
+
+CP <-> IOP comms
+----------------
+
+In WriteCPbyte (BootSubs.asm), addr $71b:
+
+WaitCPOutAck expects CPStatus to have the interrupt mask bit set after data is written, loops until this is so.
+
+
+CP interrupts from IOP:
+
+from Kernel.mc:
+
+"The Kernel can be entered by one of two ways:  Either via a breakpoint or the IOP asynchronously interrupting the CP  via the IOPWait line.  If entry is via a breakpoint, the kernel can be entered in any cycle (and inter-cycle state information must be preserved).  IOPWait caused entry always occurs between clicks (so all state information is already saved by the CP and there is no memory state across clicks which can be lost, saved or restored).    Upon entering the kernel, it interrupts the IOP and waits for a command byte.  There are 3 possible commands that the IOP can specify: Refresh, ExitKernel, and ExecuteBufffer.  Refresh is used by the IOP when it is writing the CS, ExitKernel causes the CP to leave the kernel task, and ExecuteBuffer causes the instructions which the IOP wrote in the buffer area to be executed.    When the kernel is entered via a breakpoint, an R register (rK) must be used to hold memory data or a breakpoint ID (or an RH reg for ID), and a Link register to hold condition bits (or a breakpoint ID).    When being entered via an IOPWait, no R register state need be lost (currently rK is lost) (i.e. rK and RHrK can first be saved away, then later restored.  There should also be a second kind of ExitKernel command which doesn't write Mem[0]).     Currently, the kernel is written assuming it can always use rK, so this register is lost in the IOPWait caused entry 
+ also.  (rK is used in the wait loop and in the overlay code which Burdock uses to read and write some registers.)	"
+
+
+Status / Control registers:
+
+IOP Ports:
+CPControl: IOP -> CP (IOP write) ($EC)
+    - IOP uses this to control the CP; IOPAttn is set if the IOP needs attention from the CP?
+    - Bits are: (from IOP schematic, p 15):
+        - CPDmaIn - 0x8
+        - CPDmaMode - 0x10
+        - IOPAttn - 0x20
+        - SwTAddr' - 0x40
+        - IOPWait' - 0x80
+
+CPStatus: CP -> IOP (IOP read) ($EC)
+    - CP reports its status to the IOP, also includes IOP status
+    - Bits are: (from IOP schematic, p 17):
+        - CPDmaComplete' - 0x1
+        - CPOutIntReq' - 0x2
+        - CPInIntReq' - 0x4
+        - CPDmaIn' - 0x8        - From CPControl
+        - CPDmaMode' - 0x10     - "
+        - IOPAttn' - 0x20       - "
+        - EmuWake - 0x40  - From IOPCtl<-
+        - CPAttn - 0x80   -  "
+
+
+CP Ports:
+IOPCtl<-:  CP-> IOP (CP write)
+    - CP sets up communication between the IOP and the CP:
+    - Bits are:
+           - WakeMode.1 - 0x1
+           - WakeMode.0 - 0x2
+           - CPAttn - 0x4
+           - EmuWake - 0x8  (is this actually used?)
+
+        Per uCode and Schematic (IOP, p 15), the WakeMode bits are:
+           - 00 = Disabled (no wakeups)
+           - 01 = Input (wakeup when Input from IOP is available) 
+           - 10 = Output (wakeup when IOP is ready for data from CP)
+           - 11 = Always wake up
+
+<-IOPStatus:  IOP -> CP (CP read)
+    - CP gets the IOP's status    
+    - Bits are (from IOP schematic, p 15):
+        - IOPReq - 0x1              - set when data available from IOP?
+        - WakeMode.1' - 0x2
+        - WakeMode.0' - 0x4
+        - CPAttn' - 0x8
+        - EmuWake' = 0x10
+        - IOPAttn - 0x20
+        - Bits 0x40, 0x80 are always set low
+
+
+Communication register:
+- Appears to be a data register (8 bits + flow control) between the IOP and the CP; IOP gets status (interrupt?) when CP has written data to be read,
+  CP can get woken up when the IOP has written data (see below).
+
+CP Wakeups for IOP:
+- If IOPInMode is set, the CP's IOP task will wake up if input is available from the IOP (in the data register)
+- If IOPOutMode is set, wakeups will occur if the output data register is empty (i.e. the IOP is ready to receive a word.)
+- If IOPAWmode is set (In and Out bits set) the IOP will always wake up regardless
+
+
+Interrupts:
+----------
+Three interrupt lines on the CPU are used as following:
+
+RST5.5 - CP Interrupt caused by CPAttn going high (also Burdock, the Alto debugging iface) 
+RST6.5 - RS232 interrupt
+RST7.5 - Floppy Interrupt
+
+- Do no other devices actually cause interrupts?
+
+There is an interrupt status register that can be polled at i/o port 0xe9:
+
+- FloppyIntReq : 0x80
+- KBIntr : 0x40
+- PrinterTxRdy : 0x20
+- PrinterRxRdy : 0x10
+- MiscInt : 0x08
+- RS232Int' : 0x04
+- LSEP UART Tx' : 0x2
+- LSEP UART Rx' : 0x1
+
+DMA:
+---
+
+The Intel 8257 DMA controller deals with DMA transfers for the FDC (Ch 0) and CP (Ch 1).  Channels 2 and 3 go unused.

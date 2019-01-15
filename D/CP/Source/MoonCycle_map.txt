@@ -1,0 +1,89 @@
+# 
+                # This file maps assembly source symbols to PROM/microcode addresses and source lines, forming a crude
+                # symbol table.
+                #
+                # Each source file is given a header a la:
+                # [FooSource.asm]
+                # (with brackets)
+
+                # Each line's syntax is:
+                # <symbol name 1>, .. , <symbol name N>: <address or value (hex)>,<line number(decimal) in current source file>
+                # where '*none*' is a special symbol name meaning no symbol mapping is present.
+[MoonCycle.mc,v]
+START: 0x0090,155
+*none*: 0x011f,156
+*none*: 0x0091,157
+*none*: 0x0092,159
+*none*: 0x0093,160
+*none*: 0x0094,161
+*none*: 0x0095,163
+*none*: 0x0096,164
+*none*: 0x0097,165
+*none*: 0x0098,167
+*none*: 0x0099,168
+*none*: 0x009a,169
+*none*: 0x009b,171
+*none*: 0x009c,172
+START1: 0x0036,173
+START2: 0x0037,174
+START3: 0x009d,178
+*none*: 0x009e,179
+*none*: 0x0020,180
+Delay: 0x0052,304
+*none*: 0x00c9,305
+*none*: 0x00ca,306
+DelENRET: 0x0053,308
+*none*: 0x00cb,309
+*none*: 0x0017,310
+Task1: 0x0055,40
+Task2: 0x0067,62
+Task3: 0x0071,84
+Task4: 0x007b,106
+Task5: 0x0086,128
+*none*: 0x0010,182
+*none*: 0x00a0,183
+*none*: 0x0040,184
+CkRZero: 0x00c7,291
+*none*: 0x00c8,292
+ErrorTask1: 0x002d,298
+*none*: 0x002c,293
+ErrorTask2: 0x003b,299
+*none*: 0x003a,294
+ErrorTask3: 0x002f,300
+*none*: 0x002e,295
+ErrorTask4: 0x0051,301
+*none*: 0x0050,296
+ErrorTask5: 0x0043,302
+CkENRET: 0x0042,312
+*none*: 0x00cc,313
+*none*: 0x001e,314
+*none*: 0x0060,187
+*none*: 0x00a1,188
+*none*: 0x0001,189
+*none*: 0x005f,41
+*none*: 0x0056,42
+Task1A: 0x0018,44
+Task1B: 0x0019,48
+*none*: 0x0059,49
+*none*: 0x005a,50
+Task1C: 0x0008,52
+*none*: 0x005b,53
+*none*: 0x005c,54
+Task1D: 0x0009,56
+*none*: 0x005d,57
+*none*: 0x005e,58
+*none*: 0x0057,45
+*none*: 0x0058,46
+*none*: 0x0011,191
+*none*: 0x00a2,192
+*none*: 0x0021,193
+*none*: 0x0061,196
+*none*: 0x00a3,197
+*none*: 0x0002,198
+*none*: 0x0012,200
+*none*: 0x00a4,201
+*none*: 0x0022,202
+*none*: 0x0062,205
+*none*: 0x00a5,206
+*none*: 0x0003,207
+

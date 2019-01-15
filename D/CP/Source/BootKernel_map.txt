@@ -1,0 +1,43 @@
+# 
+                # This file maps assembly source symbols to PROM/microcode addresses and source lines, forming a crude
+                # symbol table.
+                #
+                # Each source file is given a header a la:
+                # [FooSource.asm]
+                # (with brackets)
+
+                # Each line's syntax is:
+                # <symbol name 1>, .. , <symbol name N>: <address or value (hex)>,<line number(decimal) in current source file>
+                # where '*none*' is a special symbol name meaning no symbol mapping is present.
+[BootKernel.mc,v]
+*none*: 0x0fdf,50
+KGo: 0x0fde,49
+*none*: 0x0fdd,51
+*none*: 0x0fdc,52
+*none*: 0x0fdb,53
+*none*: 0x0fda,54
+*none*: 0x0fd9,55
+*none*: 0x0fd8,56
+KEntry: 0x0fe0,66
+*none*: 0x0fe2,67
+*none*: 0x0fe6,68
+*none*: 0x0fe8,69
+KRefresh: 0x0fe5,71
+*none*: 0x0fe9,72
+*none*: 0x0fea,73
+KLoop: 0x0fe4,75
+*none*: 0x0feb,76
+*none*: 0x0ff0,77
+KTable: 0x0ffc,88
+*none*: 0x0fee,89
+*none*: 0x0fef,90
+*none*: 0x0fe7,81
+*none*: 0x0fe1,80
+*none*: 0x0ff1,82
+*none*: 0x0fec,85
+*none*: 0x0fed,86
+KDisp: 0x0fe3,84
+KRefCmd: 0x0ffd,92
+KCmd2: 0x0ffe,93
+KCmd3: 0x0fff,94
+

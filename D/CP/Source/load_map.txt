@@ -1,0 +1,13 @@
+BootKernel,BootKernel_map.txt,fd8,fff,08db70caa4585b9a8c7f5ba9215eb34c
+Phase0Protected,Phase0Protected_map.txt,000,0ff,c73c5996d9a9ac6ee37a2d92ae7f6c15
+Phase0,Phase0_map.txt,100,fd7,d9d9f75e0f9539fa911488c3bd36e262
+FloppyInitial,FloppyInitial_map.txt,000,fff,0bd42231451c66d8043867fd390580ac
+Main,Main_map.txt,000,fd7,7f64459937a5a3104343bc7a0ad5dbd7
+MoonPortIn,MoonPortIn_map.txt,000,fff,00960fada4edd268b6fc49c918d49582
+MoonPortOut,MoonPortOut_map.txt,000,fff,de001dba5266a6fda17d35f88741fa1b
+SunlightO2,SunlightO2_map.txt,000,fff,00a2160753bd3a6968dfffba0a8e566b
+SunlightO4,SunlightO4_map.txt,000,fff,6c22068f622d7afb5d5ba9a74e2f8312
+SunlightO5,SunlightO5_map.txt,000,fff,6a1971a8953f36e3777f1940e43f2d46
+CPMemTest,CPMemTest_map.txt,000,fff,930c63cb19215d1140e742d86a3ca760
+MoonCycle,MoonCycle_map.txt,000,fff,7936738bb3be4498cdf1f5169f35c1f7
+MoonEthBTest,MoonEthBTest_map.txt,000,fff,990b5b14754ae7785838ace650384671

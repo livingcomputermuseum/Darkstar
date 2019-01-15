@@ -1,0 +1,18 @@
+# 
+                # This file maps assembly source symbols to PROM/microcode addresses and source lines, forming a crude
+                # symbol table.
+                #
+                # Each source file is given a header a la:
+                # [FooSource.asm]
+                # (with brackets)
+
+                # Each line's syntax is:
+                # <symbol name 1>, .. , <symbol name N>: <address or value (hex)>,<line number(decimal) in current source file>
+                # where '*none*' is a special symbol name meaning no symbol mapping is present.
+[MoonSunlightO2.mc,v]
+Go: 0x00fe,46
+*none*: 0x007f,47
+*none*: 0x0100,48
+*none*: 0x0101,49
+*none*: 0x0016,51
+
