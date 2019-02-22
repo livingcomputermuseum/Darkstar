@@ -137,8 +137,11 @@ namespace D.UI
                 {
                     foreach (WinPcapDevice device in CaptureDeviceList.Instance)
                     {
-                        EthernetInterfaceListBox.Items.Add(
-                            new EthernetInterface(device.Interface.FriendlyName, device.Interface.Description));
+                        if (!string.IsNullOrWhiteSpace(device.Interface.FriendlyName))
+                        {
+                            EthernetInterfaceListBox.Items.Add(
+                                new EthernetInterface(device.Interface.FriendlyName, device.Interface.Description));
+                        }
                     }
                 }
                 else

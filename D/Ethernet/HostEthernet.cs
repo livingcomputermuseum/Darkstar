@@ -81,7 +81,8 @@ namespace D.Ethernet
                     //
                     // We use the friendly name to make it easier to specify in config files.
                     //
-                    if (((WinPcapDevice)device).Interface.FriendlyName.ToLowerInvariant() == name.ToLowerInvariant())
+                    if (!string.IsNullOrWhiteSpace(((WinPcapDevice)device).Interface.FriendlyName) &&
+                        ((WinPcapDevice)device).Interface.FriendlyName.ToLowerInvariant() == name.ToLowerInvariant())
                     {
                         AttachInterface(device);
                         break;

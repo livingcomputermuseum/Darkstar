@@ -320,6 +320,7 @@ namespace D.Ethernet
 
                 // Throw out input data and stop the receiver
                 _fifo.Clear();
+                _inputPacket.Clear();
                 _inAttn = false;
                 _rxMode_ = true;
                 StopReceiver();
@@ -546,7 +547,7 @@ namespace D.Ethernet
             if (!_enableRcv || !_turnOff_)
             {
                 //
-                // Receiver is offjust drop the packet on the floor.                
+                // Receiver is off, just drop the packet on the floor.                
                 //
                 if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Ethernet receiver is off; dropping this packet.");
 
