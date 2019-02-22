@@ -64,6 +64,12 @@ your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.
 3.0 Getting Started
 ===================
 
+Precompiled binaries and installers can be found on the releases page:
+https://github.com/livingcomputermuseum/Darkstar/releases.
+DarkstarSetupWindows.zip contains an MSI file for installation on Windows,
+DarkstarMono.zip contains files for use on the Unix of your choice under
+the Mono runtime.
+
 Installation of Darkstar on Windows is simple:  Double-click the installer 
 file, named "DarkstarSetup.msi" and follow the on-screen instructions.  The 
 installer will install all of the necessary files and create two icons on your 
