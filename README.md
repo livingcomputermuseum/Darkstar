@@ -1,6 +1,6 @@
 Readme.txt for Darkstar v1.0:
 
-1. Introduction and Overview
+1.0 Introduction and Overview
 ============================
 
 Darkstar provides emulation of the Xerox Dandelion workstation, commonly known
