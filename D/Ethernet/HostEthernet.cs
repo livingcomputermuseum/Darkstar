@@ -148,8 +148,7 @@ namespace D.Ethernet
         public void Send(ushort[] packet)
         {
             byte[] packetBytes = new byte[packet.Length * 2];
-
-            // StringBuilder sb = new StringBuilder();
+            
             //
             // Do this annoying dance to stuff the ushorts into bytes because this is C#.
             //
@@ -157,8 +156,6 @@ namespace D.Ethernet
             {
                 packetBytes[i * 2] = (byte)(packet[i] >> 8);
                 packetBytes[i * 2 + 1] = (byte)(packet[i]);
-
-                // sb.AppendFormat("{0:x2} {1:x2} ", packetBytes[i * 2], packetBytes[i * 2 + 1]);
             }           
 
             ByteArraySegment seg = new ByteArraySegment(packetBytes);
@@ -169,7 +166,7 @@ namespace D.Ethernet
             _interface.SendPacket(p);
 
             Log.Write(LogComponent.HostEthernet, "Ethernet packet (length {0}) sent.", packetBytes.Length);
-            // Log.Write(LogComponent.HostEthernet, "Contents: {0}", sb.ToString());
+                        
         }
 
         private void ReceiveCallback(object sender, CaptureEventArgs e)
@@ -197,11 +194,48 @@ namespace D.Ethernet
 
                 if (packet != null)
                 {
-                    if (!packet.SourceHwAddress.Equals(_10mbitSourceAddress) &&
-                        packet.PayloadData != null)       // Don't recieve packets sent by this emulator.
+                    if (!packet.SourceHwAddress.Equals(_10mbitSourceAddress) &&             // Don't recieve packets sent by this emulator.
+                        (packet.DestinationHwAddress.Equals(_10mbitSourceAddress) ||        // Filter on packets destined for us or broadcast.
+                         packet.DestinationHwAddress.Equals(_10mbitBroadcastAddress)))
                     {
-                        Log.Write(LogComponent.HostEthernet, "Received 10mbit packet.");
-                        _callback(new System.IO.MemoryStream(packet.PayloadData));
+                        Log.Write(LogType.Verbose, LogComponent.EthernetReceive, "Packet received: dst {0} src {1}",
+                            packet.DestinationHwAddress, packet.SourceHwAddress);
+
+                        Log.Write(LogComponent.HostEthernet, "Received ethernet packet.");
+                        _callback(new System.IO.MemoryStream(e.Packet.Data));
+
+                        /*
+                        if (Log.Enabled)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            int byteNum = 0;
+                            StringBuilder dataLine = new StringBuilder();
+                            StringBuilder asciiLine = new StringBuilder();
+                            dataLine.AppendFormat("000: ");
+
+                            for (int i = 0; i < e.Packet.Data.Length; i++)
+                            {
+                                dataLine.AppendFormat("{0:x2} ", e.Packet.Data[i]);
+                                asciiLine.Append(GetPrintableChar(e.Packet.Data[i]));
+
+                                byteNum++;
+                                if ((byteNum % 16) == 0)
+                                {
+                                    Log.Write(LogComponent.EthernetPacket, "{0} {1}", dataLine.ToString(), asciiLine.ToString());
+                                    dataLine.Clear();
+                                    asciiLine.Clear();
+                                    dataLine.AppendFormat("{0:x3}: ", i + 1);
+                                    byteNum = 0;
+                                }
+                            }
+
+                            if (byteNum > 0)
+                            {
+                                Log.Write(LogComponent.EthernetPacket, "{0} {1}", dataLine.ToString(), asciiLine.ToString());
+                            }
+
+                            Log.Write(LogComponent.EthernetPacket, "");
+                        } */
                     }
                     else
                     {
@@ -211,17 +245,32 @@ namespace D.Ethernet
             }
         }
 
+        private static char GetPrintableChar(byte b)
+        {
+            char c = (char)b;
+            if (char.IsLetterOrDigit(c) ||
+                char.IsPunctuation(c) ||
+                char.IsSymbol(c))
+            {
+                return c;
+            }
+            else
+            {
+                return '.';
+            }
+        }
+
         private void UpdateSourceAddress()
         {
             byte[] macBytes = new byte[6];
 
             for (int i = 0; i < 6; i++)
             {
-                macBytes[i] = (byte)((Configuration.HostID >> (i * 8)));
+                macBytes[i] = (byte)((Configuration.HostID >> ((5 - i) * 8)));
             }
 
             _10mbitSourceAddress = new PhysicalAddress(macBytes);
-            
+            _10mbitBroadcastAddress = new PhysicalAddress(new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });
         }
 
         private void AttachInterface(ICaptureDevice iface)
@@ -268,5 +317,6 @@ namespace D.Ethernet
         private ReceivePacketDelegate _callback;
         
         private PhysicalAddress _10mbitSourceAddress;
+        private PhysicalAddress _10mbitBroadcastAddress;
     }
 }

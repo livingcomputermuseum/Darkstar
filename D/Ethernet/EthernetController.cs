@@ -32,6 +32,7 @@ using D.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 
 namespace D.Ethernet
@@ -40,19 +41,9 @@ namespace D.Ethernet
     /// EthernetController implements the Star's Ethernet controller.
     /// At this time, no official documentation exists; only microcode listings and the schematic drawings.
     /// The code is implemented based on study of the schematics and diagnostic microcode.
-    /// As such there is a lot of handwavy stuff in here, especially around loopback.  At this time enough
-    /// is implemented to get boot diagnostics to pass.
-    /// 
-    /// Questions remaining to be answered:
-    /// - What is the distinction between Loopback and LocalLoopback?  Initially it looked like LocalLoopback only
-    ///   looped back through the FIFO, but it appears to invoke CRC generation and microcode comments make it look
-    ///   like transmission actually takes place?  At this time both are treated identically.
-    /// - How is the FIFO actually controlled during loopback?  (How does the transmit hardware know when to stop
-    ///   transmitting when the FIFO is (apparently) being used for both transmit and receive at the same time during
-    ///   a loopback operation?)    
-    ///   
-    /// - Why is CRC calculation not working the way I expect?  The residual sum does not appear to work out to
-    ///   the expected value for Ethernet CRC32. 
+    /// As such there is a lot of handwavy stuff in here.  This implmentation should be revamped based
+    /// on a closer study of the microcode and schematics, and dumps of the various control PROMs.
+    /// In particular the Receive logic is extremely bad.
     ///  
     /// </summary>
     public class EthernetController
@@ -113,7 +104,9 @@ namespace D.Ethernet
             _tickElapsed = false;
             _outAttn = false;
             _inAttn = false;
+            _lastRWord = false;
             _transmitterRunning = false;
+            _evenPacketLength = false;
 
             _outputData = 0;
             _outputDataLatched = false;
@@ -242,6 +235,7 @@ namespace D.Ethernet
                 _rxMode_ = true;
                 _receiverState = ReceiverState.Preamble;
                 _inAttn = false;
+                _lastRWord = false;
 
                 _rxGoodCRC = true;
                 _rxGoodAlign = true;
@@ -319,9 +313,10 @@ namespace D.Ethernet
                 if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "EStrobe: (cycle 2) flushing received data.");
 
                 // Throw out input data and stop the receiver
-                _fifo.Clear();
                 _inputPacket.Clear();
+                _fifo.Clear();
                 _inAttn = false;
+                _lastRWord = false;
                 _rxMode_ = true;
                 StopReceiver();
                 UpdateWakeup();
@@ -330,7 +325,7 @@ namespace D.Ethernet
 
         public ushort EIData(int cycle)
         {
-            ushort value = 0;
+            ushort value = 0;            
             
             //
             // Read from the input/output FIFO.
@@ -338,17 +333,100 @@ namespace D.Ethernet
             if (_fifo.Count > 0)
             {
                 value = _fifo.Dequeue();
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "<-EIData: Returning FIFO word 0x{0:x4}.  FIFO count is now {1}",
+                if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "   <-EIData: Returning FIFO word 0x{0:x4}.  FIFO count is now {1}",
                     value, _fifo.Count);
+
+                _debugPacket.Add(value);
+
+                Console.WriteLine("addr 0x{0:x4} count {1} char {2}{3}", 
+                    _system.CP.TPC[(int)_system.CP.CurrentTask], 
+                    _fifo.Count + 1,
+                    GetPrintableChar((byte)(value >> 8)),
+                    GetPrintableChar((byte)(value))
+                    );
             }
             else
             {
-                if (Log.Enabled) Log.Write(LogType.Error, LogComponent.EthernetControl, "<-EIData: FIFO empty.");
-
+                if (Log.Enabled) Log.Write(LogType.Error, LogComponent.EthernetReceive, "   <-EIData: FIFO empty.");
                 // TODO: does this cause an underrun?
             }
 
+            if (_fifo.Count == 0 && (_lastRWord || _loopBack || _localLoop))
+            {
+                _readerLock.EnterWriteLock();
+                    _receiverRunning = false;
+                _readerLock.ExitWriteLock();
+
+                _lastRWord = false;
+
+                //
+                // Let microcode know the packet is done.
+                //
+                _inAttn = true;
+
+                //
+                // Update CRC and other final status flags.
+                //
+                _rxMode_ = false;
+                _rxGoodCRC = _loopBack || _localLoop ? _crc32.Checksum == _goodCRC : true;
+                _rxEvenLen = _loopBack || _localLoop ? true : _evenPacketLength;
+
+                if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "   <-EIData: completing transfer.");
+
+                if (Log.Enabled)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    int byteNum = 0;
+                    StringBuilder dataLine = new StringBuilder();
+                    StringBuilder asciiLine = new StringBuilder();
+                    dataLine.AppendFormat("000: ");
+
+                    for (int i = 0; i < _debugPacket.Count; i++)
+                    {
+                        dataLine.AppendFormat("{0:x2} {1:x2}", (_debugPacket[i] >> 8), _debugPacket[i] & 0xff);
+                        asciiLine.Append(GetPrintableChar((byte)(_debugPacket[i] >> 8)));
+                        asciiLine.Append(GetPrintableChar((byte)_debugPacket[i]));
+
+                        byteNum++;
+                        if ((byteNum % 16) == 0)
+                        {
+                            Log.Write(LogComponent.EthernetPacket, "{0} {1}", dataLine.ToString(), asciiLine.ToString());
+                            dataLine.Clear();
+                            asciiLine.Clear();
+                            dataLine.AppendFormat("{0:x3}: ", i + 1);
+                            byteNum = 0;
+                        }
+                    }
+
+                    if (byteNum > 0)
+                    {
+                        Log.Write(LogComponent.EthernetPacket, "{0} {1}", dataLine.ToString(), asciiLine.ToString());
+                    }
+
+                    Log.Write(LogComponent.EthernetPacket, "");
+                }
+
+                _debugPacket.Clear();
+            }
+
+            UpdateWakeup();
+
             return value;
+        }
+
+        private static char GetPrintableChar(byte b)
+        {
+            char c = (char)b;
+            if (char.IsLetterOrDigit(c) ||
+                char.IsPunctuation(c) ||
+                char.IsSymbol(c))
+            {
+                return c;
+            }
+            else
+            {
+                return '.';
+            }
         }
 
         private void DeferCallback(ulong skewNsec, object context)
@@ -443,7 +521,7 @@ namespace D.Ethernet
             //
             if (_outputPacket.Count < 4)
             {
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Malformed packet: too short.");
+                if (Log.Enabled) Log.Write(LogComponent.EthernetTransmit, "Malformed packet: too short.");
                 return;
             }
 
@@ -464,13 +542,13 @@ namespace D.Ethernet
 
             if (badSfd)
             {
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Malformed packet: Invalid SFD.");
+                if (Log.Enabled) Log.Write(LogComponent.EthernetTransmit, "Malformed packet: Invalid SFD.");
                 return;
             }
 
             if (_outputPacket.Count > 0 && _hostInterface != null)
             {
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Transmitting completed packet.");
+                if (Log.Enabled) Log.Write(LogComponent.EthernetTransmit, "Transmitting completed packet.");
                 _hostInterface.Send(_outputPacket.ToArray());
             }
         }
@@ -483,7 +561,7 @@ namespace D.Ethernet
             if (_fifo.Count > 0)
             {
                 ushort nextWord = _fifo.Dequeue();
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Transmitting word 0x{0:x4}", nextWord);
+                if (Log.Enabled) Log.Write(LogComponent.EthernetTransmit, "Transmitting word 0x{0:x4}", nextWord);
                 TransmitWord(nextWord);
             }
             else if (!_lastWord)
@@ -493,7 +571,7 @@ namespace D.Ethernet
                 // Raise txUnderrun to signal an error.
                 //
                 _txUnderrun = true;
-                if (Log.Enabled) Log.Write(LogType.Error, LogComponent.EthernetControl, "Transmit underrun.");
+                if (Log.Enabled) Log.Write(LogType.Error, LogComponent.EthernetTransmit, "Transmit underrun.");
             }            
             
             if (_lastWord && _fifo.Count == 0)
@@ -503,7 +581,7 @@ namespace D.Ethernet
                 //
                 _transmitterRunning = false;
                 _outAttn = true;
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Last word.  Stopping transmission.");                
+                if (Log.Enabled) Log.Write(LogComponent.EthernetTransmit, "Last word.  Stopping transmission.");                
 
                 //
                 // Transmit completed packet over real ethernet.
@@ -513,7 +591,7 @@ namespace D.Ethernet
             else if (_txUnderrun)
             {                
                 _transmitterRunning = false;
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Underrun.  Stopping transmission.");
+                if (Log.Enabled) Log.Write(LogComponent.EthernetTransmit, "Underrun.  Stopping transmission.");
             }
             else
             {
@@ -549,13 +627,13 @@ namespace D.Ethernet
                 //
                 // Receiver is off, just drop the packet on the floor.                
                 //
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Ethernet receiver is off; dropping this packet.");
+                if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Ethernet receiver is off; dropping this packet.");
 
                 _readerLock.EnterWriteLock();
                     _pendingPackets.Clear();
                 _readerLock.ExitWriteLock();
             }
-            else if (_pendingPackets.Count < 32)
+            else if (_pendingPackets.Count < 1)
             {
                 //
                 // Place the packet into the queue; this will be picked up by the receiver poll thread
@@ -565,14 +643,14 @@ namespace D.Ethernet
                     _pendingPackets.Enqueue(data);
                 _readerLock.ExitWriteLock();
 
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Packet (length {0}) added to pending buffer.", data.Length);
+                if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Packet (length {0}) added to pending buffer.", data.Length);
             }
             else
             {
                 //
                 // Too many queued-up packets, drop this one.
                 //
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Pending buffer full; dropping this packet.");
+                if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Pending buffer full; dropping this packet.");
             }
             _readerLock.ExitUpgradeableReadLock();
         }
@@ -580,7 +658,10 @@ namespace D.Ethernet
         private void StopReceiver()
         {
             _system.Scheduler.Cancel(_receiveEvent);
-            _receiverRunning = false;
+
+            _readerLock.EnterWriteLock();
+                _receiverRunning = false;
+            _readerLock.ExitWriteLock();
         }
 
         private void RunReceiver()
@@ -602,8 +683,10 @@ namespace D.Ethernet
                 _receiveEvent = _system.Scheduler.Schedule(
                     _localLoop || _loopBack ? _receiveIntervalLoopback : _receiveInterval,
                     ReceiveCallback);
-                
-                _receiverRunning = true;
+
+                _readerLock.EnterWriteLock();
+                    _receiverRunning = true;
+                _readerLock.ExitWriteLock();
             }
         }
 
@@ -637,10 +720,27 @@ namespace D.Ethernet
                     //
                     packetStream.Seek(0, SeekOrigin.Begin);
 
-                    while (packetStream.Position < packetStream.Length)
+                    //
+                    // We have to handle cases where the packet length is odd specially because
+                    // ReadByte() returns -1 if we read past the end of the stream.
+                    // Read in an even count of bytes to start....
+                    //
+                    int evenLength = (int)(packetStream.Length - (packetStream.Length % 2));
+
+                    while (packetStream.Position < evenLength)
                     {
                         _inputPacket.Enqueue((ushort)((packetStream.ReadByte() << 8) | packetStream.ReadByte()));
                     }
+
+                    //
+                    // If we have a byte left, enqueue it now.
+                    //
+                    if (packetStream.Position < packetStream.Length)
+                    {
+                        _inputPacket.Enqueue((ushort)(packetStream.ReadByte() << 8));
+                    }
+
+                    _fifo.Clear();
 
                     //
                     // Skip the preamble state (only used in loopback)
@@ -648,11 +748,16 @@ namespace D.Ethernet
                     _receiverState = ReceiverState.Data;
 
                     //
+                    // Set the packet even/odd byte length flag
+                    //
+                    _evenPacketLength = (packetStream.Length % 2) == 0;
+
+                    //
                     // Alert the microcode to the presence of input data and start processing.
                     //
                     RunReceiver();
 
-                    if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Receive: Incoming packet queued into input buffer.");
+                    if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Receive: Incoming packet queued into input buffer.");
                 }
             }
             
@@ -669,14 +774,12 @@ namespace D.Ethernet
             //
             if (_inputPacket.Count > 0)
             {
-                ushort nextWord = _inputPacket.Dequeue();
-
                 switch (_receiverState)
                 {
                     case ReceiverState.Preamble:
-                        if (nextWord == 0x55d5) // end of preamble
+                        if (_inputPacket.Dequeue() == 0x55d5) // end of preamble
                         {
-                            if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Receive: end of preamble, switching to Data state.");
+                            if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Receive: end of preamble, switching to Data state.");
                             _receiverState = ReceiverState.Data;
                         }
                         break;
@@ -685,11 +788,20 @@ namespace D.Ethernet
                         //
                         // Stuff into FIFO.
                         //
-                        if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Receive: Enqueuing Data word 0x{0:x4} onto FIFO, {1} words left.", nextWord, _inputPacket.Count);
-                        _fifo.Enqueue(nextWord);
-                        _crc32.AddToChecksum(nextWord);
-                        UpdateWakeup();
-                        if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Packet CRC is now 0x{0:x8}", _crc32.Checksum);
+                        if (_fifo.Count < 16)
+                        {
+                            ushort nextWord = _inputPacket.Dequeue();
+                            if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Receive: Enqueuing Data word 0x{0:x4} onto FIFO, {1} words left.", nextWord, _inputPacket.Count);
+                            _fifo.Enqueue(nextWord);
+                            _crc32.AddToChecksum(nextWord);
+                            UpdateWakeup();
+                            if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Packet CRC is now 0x{0:x8}", _crc32.Checksum);
+                        }
+                        else
+                        {
+                            if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Input FIFO full.  Waiting.");
+                            // TODO: This should likely cause an underrun and the operation should be aborted.
+                        }
                         break;
                 }
             }
@@ -699,30 +811,23 @@ namespace D.Ethernet
                 //
                 // Post next event if there are still words left.
                 //                
-                _receiveEvent = _system.Scheduler.Schedule(_transmitInterval, ReceiveCallback);
+                _receiveEvent = _system.Scheduler.Schedule(_receiveInterval, ReceiveCallback);
             }
             else
             {             
                 //
                 // End of packet.
-                //
-                _receiverRunning = false;
+                //                
+                _lastRWord = true;
 
                 //
-                // Let microcode know the packet is done.
+                // When the last word is read from the FIFO,
+                // we will update the final status.
                 //
-                _inAttn = true;
-
-                //
-                // Update CRC and other flags.
-                //
-                _rxMode_ = false;
-
-                _rxGoodCRC = _loopBack || _localLoop ? _crc32.Checksum == _goodCRC : true;
 
                 UpdateWakeup();
 
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Final Packet CRC is 0x{0:x8}", _crc32.Checksum);
+                if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Final Packet CRC is 0x{0:x8}", _crc32.Checksum);
             }
         }
 
@@ -733,11 +838,12 @@ namespace D.Ethernet
             //
             bool txWakeup = _enableTx && _fifo.Count < 16 && !_defer && !_lastWord;
             bool deferWakeup = _defer & _tickElapsed;
-            bool rxWakeup = !_rxMode_ && _fifo.Count > 2 && !_purge;
+            bool rxWakeup = !_rxMode_ && (_fifo.Count > 2 || _lastRWord) && !_purge;
 
             if (txWakeup || deferWakeup || rxWakeup || _outAttn || _inAttn)
             {
-                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Waking Ethernet task (tx {0} defer {1} rx {2} outAttn {3} inAttn {4}", txWakeup, deferWakeup, rxWakeup, _outAttn, _inAttn);
+                if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Waking Ethernet task (tx {0} defer {1} rx {2} (fifo {3} lastRword {4}) outAttn {5} inAttn {6}", 
+                    txWakeup, deferWakeup, rxWakeup, _fifo.Count, _lastRWord, _outAttn, _inAttn);
                 _system.CP.WakeTask(TaskType.Ethernet);
             }
             else
@@ -764,6 +870,10 @@ namespace D.Ethernet
         // Attention flags
         private bool _outAttn;
         private bool _inAttn;
+
+        // Additional flags
+        private bool _lastRWord;
+        private bool _evenPacketLength;
 
         private bool _purge;
 
@@ -822,7 +932,7 @@ namespace D.Ethernet
         private ReceiverState _receiverState;
         private Event _receiveEvent;
         
-        private readonly ulong _receiverPollInterval = (ulong)(51.2 * Conversion.UsecToNsec);
+        private readonly ulong _receiverPollInterval = (ulong)(51000.2 * Conversion.UsecToNsec);
 
         private ReaderWriterLockSlim _readerLock;
 
@@ -846,5 +956,6 @@ namespace D.Ethernet
         private IPacketInterface _hostInterface;
         private Queue<ushort> _outputPacket;
 
+        private List<ushort> _debugPacket = new List<ushort>();
     }
 }

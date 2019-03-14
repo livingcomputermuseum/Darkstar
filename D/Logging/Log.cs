@@ -76,10 +76,13 @@ namespace D.Logging
 
         // Ethernet
         EthernetControl = 0x1000000,
-        HostEthernet = 0x2000000,
+        HostEthernet =     0x2000000,
+        EthernetTransmit = 0x4000000,
+        EthernetReceive =  0x8000000,
+        EthernetPacket = 0x10000000,
 
         // Configuration
-        Configuration = 0x4000000,
+        Configuration =   0x40000000,
 
         All = 0x7fffffff
     }
@@ -105,9 +108,9 @@ namespace D.Logging
     {
         static Log()
         {
-            Enabled = false;
-            _components = LogComponent.None;
-            _type = LogType.None;
+            Enabled = true;
+            _components = LogComponent.EthernetPacket;
+            _type = LogType.All;
             _logIndex = 0;
         }
 
