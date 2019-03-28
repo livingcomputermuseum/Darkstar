@@ -1103,6 +1103,8 @@ namespace D.CP
                 {
                     memWrite = "{MAR/MDR/MD} ";
                 }
+
+                yBusIsSourceForDestination = true;
             }
 
             //
