@@ -354,13 +354,6 @@ namespace D.Ethernet
                     value, _fifo.Count);
 
                 _debugPacket.Add(value);
-
-                Console.WriteLine("addr 0x{0:x4} count {1} char {2}{3}", 
-                    _system.CP.TPC[(int)_system.CP.CurrentTask], 
-                    _fifo.Count + 1,
-                    GetPrintableChar((byte)(value >> 8)),
-                    GetPrintableChar((byte)(value))
-                    );
             }
             else
             {
@@ -969,13 +962,13 @@ namespace D.Ethernet
         //
         // Receive event, timing, and thread safety
         //        
-        private readonly ulong _receiveInterval = 1200;
+        private readonly ulong _receiveInterval = 1600;
         private readonly ulong _receiveIntervalLoopback = 25600;
         private bool _receiverRunning;
         private ReceiverState _receiverState;
         private Event _receiveEvent;
         
-        private readonly ulong _receiverPollInterval = (ulong)(51000.2 * Conversion.UsecToNsec);
+        private readonly ulong _receiverPollInterval = (ulong)(51.2 * Conversion.UsecToNsec);
 
         private ReaderWriterLockSlim _readerLock;
 

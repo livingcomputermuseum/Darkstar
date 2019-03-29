@@ -108,9 +108,9 @@ namespace D.Logging
     {
         static Log()
         {
-            Enabled = true;
-            _components = LogComponent.EthernetPacket;
-            _type = LogType.All;
+            Enabled = false;
+            _components = LogComponent.None;
+            _type = LogType.None;
             _logIndex = 0;
         }
 
