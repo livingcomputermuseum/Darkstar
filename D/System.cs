@@ -125,7 +125,9 @@ namespace D
 
         public void Shutdown(bool commitDisks)
         {
+            Console.WriteLine("Saving disk images and shutting down.  Please wait...");
             _hardDrive.Save();
+            _ethernetController.Shutdown();
         }
 
         public bool IsExecuting

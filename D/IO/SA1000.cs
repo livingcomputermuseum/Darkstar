@@ -98,7 +98,14 @@ namespace D.IO
 
         public void Save(string path)
         {
-            using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+            //
+            // We commit to a temporary file first, then replace the original with the
+            // temporary file if successful.  This ensures that if something goes wrong
+            // during the Save operation that at the very least the original image file
+            // is left unscathed.
+            string tempPath = Path.GetTempFileName();
+
+            using (FileStream fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write))
             {
                 //
                 // Format is:
@@ -119,9 +126,11 @@ namespace D.IO
                         }
                     }
                 }
-
-                _diskImagePath = path;
             }
+
+            // Complete:  Move temporary file to final location.
+            File.Copy(tempPath, path, true /* overwrite */);
+            _diskImagePath = path;
         }
 
         public void Load(string path)

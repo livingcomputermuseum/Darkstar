@@ -89,9 +89,9 @@ namespace D.UI
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(56, 54);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(235, 13);
+            this.label3.Size = new System.Drawing.Size(232, 13);
             this.label3.TabIndex = 2;
-            this.label3.Text = "(c) 2017, 2018 Living Computers: Museum+Labs";
+            this.label3.Text = "(c) 2017-2019 Living Computers: Museum+Labs";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label4

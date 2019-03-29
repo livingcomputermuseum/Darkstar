@@ -60,7 +60,7 @@ namespace D.UI
         {
             // System Tab
             MemorySizeComboBox.Items.Clear();
-            for (int i = 128; i <= 1024; i+= 128)
+            for (int i = 128; i <= 768; i+= 128)
             {
                 MemorySizeComboBox.Items.Add(string.Format("{0}KW", i));
                 if (i == MemorySize)

@@ -68,7 +68,7 @@ namespace D
         private static void PrintHerald()
         {
             Console.WriteLine("Darkstar v{0}", typeof(Program).Assembly.GetName().Version);
-            Console.WriteLine("(c) 2017, 2018 Living Computers: Museum+Labs");
+            Console.WriteLine("(c) 2017-2019 Living Computers: Museum+Labs");
             Console.WriteLine("Bug reports to joshd@livingcomputers.org");
             Console.WriteLine();
         }

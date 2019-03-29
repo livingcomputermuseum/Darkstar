@@ -89,7 +89,7 @@ namespace D
             //
             // Sanity-check settings that need sanity-checking.
             //
-            if (MemorySize > 1024 ||
+            if (MemorySize > 768 ||
                 MemorySize == 0 ||
                 (MemorySize % 128) != 0)
             {

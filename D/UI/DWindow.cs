@@ -315,7 +315,8 @@ namespace D.UI
 
                 if (configDialog.HostPacketInterfaceName != Configuration.HostPacketInterfaceName)
                 {
-                    MessageBox.Show("Changes to ethernet interface will not take effect until the system is restarted.");
+                    Configuration.HostPacketInterfaceName = configDialog.HostPacketInterfaceName;
+                    _system.EthernetController.HostInterfaceChanged();
                 }
 
                 if (configDialog.TODSetMode != Configuration.TODSetMode ||
@@ -334,8 +335,7 @@ namespace D.UI
                     }
                 }                
 
-                Configuration.MemorySize = configDialog.MemorySize;
-                Configuration.HostPacketInterfaceName = configDialog.HostPacketInterfaceName;
+                Configuration.MemorySize = configDialog.MemorySize;                
                 Configuration.ThrottleSpeed = configDialog.ThrottleSpeed;
                 Configuration.DisplayScale = configDialog.DisplayScale;
                 Configuration.SlowPhosphor = configDialog.SlowPhosphor;

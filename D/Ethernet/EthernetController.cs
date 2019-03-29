@@ -57,24 +57,8 @@ namespace D.Ethernet
             _pendingPackets = new Queue<MemoryStream>();
 
             _crc32 = new CRC32();
-
-            // Attach real Ethernet device if user has specified one, otherwise leave unattached; output data
-            // will go into a bit-bucket.
-            try
-            {
-                
-                if (Configuration.HostRawEthernetInterfacesAvailable &&
-                    !string.IsNullOrWhiteSpace(Configuration.HostPacketInterfaceName))
-                { 
-                    _hostInterface = new HostEthernetEncapsulation(Configuration.HostPacketInterfaceName);
-                    _hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
-                }
-            }
-            catch (Exception e)
-            {
-                _hostInterface = null;
-                Log.Write(LogComponent.HostEthernet, "Unable to configure network interface.  Error {0}", e.Message);
-            }
+            
+            AttachHostEthernet();
 
             _readerLock = new ReaderWriterLockSlim();
 
@@ -82,6 +66,15 @@ namespace D.Ethernet
             _system.Scheduler.Schedule(_receiverPollInterval, ReceiverPollCallback);
 
             Reset();
+        }
+
+        public void Shutdown()
+        {
+            if (_hostInterface != null)
+            {
+                _hostInterface.Shutdown();
+                _hostInterface = null;
+            }
         }
 
         public void Reset()
@@ -114,6 +107,20 @@ namespace D.Ethernet
             _fifoHead = 0;
             _inputPacket.Clear();
             _crc32.Reset();
+        }
+
+        public void HostInterfaceChanged()
+        {
+            //
+            // Shut down previous host interface (if any) and attach a new one:
+            //
+            if (_hostInterface != null)
+            {
+                _hostInterface.Shutdown();
+                _hostInterface = null;
+            }
+
+            AttachHostEthernet();
         }
 
         public int EtherDisp()
@@ -869,7 +876,28 @@ namespace D.Ethernet
                 if (Log.Enabled) Log.Write(LogComponent.EthernetControl, "Sleeping Ethernet task.");
                 _system.CP.SleepTask(TaskType.Ethernet);
             }
-        }        
+        }
+
+        private void AttachHostEthernet()
+        {
+            // Attach real Ethernet device if user has specified one, otherwise leave unattached; output data
+            // will go into a bit-bucket.
+            try
+            {
+
+                if (Configuration.HostRawEthernetInterfacesAvailable &&
+                    !string.IsNullOrWhiteSpace(Configuration.HostPacketInterfaceName))
+                {
+                    _hostInterface = new HostEthernetEncapsulation(Configuration.HostPacketInterfaceName);
+                    _hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
+                }
+            }
+            catch (Exception e)
+            {
+                _hostInterface = null;
+                Log.Write(LogComponent.HostEthernet, "Unable to configure network interface.  Error {0}", e.Message);
+            }
+        }
 
         private DSystem _system;
 

@@ -15,7 +15,7 @@ used to refer to any of the above machines.
 Darkstar currently emulates the following Star hardware:
    - Standard 8010/1108 Central Processor (CP) with 4KW of microcode store
    - i8085-based IO Processor (IOP)
-   - Up to 1MW of main memory
+   - Up to 768KW of main memory
    - Bitmapped Display
    - Keyboard / Mouse
    - 10, 40, or 80mb hard drives (SA1000 interface)
@@ -363,12 +363,8 @@ Each tab is explained in detail in the following subsections.
 The System Configuration tab provides configuration for three options:
 
 - Memory Size (KW):  Configures the amount of memory installed in the system,
-    From 128KW to 1024KW in 128KW increments.  This defaults to 768KW.  
-    Changes made here will not take effect until the system is reset.  Note 
-    that memory sizes over 768KW (1.5MB) never officially existed on real Star
-    hardware and may cause issues with some software that isn't prepared for 
-    it.  In particular, Interlisp-D releases later than Harmony will crash 
-    after startup.
+    From 128KW to 768KW in 128KW increments.  This defaults to 768KW.  
+    Changes made here will not take effect until the system is reset.
 
 - Host ID (MAC Address):  Configures the Star's Ethernet MAC Address (also used
     as the system's Host ID for licensing.)  If you have multiple instances of
@@ -457,11 +453,10 @@ synopsis of the various commands at your disposal.
 6.0 Known Issues
 ================
 
-- Interlisp-D releases after Harmony do not run properly.
-- The Ethernet hardware has not been thoroughly tested.
 - Speed throttling is not implemented on Unix platforms.
-- SDL is forced to software-rendering mode due to an odd bug that has yet to
-  be solved.  Performance may suffer as a result.
+- SDL is forced to software-rendering mode on Unix platformst 
+  due to an odd bug that has yet to be solved.  Performance may suffer as a 
+  result.
 
 
 7.0 Reporting Bugs
@@ -553,6 +548,14 @@ https://github.com/flibitijibibo/SDL2-CS.
 11.0 Change History
 ===================
 
-V1.0
+v1.0.0.1
+--------
+- Fixed Ethernet receiver; Ethernet controller now works reliably.
+- Cleaned up shutdown code, made hard disk image saving more robust in the face
+  of failure
+- Removed 1MW memory option since it was never a shipping configuration and
+  causes issues with various Xerox software.
+
+v1.0
 ----
 Initial release.
