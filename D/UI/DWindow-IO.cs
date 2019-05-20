@@ -460,7 +460,7 @@ namespace D.UI
             if (e.Alt)
             {
                 ReleaseMouse();
-                e.SuppressKeyPress = true;
+                e.SuppressKeyPress = true;                
             }
         }
 
@@ -702,7 +702,7 @@ namespace D.UI
             // to be the dimensions of the (possibly scaled) display + status bar.
             // This will cause the window to resize to fit.
             //
-            UIPanel.Size =
+            UIPanel.Size = 
                 new Size(
                     (int)(_displayWidth * _displayScale),
                     (int)(_displayHeight * _displayScale) + this.SystemStatus.Height);
@@ -1037,6 +1037,69 @@ namespace D.UI
             _renderEvent.type = (SDL.SDL_EventType)_renderEventType;
         }
 
+        private void ToggleFullScreen(bool fullScreen)
+        {
+            _fullScreenDisplay = !_fullScreenDisplay;
+
+            if (_fullScreenDisplay)
+            {
+                SuspendLayout();
+                MainMenuStrip.Visible = false;
+                SystemStatus.Visible = false;
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.WindowState = FormWindowState.Maximized;
+                this.BackColor = Color.Black;
+                DisplayBox.Dock = DockStyle.None;
+
+                // Select scale based on aspect ratio of screen.
+                if (this.Width < this.Height)
+                {
+                    _displayScale = Math.Floor((double)this.Width / (double)_displayWidth);
+                }
+                else
+                {
+                    _displayScale = Math.Floor((double)this.Height / (double)_displayHeight);
+                }
+
+                // Scale the DisplayBox
+                DisplayBox.Size = new Size(
+                    (int)(_displayWidth * _displayScale),
+                    (int)(_displayHeight * _displayScale));
+
+                // And center it in the middle of the window
+                DisplayBox.Location = new Point(
+                    (this.Width - DisplayBox.Width) / 2,
+                    (this.Height - DisplayBox.Height) / 2);
+
+                ResumeLayout();
+                PerformLayout();
+
+                CaptureMouse();
+
+                // Force a display render to clean up garbage.
+                Render();
+            }
+            else
+            {
+                SuspendLayout();
+                MainMenuStrip.Visible = true;
+                SystemStatus.Visible = true;
+                this.FormBorderStyle = FormBorderStyle.FixedSingle;
+                this.WindowState = FormWindowState.Normal;
+                this.BackColor = SystemColors.Window;
+
+                DisplayBox.Dock = DockStyle.Fill;
+                _displayScale = Configuration.DisplayScale;
+                UpdateDisplayScale();
+
+                ResumeLayout();
+                PerformLayout();
+
+                // Force a display render to clean up garbage.
+                Render();
+            }
+        }
+
         private DSystem _system;
 
         //
@@ -1062,7 +1125,7 @@ namespace D.UI
         private const int _displayHeight = 860;
         private double _displayScale;
         private int _frameCount;
-
+        private bool _fullScreenDisplay;
 
         //
         // Keyboard data

@@ -150,17 +150,35 @@ namespace D.IOP
 
         private void LoadPROM(string promName, ushort address)
         {
-            string promPath = Path.Combine("IOP", "PROM", promName);
+            string promPath;
 
-            using (FileStream promStream = new FileStream(promPath, FileMode.Open, FileAccess.Read))
+            if (!string.IsNullOrWhiteSpace(StartupOptions.RomPath))
             {
-                if (promStream.Length != 0x800)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("PROM file {0} has unexpected size 0x{1:x}", promName, promStream.Length));                    
-                }
+                promPath = Path.Combine(StartupOptions.RomPath, promName);
+            }
+            else
+            {
+                promPath = Path.Combine("IOP", "PROM", promName);
+            }
 
-                promStream.Read(_rom, address, 0x800);
+            try
+            {
+                using (FileStream promStream = new FileStream(promPath, FileMode.Open, FileAccess.Read))
+                {
+                    if (promStream.Length != 0x800)
+                    {
+                        throw new InvalidOperationException(
+                            String.Format("PROM file {0} has unexpected size 0x{1:x}", promName, promStream.Length));
+                    }
+
+                    promStream.Read(_rom, address, 0x800);
+                }
+            }
+            catch(FileNotFoundException e)
+            {
+                throw new FileNotFoundException(
+                    String.Format("PROM file {0} was not found in directory {1}", promName, promPath),
+                    e);
             }
         }
 

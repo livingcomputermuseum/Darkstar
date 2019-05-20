@@ -89,7 +89,7 @@ namespace D.IOP
 
             _todReadBit = 0;
             _mode = TODAccessMode.None;
-            _powerLoss = false;
+            _powerLoss = PowerUpSetMode == TODPowerUpSetMode.NoChange ? true : false;
 
             PowerUpSetMode = Configuration.TODSetMode;
             PowerUpSetTime = (PowerUpSetMode == TODPowerUpSetMode.SpecificDate) ? 

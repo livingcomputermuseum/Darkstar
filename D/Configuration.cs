@@ -188,8 +188,8 @@ namespace D
         /// </summary>
         public static void ReadConfiguration()
         {
-            if (Configuration.Platform == PlatformType.Windows)
-                // && string.IsNullOrWhiteSpace(StartupOptions.ConfigurationFile))
+            if (Configuration.Platform == PlatformType.Windows
+                && string.IsNullOrWhiteSpace(StartupOptions.ConfigurationFile))
             {
                 //
                 // By default, on Windows we use the app Settings functionality
@@ -262,9 +262,9 @@ namespace D
         {
             string configFilePath = null;
 
-            if (false) //!string.IsNullOrWhiteSpace(StartupOptions.ConfigurationFile))
+            if (!string.IsNullOrWhiteSpace(StartupOptions.ConfigurationFile))
             {
-                // configFilePath = StartupOptions.ConfigurationFile;
+                configFilePath = StartupOptions.ConfigurationFile;
             }
             else
             {

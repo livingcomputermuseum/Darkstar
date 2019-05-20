@@ -74,6 +74,7 @@ namespace D.UI
             this.NewQ2080ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HardDiskLabelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FullScreenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showDebuggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -113,6 +114,7 @@ namespace D.UI
             this.floppyToolStripMenuItem,
             this.HardDiskToolStripMenuItem,
             this.ConfigurationToolStripMenuItem,
+            this.FullScreenToolStripMenuItem,
             this.showDebuggerToolStripMenuItem,
             this.ExitToolStripMenuItem});
             this.SystemToolStripMenuItem.Name = "SystemToolStripMenuItem";
@@ -122,21 +124,25 @@ namespace D.UI
             // StartToolStripMenuItem
             // 
             this.StartToolStripMenuItem.Name = "StartToolStripMenuItem";
-            this.StartToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.StartToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.StartToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.StartToolStripMenuItem.Text = "Start";
             this.StartToolStripMenuItem.Click += new System.EventHandler(this.StartToolStripMenuItem_Click);
             // 
             // ResetToolStripMenuItem
             // 
             this.ResetToolStripMenuItem.Name = "ResetToolStripMenuItem";
-            this.ResetToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.ResetToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.R)));
+            this.ResetToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.ResetToolStripMenuItem.Text = "Reset";
             this.ResetToolStripMenuItem.Click += new System.EventHandler(this.ResetToolStripMenuItem_Click);
             // 
             // AlternateBootToolStripMenuItem
             // 
             this.AlternateBootToolStripMenuItem.Name = "AlternateBootToolStripMenuItem";
-            this.AlternateBootToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.AlternateBootToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.AlternateBootToolStripMenuItem.Text = "Alternate Boot";
             // 
             // floppyToolStripMenuItem
@@ -146,20 +152,22 @@ namespace D.UI
             this.FloppyUnloadToolStripMenuItem,
             this.FloppyLabelToolStripMenuItem});
             this.floppyToolStripMenuItem.Name = "floppyToolStripMenuItem";
-            this.floppyToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.floppyToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.floppyToolStripMenuItem.Text = "Floppy Disk";
             // 
             // FloppyLoadToolStripMenuItem
             // 
             this.FloppyLoadToolStripMenuItem.Name = "FloppyLoadToolStripMenuItem";
-            this.FloppyLoadToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.FloppyLoadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.D)));
+            this.FloppyLoadToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.FloppyLoadToolStripMenuItem.Text = "Load...";
             this.FloppyLoadToolStripMenuItem.Click += new System.EventHandler(this.FloppyLoadToolStripMenuItem_Click);
             // 
             // FloppyUnloadToolStripMenuItem
             // 
             this.FloppyUnloadToolStripMenuItem.Name = "FloppyUnloadToolStripMenuItem";
-            this.FloppyUnloadToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.FloppyUnloadToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.FloppyUnloadToolStripMenuItem.Text = "Unload";
             this.FloppyUnloadToolStripMenuItem.Click += new System.EventHandler(this.FloppyUnloadToolStripMenuItem_Click);
             // 
@@ -167,7 +175,7 @@ namespace D.UI
             // 
             this.FloppyLabelToolStripMenuItem.Enabled = false;
             this.FloppyLabelToolStripMenuItem.Name = "FloppyLabelToolStripMenuItem";
-            this.FloppyLabelToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.FloppyLabelToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.FloppyLabelToolStripMenuItem.Text = "No Floppy Loaded";
             // 
             // HardDiskToolStripMenuItem
@@ -177,12 +185,14 @@ namespace D.UI
             this.NewHardDiskToolStripMenuItem,
             this.HardDiskLabelToolStripMenuItem});
             this.HardDiskToolStripMenuItem.Name = "HardDiskToolStripMenuItem";
-            this.HardDiskToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.HardDiskToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.HardDiskToolStripMenuItem.Text = "Hard Disk";
             // 
             // LoadHardDiskToolStripMenuItem
             // 
             this.LoadHardDiskToolStripMenuItem.Name = "LoadHardDiskToolStripMenuItem";
+            this.LoadHardDiskToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.H)));
             this.LoadHardDiskToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.LoadHardDiskToolStripMenuItem.Text = "Load...";
             this.LoadHardDiskToolStripMenuItem.Click += new System.EventHandler(this.LoadHardDiskToolStripMenuItem_Click);
@@ -231,21 +241,32 @@ namespace D.UI
             // ConfigurationToolStripMenuItem
             // 
             this.ConfigurationToolStripMenuItem.Name = "ConfigurationToolStripMenuItem";
-            this.ConfigurationToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.ConfigurationToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this.ConfigurationToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.ConfigurationToolStripMenuItem.Text = "Configuration...";
             this.ConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ConfigurationToolStripMenuItem_Click);
+            // 
+            // FullScreenToolStripMenuItem
+            // 
+            this.FullScreenToolStripMenuItem.Name = "FullScreenToolStripMenuItem";
+            this.FullScreenToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.F)));
+            this.FullScreenToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
+            this.FullScreenToolStripMenuItem.Text = "Full Screen";
+            this.FullScreenToolStripMenuItem.Click += new System.EventHandler(this.FullScreenToolStripMenuItem_Click);
             // 
             // showDebuggerToolStripMenuItem
             // 
             this.showDebuggerToolStripMenuItem.Name = "showDebuggerToolStripMenuItem";
-            this.showDebuggerToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.showDebuggerToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.showDebuggerToolStripMenuItem.Text = "Show Debugger";
             this.showDebuggerToolStripMenuItem.Click += new System.EventHandler(this.ShowDebuggerToolStripMenu_Click);
             // 
             // ExitToolStripMenuItem
             // 
             this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
-            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.ExitToolStripMenuItem.Text = "Exit";
             this.ExitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
@@ -405,5 +426,6 @@ namespace D.UI
         private System.Windows.Forms.ToolStripMenuItem NewQ2080ToolStripMenuItem;
         private System.Windows.Forms.ToolStripProgressBar ProgressBar;
         private System.Windows.Forms.ToolStripMenuItem ViewDocumentationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FullScreenToolStripMenuItem;
     }
 }

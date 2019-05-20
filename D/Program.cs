@@ -32,11 +32,58 @@ using D.UI;
 
 namespace D
 {
+    public static class StartupOptions
+    {
+        public static string ConfigurationFile;
+
+        public static string RomPath;
+
+    }
     public class Program
     {
         [STAThread]
         static void Main(string[] args)
         {
+            //
+            // Check for command-line arguments.
+            //            
+            if (args.Length > 0)
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i++].ToLowerInvariant())
+                    {
+                        case "-config":
+                            if (i < args.Length)
+                            {
+                                StartupOptions.ConfigurationFile = args[i];
+                            }
+                            else
+                            {
+                                PrintUsage();
+                                return;
+                            }
+                            break;
+
+                        case "-rompath":
+                            if (i < args.Length)
+                            {
+                                StartupOptions.RomPath = args[i];
+                            }
+                            else
+                            {
+                                PrintUsage();
+                                return;
+                            }
+                            break;
+
+                        default:
+                            PrintUsage();
+                            return;
+                    }
+                }
+            }
+
             PrintHerald();
 
             // Cons up a system to run stuff on.
@@ -71,6 +118,11 @@ namespace D
             Console.WriteLine("(c) 2017-2019 Living Computers: Museum+Labs");
             Console.WriteLine("Bug reports to joshd@livingcomputers.org");
             Console.WriteLine();
+        }
+
+        private static void PrintUsage()
+        {
+            Console.WriteLine("Usage: Darkstar [-config <configurationFile>] [-rompath <path>]");
         }
     }
 }

@@ -99,7 +99,7 @@ namespace D.UI
             UpdateMPCode();
             UpdateHardDriveLabel();
             UpdateFloppyDriveLabel();
-            UpdateMouseState();
+            UpdateMouseState();            
         }
 
         //
@@ -348,6 +348,11 @@ namespace D.UI
             }
         }
 
+        private void FullScreenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToggleFullScreen(true);
+        }
+
         private void ShowDebuggerToolStripMenu_Click(object sender, EventArgs e)
         {
             if (_debuggerWindow == null)
@@ -579,6 +584,6 @@ namespace D.UI
         //
         private const string _hardDiskFilter = "Star Hard Disk Images (*.img)|*.img|All Files(*.*)|*.*";
         private const string _floppyDiskFilter = "Star Floppy Disk Images (*.imd)|*.imd|All Files(*.*)|*.*";
-        private const string _readmeFilename = "readme.txt";        
+        private const string _readmeFilename = "readme.txt";
     }
 }
