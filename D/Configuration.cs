@@ -159,6 +159,12 @@ namespace D
         public static bool SlowPhosphor;
 
         /// <summary>
+        /// Whether to apply linear or nearest-neighbor filtering to the display, when
+        /// scaled.
+        /// </summary>
+        public static bool FullScreenStretch;
+
+        /// <summary>
         /// How to set the TOD clock at power up/reset
         /// </summary>
         public static TODPowerUpSetMode TODSetMode;
@@ -236,6 +242,7 @@ namespace D
             HostPacketInterfaceName = Properties.Settings.Default.HostPacketInterfaceName;            
             ThrottleSpeed = Properties.Settings.Default.ThrottleSpeed;
             DisplayScale = Properties.Settings.Default.DisplayScale;
+            FullScreenStretch = Properties.Settings.Default.FullScreenFilter;
             SlowPhosphor = Properties.Settings.Default.SlowPhosphor;
             TODSetMode = (TODPowerUpSetMode)Properties.Settings.Default.TODSetMode;
             TODDateTime = Properties.Settings.Default.TODDateTime;
@@ -251,6 +258,7 @@ namespace D
             Properties.Settings.Default.HostPacketInterfaceName = HostPacketInterfaceName;            
             Properties.Settings.Default.ThrottleSpeed = ThrottleSpeed;
             Properties.Settings.Default.DisplayScale = DisplayScale;
+            Properties.Settings.Default.FullScreenFilter = FullScreenStretch;
             Properties.Settings.Default.SlowPhosphor = SlowPhosphor;
             Properties.Settings.Default.TODSetMode = (int)TODSetMode;
             Properties.Settings.Default.TODDateTime = TODDateTime;

@@ -290,6 +290,7 @@ namespace D.UI
             configDialog.HostPacketInterfaceName = Configuration.HostPacketInterfaceName;
             configDialog.ThrottleSpeed = Configuration.ThrottleSpeed;
             configDialog.DisplayScale = Configuration.DisplayScale;
+            configDialog.FullScreenStretch = Configuration.FullScreenStretch;
             configDialog.SlowPhosphor = Configuration.SlowPhosphor;
             configDialog.TODDateTime = Configuration.TODDateTime;
             configDialog.TODDate = Configuration.TODDate;
@@ -335,10 +336,11 @@ namespace D.UI
                     }
                 }                
 
-                Configuration.MemorySize = configDialog.MemorySize;                
+                Configuration.MemorySize = configDialog.MemorySize;
                 Configuration.ThrottleSpeed = configDialog.ThrottleSpeed;
                 Configuration.DisplayScale = configDialog.DisplayScale;
                 Configuration.SlowPhosphor = configDialog.SlowPhosphor;
+                Configuration.FullScreenStretch = configDialog.FullScreenStretch;
                 Configuration.TODDateTime = configDialog.TODDateTime;
                 Configuration.TODDate = configDialog.TODDate;
                 Configuration.TODSetMode = configDialog.TODSetMode;

@@ -35,5 +35,8 @@
     <Setting Name="TODDate" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)">1955-11-05</Value>
     </Setting>
+    <Setting Name="FullScreenFilter" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

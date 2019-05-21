@@ -54,7 +54,8 @@ namespace D.UI
     public partial class DWindow : Form
     {
         private void InitializeIO()
-        {          
+        {
+            _textureLock = new ReaderWriterLockSlim();
             UpdateDisplayScale();
             UpdateSlowPhosphor();
 
@@ -147,6 +148,8 @@ namespace D.UI
             //
             // Stuff the display data into the display texture
             //
+
+            _textureLock.EnterReadLock();
             IntPtr textureBits = IntPtr.Zero;
             int pitch = 0;
             SDL.SDL_LockTexture(_displayTexture, IntPtr.Zero, out textureBits, out pitch);
@@ -164,6 +167,7 @@ namespace D.UI
             // And show it to us.
             //
             SDL.SDL_RenderPresent(_sdlRenderer);
+            _textureLock.ExitReadLock();
         }
 
         private void SDLMessageLoopThread()
@@ -1016,6 +1020,21 @@ namespace D.UI
                 }
             }
 
+            CreateDisplayTexture(false);
+            
+            SDL.SDL_SetRenderDrawColor(_sdlRenderer, 0x00, 0x00, 0x00, 0xff);
+
+            // Register a User event for rendering.
+            _renderEventType = SDL.SDL_RegisterEvents(1);
+            _renderEvent = new SDL.SDL_Event();
+            _renderEvent.type = (SDL.SDL_EventType)_renderEventType;
+        }
+
+        private void CreateDisplayTexture(bool filter)
+        {
+            _textureLock.EnterWriteLock();
+            SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_SCALE_QUALITY, filter ? "linear" : "nearest");
+
             _displayTexture = SDL.SDL_CreateTexture(
                 _sdlRenderer,
                 SDL.SDL_PIXELFORMAT_ARGB8888,
@@ -1029,12 +1048,7 @@ namespace D.UI
             }
 
             SDL.SDL_SetTextureBlendMode(_displayTexture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-            SDL.SDL_SetRenderDrawColor(_sdlRenderer, 0x00, 0x00, 0x00, 0xff);
-
-            // Register a User event for rendering.
-            _renderEventType = SDL.SDL_RegisterEvents(1);
-            _renderEvent = new SDL.SDL_Event();
-            _renderEvent.type = (SDL.SDL_EventType)_renderEventType;
+            _textureLock.ExitWriteLock();
         }
 
         private void ToggleFullScreen(bool fullScreen)
@@ -1050,15 +1064,23 @@ namespace D.UI
                 this.WindowState = FormWindowState.Maximized;
                 this.BackColor = Color.Black;
                 DisplayBox.Dock = DockStyle.None;
+                _windowedUIPanelLocation = UIPanel.Location;
+                UIPanel.Location = new Point(0, 0);
 
                 // Select scale based on aspect ratio of screen.
                 if (this.Width < this.Height)
                 {
-                    _displayScale = Math.Floor((double)this.Width / (double)_displayWidth);
+                    _displayScale = (double)this.Width / (double)_displayWidth;
                 }
                 else
                 {
-                    _displayScale = Math.Floor((double)this.Height / (double)_displayHeight);
+                    _displayScale = (double)this.Height / (double)_displayHeight;
+                }
+
+                if (!Configuration.FullScreenStretch)
+                {
+                    // Take floor of scale so that the display fits.
+                    _displayScale = Math.Floor(_displayScale);
                 }
 
                 // Scale the DisplayBox
@@ -1076,6 +1098,8 @@ namespace D.UI
 
                 CaptureMouse();
 
+                CreateDisplayTexture(Configuration.FullScreenStretch);
+
                 // Force a display render to clean up garbage.
                 Render();
             }
@@ -1089,11 +1113,15 @@ namespace D.UI
                 this.BackColor = SystemColors.Window;
 
                 DisplayBox.Dock = DockStyle.Fill;
+                UIPanel.Location = _windowedUIPanelLocation;
+
                 _displayScale = Configuration.DisplayScale;
                 UpdateDisplayScale();
 
                 ResumeLayout();
                 PerformLayout();
+
+                CreateDisplayTexture(false);
 
                 // Force a display render to clean up garbage.
                 Render();
@@ -1126,6 +1154,7 @@ namespace D.UI
         private double _displayScale;
         private int _frameCount;
         private bool _fullScreenDisplay;
+        private Point _windowedUIPanelLocation;
 
         //
         // Keyboard data
@@ -1155,5 +1184,6 @@ namespace D.UI
 
         // Rendering textures
         private IntPtr _displayTexture = IntPtr.Zero;
+        private ReaderWriterLockSlim _textureLock;
     }
 }

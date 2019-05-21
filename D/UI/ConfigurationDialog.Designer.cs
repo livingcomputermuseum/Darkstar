@@ -72,6 +72,9 @@ namespace D.UI
             this.label3 = new System.Windows.Forms.Label();
             this.SlowPhosphorCheckBox = new System.Windows.Forms.CheckBox();
             this.TimeTabPage = new System.Windows.Forms.TabPage();
+            this.TODDatePicker = new System.Windows.Forms.DateTimePicker();
+            this.SpecifiedDateRadioButton = new System.Windows.Forms.RadioButton();
+            this.NoTimeDateChangeRadioButton = new System.Windows.Forms.RadioButton();
             this.TODDateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.SpecifiedTimeDateRadioButton = new System.Windows.Forms.RadioButton();
             this.CurrentTimeDateY2KRadioButton = new System.Windows.Forms.RadioButton();
@@ -79,9 +82,7 @@ namespace D.UI
             this.label4 = new System.Windows.Forms.Label();
             this.OKButton = new System.Windows.Forms.Button();
             this.Cancel_Button = new System.Windows.Forms.Button();
-            this.NoTimeDateChangeRadioButton = new System.Windows.Forms.RadioButton();
-            this.SpecifiedDateRadioButton = new System.Windows.Forms.RadioButton();
-            this.TODDatePicker = new System.Windows.Forms.DateTimePicker();
+            this.FullScreenStretchCheckBox = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.SystemPage.SuspendLayout();
             this.EthernetTab.SuspendLayout();
@@ -199,6 +200,7 @@ namespace D.UI
             // 
             // DisplayTab
             // 
+            this.DisplayTab.Controls.Add(this.FullScreenStretchCheckBox);
             this.DisplayTab.Controls.Add(this.DisplayScaleComboBox);
             this.DisplayTab.Controls.Add(this.label3);
             this.DisplayTab.Controls.Add(this.SlowPhosphorCheckBox);
@@ -260,6 +262,38 @@ namespace D.UI
             this.TimeTabPage.TabIndex = 3;
             this.TimeTabPage.Text = "Time";
             this.TimeTabPage.UseVisualStyleBackColor = true;
+            // 
+            // TODDatePicker
+            // 
+            this.TODDatePicker.CustomFormat = "MM\'/\'dd\'/\'yyyy";
+            this.TODDatePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.TODDatePicker.Location = new System.Drawing.Point(136, 93);
+            this.TODDatePicker.Name = "TODDatePicker";
+            this.TODDatePicker.ShowUpDown = true;
+            this.TODDatePicker.Size = new System.Drawing.Size(200, 20);
+            this.TODDatePicker.TabIndex = 7;
+            // 
+            // SpecifiedDateRadioButton
+            // 
+            this.SpecifiedDateRadioButton.AutoSize = true;
+            this.SpecifiedDateRadioButton.Location = new System.Drawing.Point(10, 93);
+            this.SpecifiedDateRadioButton.Name = "SpecifiedDateRadioButton";
+            this.SpecifiedDateRadioButton.Size = new System.Drawing.Size(118, 17);
+            this.SpecifiedDateRadioButton.TabIndex = 6;
+            this.SpecifiedDateRadioButton.TabStop = true;
+            this.SpecifiedDateRadioButton.Text = "Specified date only:";
+            this.SpecifiedDateRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // NoTimeDateChangeRadioButton
+            // 
+            this.NoTimeDateChangeRadioButton.AutoSize = true;
+            this.NoTimeDateChangeRadioButton.Location = new System.Drawing.Point(10, 119);
+            this.NoTimeDateChangeRadioButton.Name = "NoTimeDateChangeRadioButton";
+            this.NoTimeDateChangeRadioButton.Size = new System.Drawing.Size(205, 17);
+            this.NoTimeDateChangeRadioButton.TabIndex = 5;
+            this.NoTimeDateChangeRadioButton.TabStop = true;
+            this.NoTimeDateChangeRadioButton.Text = "No change (do not modify TOD clock)";
+            this.NoTimeDateChangeRadioButton.UseVisualStyleBackColor = true;
             // 
             // TODDateTimePicker
             // 
@@ -333,37 +367,15 @@ namespace D.UI
             this.Cancel_Button.Text = "Cancel";
             this.Cancel_Button.UseVisualStyleBackColor = true;
             // 
-            // NoTimeDateChangeRadioButton
+            // FullScreenFilterCheckBox
             // 
-            this.NoTimeDateChangeRadioButton.AutoSize = true;
-            this.NoTimeDateChangeRadioButton.Location = new System.Drawing.Point(10, 119);
-            this.NoTimeDateChangeRadioButton.Name = "NoTimeDateChangeRadioButton";
-            this.NoTimeDateChangeRadioButton.Size = new System.Drawing.Size(205, 17);
-            this.NoTimeDateChangeRadioButton.TabIndex = 5;
-            this.NoTimeDateChangeRadioButton.TabStop = true;
-            this.NoTimeDateChangeRadioButton.Text = "No change (do not modify TOD clock)";
-            this.NoTimeDateChangeRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // SpecifiedDateRadioButton
-            // 
-            this.SpecifiedDateRadioButton.AutoSize = true;
-            this.SpecifiedDateRadioButton.Location = new System.Drawing.Point(10, 93);
-            this.SpecifiedDateRadioButton.Name = "SpecifiedDateRadioButton";
-            this.SpecifiedDateRadioButton.Size = new System.Drawing.Size(118, 17);
-            this.SpecifiedDateRadioButton.TabIndex = 6;
-            this.SpecifiedDateRadioButton.TabStop = true;
-            this.SpecifiedDateRadioButton.Text = "Specified date only:";
-            this.SpecifiedDateRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // TODDatePicker
-            // 
-            this.TODDatePicker.CustomFormat = "MM\'/\'dd\'/\'yyyy";
-            this.TODDatePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.TODDatePicker.Location = new System.Drawing.Point(136, 93);
-            this.TODDatePicker.Name = "TODDatePicker";
-            this.TODDatePicker.ShowUpDown = true;
-            this.TODDatePicker.Size = new System.Drawing.Size(200, 20);
-            this.TODDatePicker.TabIndex = 7;
+            this.FullScreenStretchCheckBox.AutoSize = true;
+            this.FullScreenStretchCheckBox.Location = new System.Drawing.Point(6, 55);
+            this.FullScreenStretchCheckBox.Name = "FullScreenFilterCheckBox";
+            this.FullScreenStretchCheckBox.Size = new System.Drawing.Size(186, 17);
+            this.FullScreenStretchCheckBox.TabIndex = 3;
+            this.FullScreenStretchCheckBox.Text = "Stretch screen in Fullscreen mode";
+            this.FullScreenStretchCheckBox.UseVisualStyleBackColor = true;
             // 
             // ConfigurationDialog
             // 
@@ -423,5 +435,6 @@ namespace D.UI
         private System.Windows.Forms.RadioButton NoTimeDateChangeRadioButton;
         private System.Windows.Forms.DateTimePicker TODDatePicker;
         private System.Windows.Forms.RadioButton SpecifiedDateRadioButton;
+        private System.Windows.Forms.CheckBox FullScreenStretchCheckBox;
     }
 }

@@ -51,6 +51,7 @@ namespace D.UI
 
         public bool SlowPhosphor;
         public uint DisplayScale;
+        public bool FullScreenStretch;
 
         public TODPowerUpSetMode TODSetMode;
         public DateTime TODDateTime;
@@ -86,7 +87,8 @@ namespace D.UI
                 }
             }
             
-            SlowPhosphorCheckBox.Checked = SlowPhosphor;            
+            SlowPhosphorCheckBox.Checked = SlowPhosphor;
+            FullScreenStretchCheckBox.Checked = FullScreenStretch;
 
             // Time Tab
             switch (TODSetMode)
@@ -223,6 +225,7 @@ namespace D.UI
         {
             ThrottleSpeed = ThrottleSpeedCheckBox.Checked;
             SlowPhosphor = SlowPhosphorCheckBox.Checked;
+            FullScreenStretch = FullScreenStretchCheckBox.Checked;
 
             HostPacketInterfaceName = ((EthernetInterface)EthernetInterfaceListBox.SelectedItem).Name;
 
