@@ -64,7 +64,7 @@ namespace D
 
         public bool IsWriteProtected
         {
-            get { return _writeProtected; }
+            get { return _disk != null ? _disk.IsWriteProtected : false; }
         }
 
         public bool IsSingleSided
@@ -109,7 +109,6 @@ namespace D
         {
             _track = 0;
             _singleSided = false;
-            _writeProtected = false;
             _diskChange = false;
             _index = false;
             _driveSelect = false;
@@ -128,7 +127,11 @@ namespace D
 
         public void UnloadDisk()
         {
-            // TODO: Commit disk changes
+            if (_disk != null && _disk.IsModified)
+            {
+                _disk.Save();
+            }
+
             _disk = null;
             _diskChange = true;
         }
@@ -169,7 +172,6 @@ namespace D
         private DSystem _system;
 
         private bool _singleSided;
-        private bool _writeProtected;
         private int _track;
         private bool _diskChange;        
         private bool _driveSelect;
@@ -177,7 +179,7 @@ namespace D
 
         // Index signal and timing
         private bool _index;
-        private ulong _indexInterval = 200 * Conversion.MsecToNsec;  // 1/5 second at 300rpm
+        private ulong _indexInterval = 250 * Conversion.MsecToNsec;  // 1/5 second at 300rpm
         private ulong _indexDuration = 10 * Conversion.UsecToNsec; // 10uSec duration for index signal.        
     }
 }

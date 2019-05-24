@@ -45,6 +45,8 @@ namespace D.IO
             _imagePath = imagePath;
             _tracks = new Track[2, 77];
             _isSingleSided = true;
+            _isWriteProtected = false;
+            _isModified = false;
 
             using (FileStream fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
             {
@@ -62,9 +64,31 @@ namespace D.IO
             get { return _isSingleSided; }
         }
 
+        public bool IsWriteProtected
+        {
+            get { return _isWriteProtected; }
+            set { _isWriteProtected = value; }
+        }
+
         public string ImagePath
         {
             get { return _imagePath; }
+        }
+
+        public bool IsModified
+        {
+            get { return _isModified; }
+        }
+
+        /// <summary>
+        /// Commits in-memory data back to disk.
+        /// </summary>
+        public void Save()
+        {
+            using (FileStream fs = new FileStream(_imagePath, FileMode.Create, FileAccess.Write))
+            {
+                SaveIMD(fs);
+            }
         }
 
         /// <summary>
@@ -82,6 +106,28 @@ namespace D.IO
         public Track GetTrack(int cylinder, int head)
         {
             return _tracks[head, cylinder];
+        }
+
+        /// <summary>
+        /// To be invoked when a modification is made to sector contents.
+        /// TODO: Do this in a less clumsy way.
+        /// </summary>
+        public void SetModified()
+        {
+            _isModified = true;
+        }
+
+        /// <summary>
+        /// Formats the given track with the specified sector count, size, and format.
+        /// </summary>
+        /// <param name="cylinder"></param>
+        /// <param name="head"></param>
+        /// <param name="sectorCount"></param>
+        /// <param name="sectorSize"></param>
+        /// <param name="format"></param>
+        public void FormatTrack(Format format, int cylinder, int head, int sectorCount, int sectorSize)
+        {
+            _tracks[head, cylinder] = new Track(format, cylinder, head, sectorCount, sectorSize);
         }
 
         private void LoadIMD(Stream s)
@@ -129,10 +175,28 @@ namespace D.IO
             }
         }
 
+        private void SaveIMD(Stream s)
+        {
+            WriteIMDHeader(s, _imdHeader);
+
+            for (int cylinder = 0; cylinder < 77; cylinder++)
+            {
+                for (int head = 0; head < 2; head++)
+                {
+                    Track t = _tracks[head, cylinder];
+
+                    if (t != null)
+                    {
+                        t.Save(s);
+                    }
+                }
+            }
+        }
+
         private string ReadIMDHeader(Stream s)
         {
             StringBuilder sb = new StringBuilder();
-            while (true)
+            while (true && s.Position < s.Length)
             {
                 byte b = (byte)s.ReadByte();
 
@@ -149,9 +213,18 @@ namespace D.IO
             return sb.ToString();
         }
 
+        private void WriteIMDHeader(Stream s, string header)
+        {
+            byte[] asciiHeader = Encoding.ASCII.GetBytes(header);
+            s.Write(asciiHeader, 0, asciiHeader.Length);
+            s.WriteByte(0x1a);
+        }
+
         private string _imdHeader;
         private bool _isSingleSided;
+        private bool _isWriteProtected;
         private string _imagePath;
+        private bool _isModified;
 
         private Track[,] _tracks;
     }
@@ -178,10 +251,13 @@ namespace D.IO
             _sectorSize = sectorSize;
             _sectors = new Sector[_sectorCount];
 
+            _sectorOrdering = new List<int>(_sectorCount);
             for (int i = 0; i < _sectorCount; i++)
             {
                 _sectors[i] = new Sector(_sectorSize, _format);
+                _sectorOrdering.Add(i + 1); // 1:1 interleave
             }
+            
         }
 
         /// <summary>
@@ -274,6 +350,45 @@ namespace D.IO
             }
         }
 
+        public void Save(Stream s)
+        {
+            s.WriteByte((byte)_format);
+            s.WriteByte((byte)_cylinder);
+            s.WriteByte((byte)_head);
+            s.WriteByte((byte)_sectorCount);
+            s.WriteByte(GetIMDSectorSize());
+
+            //
+            // Write sector numbering
+            //
+            for (int i = 0; i < _sectorCount; i++)
+            {
+                s.WriteByte((byte)_sectorOrdering[i]);
+            }
+
+            //
+            // Write the sector data out.
+            //            
+            for (int i = 0; i < _sectorCount; i++)
+            {
+                Sector sector = _sectors[_sectorOrdering[i] - 1];
+                if (sector == null)
+                {
+                    // Mark this as unavailable.
+                    s.WriteByte((byte)SectorRecordType.Unavailable);
+                }
+                else
+                {
+                    //
+                    // Write out as "Normal".
+                    // TODO: might be worthwhile to write out Compressed sectors at some point.
+                    //
+                    s.WriteByte((byte)SectorRecordType.Normal);
+                    sector.Save(s);
+                }
+            }
+        }
+
         public int Cylinder
         {
             get { return _cylinder; }
@@ -302,6 +417,21 @@ namespace D.IO
         public Sector ReadSector(int sector)
         {
             return _sectors[sector];
+        }
+
+        private byte GetIMDSectorSize()
+        {
+            for (int i = 0; i < _sectorSizes.Length; i++)
+            {
+                if (_sectorSize == _sectorSizes[i])
+                {
+                    return (byte)i;
+                }
+            }
+
+            // Should not happen.
+            throw new InvalidOperationException(
+                String.Format("No IMD sector size for {0}", _sectorSize));
         }
 
         //
@@ -369,6 +499,11 @@ namespace D.IO
             }
         }
 
+        public void Save(Stream s)
+        {
+            s.Write(_data, 0, _data.Length);
+        }
+
         public Format Format
         {
             get { return _format; }
@@ -380,7 +515,6 @@ namespace D.IO
         }
 
         private Format _format;
-
         private byte[] _data;
     }
 

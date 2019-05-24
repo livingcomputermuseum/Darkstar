@@ -76,7 +76,9 @@ namespace D.IOP
 
             // Get the timer rolling, it will tick once a second forever.
             // TODO: this is not particularly accurate, timekeeping-wise.
-            _timer = new Timer(TimerTick, null, 1000, 1000);            
+            _timer = new Timer(TimerTick, null, 1000, 1000);
+
+            _powerLoss = PowerUpSetMode == TODPowerUpSetMode.NoChange ? true : false;
 
             Reset();
         }
@@ -89,7 +91,6 @@ namespace D.IOP
 
             _todReadBit = 0;
             _mode = TODAccessMode.None;
-            _powerLoss = PowerUpSetMode == TODPowerUpSetMode.NoChange ? true : false;
 
             PowerUpSetMode = Configuration.TODSetMode;
             PowerUpSetTime = (PowerUpSetMode == TODPowerUpSetMode.SpecificDate) ? 

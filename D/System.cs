@@ -127,6 +127,7 @@ namespace D
         {
             Console.WriteLine("Saving disk images and shutting down.  Please wait...");
             _hardDrive.Save();
+            _iop.FloppyController.Drive.UnloadDisk();
             _ethernetController.Shutdown();
         }
 

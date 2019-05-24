@@ -129,10 +129,17 @@ namespace D.UI
 
             if (!string.IsNullOrWhiteSpace(imagePath))
             {
+                // Unload anything currently loaded
+                _system.IOP.FloppyController.Drive.UnloadDisk();
+
+                // Load new disk
                 _system.IOP.FloppyController.Drive.LoadDisk(new FloppyDisk(imagePath));
                 Configuration.FloppyDriveImage = imagePath;
 
-                UpdateFloppyDriveLabel();                
+                UpdateFloppyDriveLabel();
+
+                // Set write-protect status.
+                _system.IOP.FloppyController.Drive.Disk.IsWriteProtected = FloppyWriteProtectToolStripMenuItem.Checked;
             }
         }
 
@@ -141,6 +148,16 @@ namespace D.UI
             _system.IOP.FloppyController.Drive.UnloadDisk();
             Configuration.FloppyDriveImage = String.Empty;
             UpdateFloppyDriveLabel();
+        }
+
+        private void FloppyWriteProtectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FloppyWriteProtectToolStripMenuItem.Checked = !FloppyWriteProtectToolStripMenuItem.Checked;
+
+            if (_system.IOP.FloppyController.Drive.Disk != null)
+            {
+                _system.IOP.FloppyController.Drive.Disk.IsWriteProtected = FloppyWriteProtectToolStripMenuItem.Checked;
+            }
         }
 
         private void LoadHardDiskToolStripMenuItem_Click(object sender, EventArgs e)

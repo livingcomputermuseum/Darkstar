@@ -1,4 +1,4 @@
-﻿Readme.txt for Darkstar v1.0:
+﻿Readme.txt for Darkstar v1.1:
 
 1. Introduction and Overview
 ============================
@@ -19,7 +19,7 @@ Darkstar currently emulates the following Star hardware:
    - Bitmapped Display
    - Keyboard / Mouse
    - 10, 40, or 80mb hard drives (SA1000 interface)
-   - 8 inch floppy drive (read-only)
+   - 8 inch floppy drive
    - 10mbit Ethernet
    - Real-time clock
 
@@ -27,7 +27,6 @@ Darkstar currently emulates the following Star hardware:
 --------------
 
 At this time, the below are not emulated by Darkstar:
-    - Writing to floppy disks
     - Sound
     - Serial ports
     - The LSEP printer interface
@@ -155,6 +154,10 @@ Hard Disk - Allows loading or creating new hard disk images, which typically
 
 Configuration - Invokes the Configuration dialog.  See Section 4.0 for more
         details on configuration options.
+
+Full Screen - Toggles Full Screen mode, in this mode the Star's display will
+        expand to fill the screen.  Press Ctrl+Shift+F to exit Full Screen
+        mode.
 
 Show Debugger - Invokes the Debugger interface.  See section 5.0 for more
         details on care and feeding.
@@ -348,6 +351,13 @@ are a few steps that are not well documented and which are fairly unintuitive:
        "System->Alternate Boot" menu to select "Rigid" rather than "Default" --
        this will bypass startup diagnostics entirely.
 
+The following passwords will allow you to run Viewpoint in perpetuity.  When
+using them, ensure the emulated Star's TOD clock is set to a date after
+December, 1997:
+
+    ViewPoint 1.1 / Services 10.0: J SH9R JX2A CH3N
+    ViewPoint 2.0 / Services 11.0: 8 7T78 M8YL LFEQ
+    
 
 4.0 Configuration
 =================
@@ -399,6 +409,11 @@ The Display Configuration tab provides options for the emulated Star's display:
 
 - Display Scale:  Allows scaling the display by a factor 1, 2, 3 or 4.  This is
     useful on 4k (or higher) resolution displays with a high DPI.
+
+- Stretch screen in Fullscreen mode:  Stretches the Star's display to fill the 
+    entire screen in fullscreen mode.  This maintains the original display's
+    aspect ratio.  Depending on the resolution of the screen, this may result
+    in a blurry screen.
 
 
 4.4 Time Configuration
@@ -547,6 +562,10 @@ https://github.com/flibitijibibo/SDL2-CS.
 
 11.0 Change History
 ===================
+
+v1.1.0.0
+- Floppies can now be formatted and written.
+- Tweak to "No change" time configuration option (sets Power Loss flag.)
 
 v1.0.0.1
 --------

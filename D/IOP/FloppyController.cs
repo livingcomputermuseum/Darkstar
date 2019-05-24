@@ -27,6 +27,7 @@
 */
 
 
+using D.IO;
 using D.Logging;
 using System;
 
@@ -36,10 +37,8 @@ namespace D.IOP
     /// This implements the WD FD1797 controller and the IOP's external floppy state registers.
     /// It implements the IDMAInterface so that DMA transfers can take place.
     /// 
-    /// TODO: This needs a lot of cleanup and refinement.  In particular:
-    /// - Write support needs to be added
-    /// - Need enforcing of sector formats (if controller is set up to read a double density sector,
-    ///   and a single-density sector is read, something bad needs to happen, rather than nothing.)
+    /// TODO: Would be useful to support recording the interleave written by Write Track commands.
+    /// We always assume a 1:1 interleave, which is all the Star ever appears to use.
     /// </summary>
     public class FloppyController : IIOPDevice, IDMAInterface
     {
@@ -110,33 +109,75 @@ namespace D.IOP
             // This means we won't be simulating DATA LATE errors.
             //
             // Return the next byte, if any.
-            // Keep DRQ raised until all bytes in the buffer have been read.
+            // DRQ will remain raised until the DMA transfer is complete.
             //
-            byte dmaRead = _sectorBuffer[_sectorDataIndex];
+            byte dmaRead = 0;
 
-            _sectorDataIndex++;
-            if (_sectorDataIndex > _sectorBuffer.Length - 1)
+            if (_sectorDataIndex < _sectorBuffer.Length)
             {
-                FinishDataTransfer();
-
-                if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "DMA sector read completed.");
+                dmaRead = _sectorBuffer[_sectorDataIndex];
             }
             else
             {
-                _drqCounter = 16;
+                if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "DMA sector read past end of sector.");
             }
+
+            _drqCounter = 16;
+            _sectorDataIndex++;
 
             return dmaRead;
         }
 
         public void DMAWrite(byte value)
         {
-            throw new NotImplementedException("DMA write not implemented yet.");
+            if (!_drq)
+            {
+                throw new InvalidOperationException("Unexpected DMA write with DRQ low.");
+            }
+
+            if (_lastCommand == FDCCommand.WriteSectorSingle)
+            {
+                //
+                // We cheat (as with DMA reads): rather than emulating the timing of data moving
+                // past the floppy drive heads, we assume the data's always ready so we keep DRQ 
+                // high until the data has all been written.
+                // This means we won't be simulating DATA LATE errors.
+                //
+                // Write next byte, and finish the transfer if this is the last.
+                // DRQ will remain raised until the DMA transfer is complete.
+                //
+                if (_sectorDataIndex < _sectorBuffer.Length)
+                {
+                    _sectorBuffer[_sectorDataIndex] = value;
+                }
+                else
+                {
+                    if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "DMA sector write past end of sector.");
+                }
+
+                _sectorDataIndex++;
+                _drqCounter = 16;
+                
+            }
+            else if (_lastCommand == FDCCommand.WriteTrack)
+            {
+                //
+                // This is unexpected:  polled write should be used for Write Track commands
+                // to allow for very specific timing criteria to be met.
+                //
+                throw new InvalidOperationException("Unexpected Write Track w/DMA transfer.");
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    String.Format("DMA write with unexpected command {0}", _lastCommand));
+            }
         }
         
         public void DMAComplete()
         {
-
+            if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "DMA transfer completed.");
+            FinishDataTransfer();
         }
 
         public void WritePort(int port, byte value)
@@ -151,6 +192,9 @@ namespace D.IOP
 
                     _drive.DriveSelect = (_extState & FDCStateFlags.DriveSelect) != 0;
                     if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Drive selected: {0}", _drive.DriveSelect);
+
+                    _doubleDensity = (_extState & FDCStateFlags.Density) != 0;
+                    _sideSelect = (_extState & FDCStateFlags.Side) != 0;
 
                     // Enable or disable the FDC chip
                     if ((_extState & FDCStateFlags.EnableFDC) != 0)
@@ -176,10 +220,52 @@ namespace D.IOP
                 case FDCPorts.FDCData:
                     _fdcData = value;
                     if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "FDC data 0x{0:x}", value);
+
+                    if (_drq)
+                    {
+                        if (_lastCommand == FDCCommand.WriteTrack)
+                        {
+                            // There's a write track pending, capture the data written by the 8085.
+                            // If we've hit the next Index pulse, we are done.
+                            if (_drive.Index)
+                            {
+                                FinishWriteTrack();
+                                if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Polled write track completed.");
+                            }
+                            else
+                            {
+                                if (_writeTrackDataIndex < _writeTrackBuffer.Length)
+                                {
+                                    _writeTrackBuffer[_writeTrackDataIndex] = _fdcData;
+                                    _writeTrackDataIndex++;
+                                }
+                                else
+                                {
+                                    // Just log the overrun.
+                                    if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Polled write track overflowed track buffer.");
+                                }
+                            }
+                        }
+                        else if (_lastCommand == FDCCommand.WriteSectorSingle)
+                        {
+                            // Just a normal write.
+                            if (_sectorDataIndex < _sectorBuffer.Length - 1)
+                            {
+                                _sectorBuffer[_sectorDataIndex] = _fdcData;
+                                _sectorDataIndex++;
+
+                                if (_sectorDataIndex > _sectorBuffer.Length - 1)
+                                {
+                                    FinishDataTransfer();
+
+                                    if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Polled sector write completed.");
+                                }
+                            }
+                        }
+                    }
                     break;
 
                 case FDCPorts.FDCCommand:
-                    if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "FDC command 0x{0:x}", value);                    
                     DoCommand(value);                    
                     break;
 
@@ -248,7 +334,9 @@ namespace D.IOP
             _sectorDataIndex = 0;
             _drqCounter = 16;
             _indexReset = false;
-            
+            _doubleDensity = false;
+            _sideSelect = false;
+
             _drive.Reset();
 
             ResetFlags();
@@ -360,7 +448,12 @@ namespace D.IOP
                     break;
             }
 
-            if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "FDC status read {0:x} ({1})", value, (Type1Status)value);
+            if (Log.Enabled) Log.Write(
+                LogComponent.IOPFloppy, 
+                "FDC status read {0:x} ({1}) (last command {2})", 
+                value, 
+                (Type1Status)value, 
+                _lastCommand);
 
             return value;
         }
@@ -486,6 +579,11 @@ namespace D.IOP
 
                 _lastCommand = command;
             }
+            else
+            {
+                // LastCommand gets reset to 0 on a ForceInterrupt.
+                _lastCommand = FDCCommand.Restore;
+            }
 
             int data = commandData & 0x1f;            
 
@@ -526,12 +624,20 @@ namespace D.IOP
                     break;
 
                 case FDCCommand.ReadSectorSingle:
-                    ReadSector(new Type2CommandParams(data));
+                    SectorTransfer(new Type2CommandParams(data), true /* read */);
                     break;
+
+                case FDCCommand.WriteSectorSingle:
+                    SectorTransfer(new Type2CommandParams(data), false);
+                    break;                
 
                 case FDCCommand.ForceInterrupt:
                     ForceInterrupt(data);
-                    break;               
+                    break;
+
+                case FDCCommand.WriteTrack:
+                    WriteTrack();
+                    break;
 
                 default:
                     throw new NotImplementedException(
@@ -544,7 +650,7 @@ namespace D.IOP
             _seekDestination = track;
             _seekError = false;
 
-            // Schedule the first step of the heads            
+            // Schedule the first step of the heads
             _system.Scheduler.Schedule(_commandBeginNsec, p, SeekCallback);
 
             if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Seek to {0} initialized.", track);
@@ -632,27 +738,43 @@ namespace D.IOP
             if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Step {0} initialized.", _stepDirection);
         }
 
-        private void ReadSector(Type2CommandParams p)
+        private void SectorTransfer(Type2CommandParams p, bool read)
         {
-            // Schedule the read.
+            // Schedule the operation.
             _system.Scheduler.Schedule(
                 _commandBeginNsec,
                 (timestampNsec, context) =>
             {
+                Track t = _drive.Disk.GetTrack(_drive.Track, p.SideSelect ? 1 : 0);
+
                 //
                 // Set RNF if specified sector is out of range or if the drive's physical
                 // head position != the FDC's track register.
                 //
-                int sectorCount = _drive.Disk.GetTrack(_drive.Track, p.SideSelect ? 1 : 0).SectorCount;
                 _rnf = (_fdcTrack != _drive.Track) ||
-                       (_fdcSector > sectorCount);
+                       (_fdcSector > t.SectorCount);
+
 
                 //
-                // Read the sector into the sector buffer.
+                // Set CRC error if selected track's format isn't compatible with this FDC,
+                // (in the event that some random IMD image is loaded...)
+                // or if the Density flag is incompatible with the track's format.
+                //
+                if ((t.Format != Format.FM500 &&
+                    t.Format != Format.MFM500) ||
+                    ((t.Format == Format.FM500) ^ !_doubleDensity))
+                {
+                    _crcError = true;
+                }
+
+                bool writeProtect = !read && _drive.IsWriteProtected;
+
+                //
+                // Actually kick off the transfer.
                 // BUSY remains active until the transfer is complete -- whenever DMA or a polled
                 // read finishes the buffer off.
                 //
-                if (!NotReady() && !_rnf)
+                if (!NotReady() && !_rnf && !_crcError && !writeProtect)
                 {
                     // the FDC's sector value is 1-indexed.
                     _sectorBuffer = _drive.Disk.GetSector(_drive.Track, p.SideSelect ? 1 : 0, _fdcSector - 1).Data;
@@ -661,8 +783,13 @@ namespace D.IOP
                     _drq = true;
                     _drqCounter = 16;
 
-                    if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Sector read of C/H/S {0}/{1}/{2} initialized.",
-                        _fdcTrack, p.SideSelect ? 1 : 0, _fdcSector);
+                    if (!read)
+                    {
+                        _drive.Disk.SetModified();
+                    }
+
+                    if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Sector {0} of C/H/S {1}/{2}/{3} initialized.",
+                        read ? "read" : "write", _fdcTrack, p.SideSelect ? 1 : 0, _fdcSector);
                 }
                 else
                 {
@@ -671,7 +798,45 @@ namespace D.IOP
                 }
             });
 
-            if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Read initialized.");
+            if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Transfer initialized.");
+        }
+
+        private void WriteTrack()
+        {
+            // Schedule the track write.
+            _system.Scheduler.Schedule(
+                _commandBeginNsec,
+                (timestampNsec, context) =>
+                {
+                    //
+                    // Create a buffer for the FDC track data.
+                    // BUSY remains active until the next INDEX on the drive.
+                    // write finishes the buffer off.
+                    //
+                    if (!NotReady() && !_rnf && !_drive.IsWriteProtected)
+                    {
+                        _writeTrackBuffer = new byte[0x10000];  // this is about 4x more than we need
+                        _writeTrackDataIndex = 0;
+                        _writeTrackSide = _sideSelect;
+                        _busy = true;
+                        _drq = true;
+                        _drqCounter = 16;
+
+                        _drive.Disk.SetModified();
+                        
+                        if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, 
+                            "Track write of C/H {0}/{1} initialized.",
+                            _fdcTrack, _writeTrackSide ? 1 : 0); 
+
+                    }
+                    else
+                    {
+                        _writeTrackBuffer = null;
+                        _busy = false;
+                    }
+                });
+
+            if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Write track initialized.");
         }
 
         private void ForceInterrupt(int flags)
@@ -763,6 +928,225 @@ namespace D.IOP
             RaiseInterrupt();
         }
 
+        private void FinishWriteTrack()
+        {
+            //
+            // Process the data the 8085 sent us and figure out what this track looks like.
+            // Special values are used to indicate the start of the data we're interested in:
+            // - 0xfc marks the soft index mark
+            // - 0xfe marks the beginning of the sector ID record
+            // - 0xfb marks the beginning of the data record
+            // - 0xf7 marks the end of a record (used to cause the FDC to write a CRC)
+            //
+            // The Sector ID record is four bytes long and looks like:
+            // Byte 0 : Track
+            // Byte 1 : Head
+            // Byte 2 : Sector (1-indexed)
+            // Byte 3 : Sector length (0 = 128, 1 = 256, 2 = 512, 3 = 1024)
+            //
+            // We parse the data and grab the sector information, checking things for sanity.
+            // It is possible for the 8085 code to send the FDC data that does weird things --
+            // varying sector sizes per track, discontinuous sector numbers, invalid cylinder/
+            // head values.  The IMD format doesn't support some of these possibilities, and
+            // we don't expect them to occur (the formatting code running on the IOP does
+            // sane things.)  But we do basic sanity checking here because we're not hackers.
+            //
+            // For now we throw if any inconsistency is found, erring on the side of not ending
+            // up with randomly corrupted floppy data.
+            //
+            bool[] formattedSectors = new bool[256];
+            int sectorSize = 0;
+            TrackParseState state = TrackParseState.Gap4;
+
+            if (Log.Enabled) Log.Write(
+                                LogComponent.IOPFloppy,
+                                "Processing Write Track data, length {0}",_writeTrackDataIndex);
+
+            for (int i = 0; i < _writeTrackDataIndex; i++)
+            {
+                byte b = _writeTrackBuffer[i];
+                switch(state)
+                {
+                    case TrackParseState.Gap4:
+                        //
+                        // Check the value supplied by the 8085 for the Gap4 value:                       
+                        // Make sure it jibes with the -DDEN signal to the FDC.
+                        //
+                        if ((b != (byte)WriteTrackMarkers.Gap4MFM && b != (byte)WriteTrackMarkers.Gap4FM) ||
+                            ((b == (byte)WriteTrackMarkers.Gap4MFM) ^ _doubleDensity))
+                        {
+                            throw new InvalidOperationException(
+                                String.Format("Unexpected Gap4 value 0x{0:x2} with double density {1}",
+                                    b, _doubleDensity));
+                        }
+
+                        state = TrackParseState.IndexMark;
+                        break;
+
+                    case TrackParseState.IndexMark:
+                        if (b == (byte)WriteTrackMarkers.SoftIndex)
+                        {
+                            // Found the index mark, wait for the ID mark
+                            state = TrackParseState.IDRecordMark;
+                        }
+                        break;
+
+                    case TrackParseState.IDRecordMark:
+                        if (b == (byte)WriteTrackMarkers.SectorIDRecord)
+                        {
+                            // Found the ID mark, read the sector ID information:
+                            byte track = _writeTrackBuffer[++i];
+                            byte head = _writeTrackBuffer[++i];
+                            byte sector = _writeTrackBuffer[++i];
+                            byte sectorLength = _writeTrackBuffer[++i];
+
+                            // Sanity check that the track in the header matches the
+                            // current track.
+                            if (track != _fdcTrack)
+                            {
+                                throw new InvalidOperationException("WriteTrack: track != current track");
+                            }
+
+                            // Check that the head value matches the current side select value.
+                            if ((head == 0) ^ !_writeTrackSide)
+                            {
+                                throw new InvalidOperationException(
+                                    String.Format("WriteTrack: invalid head (specified {0}, FDC SSO is {1})", 
+                                        head, _writeTrackSide));
+                            }
+
+                            //
+                            // Determine the appropriate sector size:
+                            //
+                            int currentSectorSize = 0;
+                            switch (sectorLength)
+                            {
+                                case 0:
+                                    currentSectorSize = 128;
+                                    break;
+
+                                case 1:
+                                    currentSectorSize = 256;
+                                    break;
+
+                                case 2:
+                                    currentSectorSize = 512;
+                                    break;
+
+                                case 3:
+                                    currentSectorSize = 1024;
+                                    break;
+
+                                default:
+                                    throw new InvalidOperationException("WriteTrack: unexpected sector size.");
+                            }
+
+                            if (sectorSize == 0)
+                            {
+                                sectorSize = currentSectorSize;
+                            }
+                            else if (sectorSize != currentSectorSize)
+                            {
+                                // We don't expect (and cannot support) sectors of varying sizes
+                                // on a single track.
+                                throw new InvalidOperationException("WriteTrack: multiple sector sizes per track not supported.");
+                            }
+
+                            if (!formattedSectors[sector - 1])
+                            {
+                                formattedSectors[sector - 1] = true;
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException(
+                                    String.Format("WriteTrack: Duplicate sector {0}", sector - 1));
+                            }
+
+                            // And start reading in the sector data.
+                            state = TrackParseState.DataRecordMark;
+
+                            if (Log.Enabled) Log.Write(
+                                LogComponent.IOPFloppy,
+                                "Processing Sector {0}", sector - 1);
+                        }
+                        break;
+
+                    case TrackParseState.DataRecordMark:
+                        if (b == (byte)WriteTrackMarkers.DataRecord)
+                        {
+                            // Start of data record, read in until we hit the CRC mark (0xf7)
+                            // and validate the result.  The data itself is ignored (it's just
+                            // dummy data passed to the FDC)
+                            int dataLength = 0;
+                            while (i < _writeTrackDataIndex && _writeTrackBuffer[++i] != (byte)WriteTrackMarkers.CRC)
+                            {
+                                dataLength++;
+                            }
+
+                            if (dataLength != sectorSize)
+                            {
+                                throw new InvalidOperationException(
+                                    String.Format("WriteTrack: data record length 0x{0:x} != sector size 0x{1:x}",
+                                    dataLength, sectorSize));
+                            }
+
+                            // Start the next sector.
+                            state = TrackParseState.IDRecordMark;
+                        }
+                        break;
+                }
+            }
+
+            // OK, we've parsed the data and have an array of sectors.  Let's find out how many
+            // there are and ensure there are no gaps in the sector numbering.
+            int sectorCount = 0;
+            bool foundGap = false;
+            for (int i = 0; i < formattedSectors.Length; i++)
+            {
+                if (!formattedSectors[i])
+                {
+                    foundGap = true;
+                }
+                else
+                {
+                    if (foundGap)
+                    {
+                        throw new InvalidOperationException("WriteTrack: discontinous sector IDs");
+                    }
+                    else
+                    {
+                        sectorCount++;
+                    }
+                }
+            }
+
+            //
+            // Format the track with the given parameters.
+            //
+            _drive.Disk.FormatTrack(
+                _doubleDensity ? Format.MFM500 : Format.FM500,
+                _fdcTrack, 
+                _writeTrackSide ? 1 : 0, 
+                sectorCount, 
+                sectorSize);
+
+            if (Log.Enabled) Log.Write(
+                LogComponent.IOPFloppy, 
+                "Write track of C/H {0}/{1} with format {1}, sector count {2} sector size {3}", 
+                _fdcTrack, 
+                _writeTrackSide ? 1 : 0,
+                sectorCount,
+                sectorSize);
+
+            // Complete the operation and prepare for the next.
+            _drq = false;
+            _busy = false;
+            _writeTrackBuffer = null;
+            _writeTrackDataIndex = 0;
+
+            RaiseInterrupt();
+        }
+
         private void ClearInterrupt()
         {
             _interruptPending = false;
@@ -823,6 +1207,11 @@ namespace D.IOP
         private byte[] _sectorBuffer;
         private int _sectorDataIndex;
 
+        // Track data (for WriteTrack)
+        private byte[] _writeTrackBuffer;
+        private int _writeTrackDataIndex;
+        private bool _writeTrackSide;
+
         // Status flags
         // Type 1/2/3:                
         private bool _crcError;         // 0x08
@@ -865,7 +1254,12 @@ namespace D.IOP
 
         // Step state
         private StepDirection _stepDirection;
-        
+
+        // Density select
+        private bool _doubleDensity;
+
+        // Side select (external)
+        private bool _sideSelect;
 
         //
         // This exists because the FDCTest code expects undocumented behavior from the FDC chip.
@@ -1034,6 +1428,31 @@ namespace D.IOP
             LostData = 0x04,
             DRQ = 0x02,
             Busy = 0x01,
+        }
+
+        private enum TrackParseState
+        {
+            Gap4,
+            IndexMark,
+            IDRecordMark,
+            DataRecordMark,
+        }
+
+        // Special values are used to indicate the start of the data we're interested in:
+        // - 0xfc marks the soft index mark
+        // - 0xfe marks the beginning of the sector ID record
+        // - 0xfb marks the beginning of the data record
+        // - 0xf7 marks the end of a record (used to cause the FDC to write a CRC)
+        // - 0x4e and 0xff are used in Gap4:  0x4e indicates MFM (double density), 
+        //   0xff indicates FM (single).
+        private enum WriteTrackMarkers
+        {
+            Gap4MFM = 0x4e,
+            Gap4FM = 0xff,
+            SoftIndex = 0xfc,
+            SectorIDRecord = 0xfe,
+            DataRecord = 0xfb,
+            CRC = 0xf7,
         }
     }
 }

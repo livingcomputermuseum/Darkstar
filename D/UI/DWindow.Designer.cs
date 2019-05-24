@@ -88,6 +88,7 @@ namespace D.UI
             this.FPSStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.MouseCaptureStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.FloppyWriteProtectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SystemMenu.SuspendLayout();
             this.UIPanel.SuspendLayout();
             this.SystemStatus.SuspendLayout();
@@ -150,6 +151,7 @@ namespace D.UI
             this.floppyToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.FloppyLoadToolStripMenuItem,
             this.FloppyUnloadToolStripMenuItem,
+            this.FloppyWriteProtectToolStripMenuItem,
             this.FloppyLabelToolStripMenuItem});
             this.floppyToolStripMenuItem.Name = "floppyToolStripMenuItem";
             this.floppyToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
@@ -363,6 +365,13 @@ namespace D.UI
             this.ProgressBar.Size = new System.Drawing.Size(100, 18);
             this.ProgressBar.Visible = false;
             // 
+            // FloppyWriteProtectToolStripMenuItem
+            // 
+            this.FloppyWriteProtectToolStripMenuItem.Name = "FloppyWriteProtectToolStripMenuItem";
+            this.FloppyWriteProtectToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.FloppyWriteProtectToolStripMenuItem.Text = "Write Protect";
+            this.FloppyWriteProtectToolStripMenuItem.Click += new System.EventHandler(this.FloppyWriteProtectToolStripMenuItem_Click);
+            // 
             // DWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -427,5 +436,6 @@ namespace D.UI
         private System.Windows.Forms.ToolStripProgressBar ProgressBar;
         private System.Windows.Forms.ToolStripMenuItem ViewDocumentationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem FullScreenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FloppyWriteProtectToolStripMenuItem;
     }
 }
