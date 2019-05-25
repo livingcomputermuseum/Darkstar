@@ -81,6 +81,9 @@ namespace D.Logging
         EthernetReceive =  0x8000000,
         EthernetPacket = 0x10000000,
 
+        // Keyboard tone
+        Tone = 0x20000000,
+
         // Configuration
         Configuration =   0x40000000,
 
@@ -108,9 +111,9 @@ namespace D.Logging
     {
         static Log()
         {
-            Enabled = false;
-            _components = LogComponent.None;
-            _type = LogType.None;
+            Enabled = true;
+            _components = LogComponent.Tone | LogComponent.IOPPrinter;
+            _type = LogType.All;
             _logIndex = 0;
         }
 

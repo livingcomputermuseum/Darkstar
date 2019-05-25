@@ -122,6 +122,7 @@
     <Compile Include="Display\DisplayController.cs" />
     <Compile Include="Ethernet\HostEthernet.cs" />
     <Compile Include="Ethernet\IPacketInterface.cs" />
+    <Compile Include="IOP\Tone.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

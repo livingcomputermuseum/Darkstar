@@ -155,7 +155,7 @@ namespace D
             if (DriveSelect && IsLoaded && !_index)
             {
                 // Raise the index signal, hold for a short period.
-                _index = true;                
+                _index = true;
                 _system.Scheduler.Schedule(_indexDuration, IndexCallback);
 
                 if (Log.Enabled) Log.Write(LogComponent.IOPFloppy, "Disk rotation complete, raising INDEX signal for 10us.");
@@ -179,7 +179,7 @@ namespace D
 
         // Index signal and timing
         private bool _index;
-        private ulong _indexInterval = 250 * Conversion.MsecToNsec;  // 1/5 second at 300rpm
+        private ulong _indexInterval = 250 * Conversion.MsecToNsec;  // 1/5 second at 300rpm - we slow this down just a bit.
         private ulong _indexDuration = 10 * Conversion.UsecToNsec; // 10uSec duration for index signal.        
     }
 }

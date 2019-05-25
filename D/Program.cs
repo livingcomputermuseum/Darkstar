@@ -88,7 +88,7 @@ namespace D
 
             // Cons up a system to run stuff on.
             DSystem system = new DSystem();
-            system.Reset();                  
+            system.Reset();
 
             //
             // Start the UI, this will not return from ShowDialog

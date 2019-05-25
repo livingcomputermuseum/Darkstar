@@ -54,6 +54,7 @@ namespace D.IOP
             _floppyController = new FloppyController(_floppyDrive, _system);
             _dma = new DMAController(this);
             _tty = new Printer();
+            _tone = new Tone();
 
             //
             // Register DMA devices with controller
@@ -65,7 +66,7 @@ namespace D.IOP
             _io.RegisterDevice(_floppyController);
             _io.RegisterDevice(_dma);
             _io.RegisterDevice(_system.CP);
-            //_io.RegisterDevice(_tty);
+            _io.RegisterDevice(_tty);
 
             Reset();
         }
@@ -142,6 +143,11 @@ namespace D.IOP
             get { return _tty; }
         }
 
+        public Tone Tone
+        {
+            get { return _tone; }
+        }
+
         private i8085 _cpu;
         private IOPIOBus _io;
         private I8085MemoryBus _mem;
@@ -155,6 +161,7 @@ namespace D.IOP
         private Keyboard _keyboard;
         private Mouse _mouse;
         private Printer _tty;
+        private Tone _tone;
         private DSystem _system;
 
         //

@@ -28,6 +28,7 @@
 
 
 using D.IOP;
+using D.Logging;
 using SDL2;
 using System;
 using System.Collections.Generic;
@@ -974,7 +975,7 @@ namespace D.UI
             int retVal;
 
             // Get SDL humming
-            if ((retVal = SDL.SDL_Init(SDL.SDL_INIT_VIDEO)) < 0)
+            if ((retVal = SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING)) < 0)
             {
                 throw new InvalidOperationException(String.Format("SDL_Init failed.  Error {0:x}", retVal));
             }
@@ -1028,6 +1029,26 @@ namespace D.UI
             _renderEventType = SDL.SDL_RegisterEvents(1);
             _renderEvent = new SDL.SDL_Event();
             _renderEvent.type = (SDL.SDL_EventType)_renderEventType;
+
+
+
+            SDL.SDL_AudioSpec desired = new SDL.SDL_AudioSpec();
+            SDL.SDL_AudioSpec obtained = new SDL.SDL_AudioSpec();
+
+            desired.freq = 44100;
+            desired.format = SDL.AUDIO_U8;
+            desired.channels = 1;
+            desired.callback = _system.IOP.Tone.AudioCallback;
+            desired.samples = 1;
+            
+            uint deviceId = SDL.SDL_OpenAudioDevice(null, 0, ref desired, out obtained, 0);
+
+
+            SDL.SDL_PauseAudioDevice(deviceId, 0);
+            
+            if (Log.Enabled) Log.Write(LogComponent.Tone, "SDL Audio initialized, device id {0}", deviceId);
+
+
         }
 
         private void CreateDisplayTexture(bool filter)

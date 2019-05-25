@@ -116,6 +116,24 @@ namespace D.IOP
         {
             switch (port)
             {
+                case 0x8d:
+                    // i8253 Timer channel #1 - used to set the Keyboard bell (tone) frequency.
+                    // This is a 16-bit value loaded one byte at a time, LSB first.
+                    // Send the word off to the tone generator.
+                    _iop.Tone.LoadInterval(value);
+                    break;
+
+                case 0x8f:
+                    // i8253 Timer Mode.
+                    // This is used to control the timer used for the Keyboard bell
+                    // and for the USART.  It specifies which timer will be active,
+                    // how that timer's interval is loaded, and what the output waveform
+                    // looks like.
+                    // At this time there's no particular reason to pay attention to what
+                    // gets written here, as we don't actually emulate the i8253.
+                    if (Log.Enabled) Log.Write(LogComponent.IOPMisc, "Misc IO port Timer Mode written {0:x2}", value);
+                    break;
+
                 case 0xd0:
                     //
                     // DMA Test Register
@@ -158,6 +176,15 @@ namespace D.IOP
                         // Prime the next byte of keyboard data.
                         _iop.Keyboard.NextData();
                         if (Log.Enabled) Log.Write(LogComponent.IOPMisc, "Misc IO Keyboard data clock.");
+                    }
+
+                    if ((value & 0x20) != 0)
+                    {
+                        _iop.Tone.EnableTone();
+                    }
+                    else
+                    {
+                        _iop.Tone.DisableTone();
                     }
 
                     if ((value & 0x10) != 0)
@@ -401,6 +428,8 @@ namespace D.IOP
 
         private readonly int[] _writePorts = new int[] 
             {
+                0x8d,       // i8253 Timer Control 1 (Tone frequency)
+                0x8f,       // i8253 Timer Mode
                 0xd0,       // DMA Test Register
                 0xe9,       // KB, MP, TOD clocks (write)
                 0xea,       // Clear TOD interrupt (write)

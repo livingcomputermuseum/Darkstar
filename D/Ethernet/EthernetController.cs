@@ -126,7 +126,7 @@ namespace D.Ethernet
         public int EtherDisp()
         {
             //
-            // Pin 139(YIODisp.1) : Hooked to "Attn," which appear to be whether any attention is needed by the receiver 
+            // Pin 139(YIODisp.1) : Hooked to "Attn," which indicates whether any attention is needed by the receiver 
             //                      or transmitter.
             // Pin 39(YIODisp.0) : "(schematic) Must be zero for the transmitting inner loop uCode.  It is also used to 
             //                      determine if the Option card is plugged in."            
@@ -343,8 +343,8 @@ namespace D.Ethernet
             //
             if (_fifo.Count > 0)
             {
-                //ss
-                // if cycle == 2 we dequeue the next item from the FIFO;
+                //
+                // If cycle == 2 we dequeue the next item from the FIFO;
                 // otherwise the last-dequeued item is returned.
                 // (See OPT schematic, sheet 6: 
                 //  "<-EIData not in Cycle2 is rereading EIData in the case
@@ -359,8 +359,6 @@ namespace D.Ethernet
 
                 if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "   <-EIData: Returning FIFO word 0x{0:x4}.  FIFO count is now {1}",
                     value, _fifo.Count);
-
-                _debugPacket.Add(value);
             }
             else
             {
@@ -389,41 +387,6 @@ namespace D.Ethernet
                 _rxEvenLen = _loopBack || _localLoop ? true : _evenPacketLength;
 
                 if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "   <-EIData: completing transfer.");
-
-                if (Log.Enabled)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    int byteNum = 0;
-                    StringBuilder dataLine = new StringBuilder();
-                    StringBuilder asciiLine = new StringBuilder();
-                    dataLine.AppendFormat("000: ");
-
-                    for (int i = 0; i < _debugPacket.Count; i++)
-                    {
-                        dataLine.AppendFormat("{0:x2} {1:x2}", (_debugPacket[i] >> 8), _debugPacket[i] & 0xff);
-                        asciiLine.Append(GetPrintableChar((byte)(_debugPacket[i] >> 8)));
-                        asciiLine.Append(GetPrintableChar((byte)_debugPacket[i]));
-
-                        byteNum++;
-                        if ((byteNum % 16) == 0)
-                        {
-                            Log.Write(LogComponent.EthernetPacket, "{0} {1}", dataLine.ToString(), asciiLine.ToString());
-                            dataLine.Clear();
-                            asciiLine.Clear();
-                            dataLine.AppendFormat("{0:x3}: ", i + 1);
-                            byteNum = 0;
-                        }
-                    }
-
-                    if (byteNum > 0)
-                    {
-                        Log.Write(LogComponent.EthernetPacket, "{0} {1}", dataLine.ToString(), asciiLine.ToString());
-                    }
-
-                    Log.Write(LogComponent.EthernetPacket, "");
-                }
-
-                _debugPacket.Clear();
             }
 
             UpdateWakeup();
@@ -1019,7 +982,5 @@ namespace D.Ethernet
         //
         private IPacketInterface _hostInterface;
         private Queue<ushort> _outputPacket;
-
-        private List<ushort> _debugPacket = new List<ushort>();
     }
 }
