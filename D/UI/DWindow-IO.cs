@@ -974,6 +974,8 @@ namespace D.UI
         {
             int retVal;
 
+            SDL.SDL_SetHint("SDL_WINDOWS_DISABLE_THREAD_NAMING", "1");
+
             // Get SDL humming
             if ((retVal = SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING)) < 0)
             {
@@ -1030,25 +1032,28 @@ namespace D.UI
             _renderEvent = new SDL.SDL_Event();
             _renderEvent.type = (SDL.SDL_EventType)_renderEventType;
 
-
-
+            //
+            // Initialize SDL Audio:
+            // I'd prefer to do this in the Beeper class but there's some undocumented
+            // dependency on having an active SDL window, so we do it here to keep
+            // things simple.
+            //
             SDL.SDL_AudioSpec desired = new SDL.SDL_AudioSpec();
             SDL.SDL_AudioSpec obtained = new SDL.SDL_AudioSpec();
+            
+            _audioCallback = _system.IOP.Beeper.AudioCallback;
 
             desired.freq = 44100;
             desired.format = SDL.AUDIO_U8;
             desired.channels = 1;
-            desired.callback = _system.IOP.Tone.AudioCallback;
-            desired.samples = 1;
+            desired.callback = _audioCallback;
+            desired.samples = 1024;
             
             uint deviceId = SDL.SDL_OpenAudioDevice(null, 0, ref desired, out obtained, 0);
 
-
             SDL.SDL_PauseAudioDevice(deviceId, 0);
             
-            if (Log.Enabled) Log.Write(LogComponent.Tone, "SDL Audio initialized, device id {0}", deviceId);
-
-
+            if (Log.Enabled) Log.Write(LogComponent.Beeper, "SDL Audio initialized, device id {0}", deviceId);
         }
 
         private void CreateDisplayTexture(bool filter)
@@ -1206,5 +1211,13 @@ namespace D.UI
         // Rendering textures
         private IntPtr _displayTexture = IntPtr.Zero;
         private ReaderWriterLockSlim _textureLock;
+
+        //
+        // Local reference for the SDL Audio callback:
+        // SDL-CS doesn't hold this reference which causes
+        // problems when the GC runs.  We keep this reference for as long
+        // as the Display Window is active.
+        //
+        private SDL.SDL_AudioCallback _audioCallback;
     }
 }

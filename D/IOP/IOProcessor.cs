@@ -54,7 +54,7 @@ namespace D.IOP
             _floppyController = new FloppyController(_floppyDrive, _system);
             _dma = new DMAController(this);
             _tty = new Printer();
-            _tone = new Tone();
+            _beeper = new Beeper();
 
             //
             // Register DMA devices with controller
@@ -143,9 +143,9 @@ namespace D.IOP
             get { return _tty; }
         }
 
-        public Tone Tone
+        public Beeper Beeper
         {
-            get { return _tone; }
+            get { return _beeper; }
         }
 
         private i8085 _cpu;
@@ -161,7 +161,7 @@ namespace D.IOP
         private Keyboard _keyboard;
         private Mouse _mouse;
         private Printer _tty;
-        private Tone _tone;
+        private Beeper _beeper;
         private DSystem _system;
 
         //

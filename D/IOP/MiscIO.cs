@@ -120,7 +120,7 @@ namespace D.IOP
                     // i8253 Timer channel #1 - used to set the Keyboard bell (tone) frequency.
                     // This is a 16-bit value loaded one byte at a time, LSB first.
                     // Send the word off to the tone generator.
-                    _iop.Tone.LoadInterval(value);
+                    _iop.Beeper.LoadPeriod(value);
                     break;
 
                 case 0x8f:
@@ -180,11 +180,11 @@ namespace D.IOP
 
                     if ((value & 0x20) != 0)
                     {
-                        _iop.Tone.EnableTone();
+                        _iop.Beeper.EnableTone();
                     }
                     else
                     {
-                        _iop.Tone.DisableTone();
+                        _iop.Beeper.DisableTone();
                     }
 
                     if ((value & 0x10) != 0)

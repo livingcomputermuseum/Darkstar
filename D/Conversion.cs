@@ -45,5 +45,10 @@ namespace D
         /// Conversion from microseconds to nanoseconds
         /// </summary>
         public static readonly ulong UsecToNsec = 1000;
+
+        /// <summary>
+        /// Conversion from microseconds to seconds
+        /// </summary>
+        public static readonly double UsecToSec = 0.000001;
     }
 }
