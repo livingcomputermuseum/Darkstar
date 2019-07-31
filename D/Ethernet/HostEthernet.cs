@@ -164,9 +164,13 @@ namespace D.Ethernet
 
             // Send it over the 'net!
             _interface.SendPacket(p);
+            
 
-            Log.Write(LogComponent.HostEthernet, "Ethernet packet (length {0}) sent.", packetBytes.Length);
-                        
+            Log.Write(LogType.Verbose, LogComponent.EthernetReceive, "Packet (length {0}) sent: dst {1} src {2}",
+                            packetBytes.Length,
+                            p.DestinationHwAddress, 
+                            p.SourceHwAddress);
+
         }
 
         private void ReceiveCallback(object sender, CaptureEventArgs e)
@@ -198,11 +202,8 @@ namespace D.Ethernet
                         (packet.DestinationHwAddress.Equals(_10mbitSourceAddress) ||        // Filter on packets destined for us or broadcast.
                          packet.DestinationHwAddress.Equals(_10mbitBroadcastAddress)))
                     {
-                        Log.Write(LogType.Verbose, LogComponent.EthernetReceive, "Packet received: dst {0} src {1}",
+                        Log.Write(LogType.Verbose, LogComponent.HostEthernet, "Packet received: dst {0} src {1}",
                             packet.DestinationHwAddress, packet.SourceHwAddress);
-
-                        Log.Write(LogComponent.HostEthernet, "Received ethernet packet.");
-                        _callback(new System.IO.MemoryStream(e.Packet.Data));
 
                         /*
                         if (Log.Enabled)

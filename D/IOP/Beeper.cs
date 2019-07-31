@@ -66,7 +66,7 @@ namespace D.IOP
 
         public void DisableTone()
         {
-            if (Log.Enabled && _enabled) Log.Write(LogComponent.Beeper, "Tone disabled.", _frequency);
+            if (Log.Enabled && _enabled) Log.Write(LogComponent.Beeper, "Tone disabled.");
             _enabled = false;
         }
 

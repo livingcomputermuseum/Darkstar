@@ -49,7 +49,7 @@ these are mapped to Function keys, arrow keys, and the Home/End/PgUp/PgDown
 keys present on most desktop keyboards -- laptop keyboards may be more 
 difficult to use, depending on your keyboard's layout.
 
-A three-button mouse is essential for using some Star software (XDE and 
+A three-button mouse is useful for using some Star software (XDE and 
 Interlisp-D, for example).  On most mice, the mousewheel can be clicked to 
 provide the third (middle) button.  Laptops with trackpads may have 
 configuration options to simulate three buttons but will likely be clumsy to 
@@ -352,8 +352,8 @@ are a few steps that are not well documented and which are fairly unintuitive:
        this will bypass startup diagnostics entirely.
 
 The following passwords will allow you to run Viewpoint in perpetuity.  When
-using them, ensure the emulated Star's TOD clock is set to a date after
-December, 1997:
+using them, ensure the emulated Star's TOD clock is set to a date in
+December, 1997 (afterwards the clock can be set to whatever date you like):
 
     ViewPoint 1.1 / Services 10.0: J SH9R JX2A CH3N
     ViewPoint 2.0 / Services 11.0: 8 7T78 M8YL LFEQ
@@ -413,7 +413,7 @@ The Display Configuration tab provides options for the emulated Star's display:
 - Stretch screen in Fullscreen mode:  Stretches the Star's display to fill the 
     entire screen in fullscreen mode.  This maintains the original display's
     aspect ratio.  Depending on the resolution of the screen, this may result
-    in a blurry screen.
+    in a blurry display.
 
 
 4.4 Time Configuration
@@ -566,6 +566,7 @@ https://github.com/flibitijibibo/SDL2-CS.
 v1.1.0.0
 - Floppies can now be formatted and written.
 - Tweak to "No change" time configuration option (sets Power Loss flag.)
+- Added full screen display mode
 
 v1.0.0.1
 --------
