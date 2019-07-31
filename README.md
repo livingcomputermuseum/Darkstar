@@ -1,7 +1,8 @@
-Readme.txt for Darkstar v1.0:
+Readme.txt for Darkstar v1.1:
+
 
 1.0 Introduction and Overview
-============================
+=============================
 
 Darkstar provides emulation of the Xerox Dandelion workstation, commonly known
 as the Star, 8010, or 1108. 
@@ -19,7 +20,7 @@ Darkstar currently emulates the following Star hardware:
    - Bitmapped Display
    - Keyboard / Mouse
    - 10, 40, or 80mb hard drives (SA1000 interface)
-   - 8 inch floppy drive (read-only)
+   - 8 inch floppy drive
    - 10mbit Ethernet
    - Real-time clock
 
@@ -27,7 +28,6 @@ Darkstar currently emulates the following Star hardware:
 --------------
 
 At this time, the below are not emulated by Darkstar:
-    - Writing to floppy disks
     - Sound
     - Serial ports
     - The LSEP printer interface
@@ -50,7 +50,7 @@ these are mapped to Function keys, arrow keys, and the Home/End/PgUp/PgDown
 keys present on most desktop keyboards -- laptop keyboards may be more 
 difficult to use, depending on your keyboard's layout.
 
-A three-button mouse is essential for using some Star software (XDE and 
+A three-button mouse is useful for using some Star software (XDE and 
 Interlisp-D, for example).  On most mice, the mousewheel can be clicked to 
 provide the third (middle) button.  Laptops with trackpads may have 
 configuration options to simulate three buttons but will likely be clumsy to 
@@ -63,12 +63,6 @@ your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.
 
 3.0 Getting Started
 ===================
-
-Precompiled binaries and installers can be found on the releases page:
-https://github.com/livingcomputermuseum/Darkstar/releases.
-DarkstarSetupWindows.zip contains an MSI file for installation on Windows,
-DarkstarMono.zip contains files for use on the Unix of your choice under
-the Mono runtime.
 
 Installation of Darkstar on Windows is simple:  Double-click the installer 
 file, named "DarkstarSetup.msi" and follow the on-screen instructions.  The 
@@ -161,6 +155,10 @@ Hard Disk - Allows loading or creating new hard disk images, which typically
 
 Configuration - Invokes the Configuration dialog.  See Section 4.0 for more
         details on configuration options.
+
+Full Screen - Toggles Full Screen mode, in this mode the Star's display will
+        expand to fill the screen.  Press Ctrl+Shift+F to exit Full Screen
+        mode.
 
 Show Debugger - Invokes the Debugger interface.  See section 5.0 for more
         details on care and feeding.
@@ -354,6 +352,13 @@ are a few steps that are not well documented and which are fairly unintuitive:
        "System->Alternate Boot" menu to select "Rigid" rather than "Default" --
        this will bypass startup diagnostics entirely.
 
+The following passwords will allow you to run Viewpoint in perpetuity.  When
+using them, ensure the emulated Star's TOD clock is set to a date in
+December, 1997 (afterwards the clock can be set to whatever date you like):
+
+    ViewPoint 1.1 / Services 10.0: J SH9R JX2A CH3N
+    ViewPoint 2.0 / Services 11.0: 8 7T78 M8YL LFEQ
+    
 
 4.0 Configuration
 =================
@@ -369,7 +374,7 @@ Each tab is explained in detail in the following subsections.
 The System Configuration tab provides configuration for three options:
 
 - Memory Size (KW):  Configures the amount of memory installed in the system,
-    From 128KW to 1024KW in 128KW increments.  This defaults to 768KW.  
+    From 128KW to 768KW in 128KW increments.  This defaults to 768KW.  
     Changes made here will not take effect until the system is reset.
 
 - Host ID (MAC Address):  Configures the Star's Ethernet MAC Address (also used
@@ -405,6 +410,11 @@ The Display Configuration tab provides options for the emulated Star's display:
 
 - Display Scale:  Allows scaling the display by a factor 1, 2, 3 or 4.  This is
     useful on 4k (or higher) resolution displays with a high DPI.
+
+- Stretch screen in Fullscreen mode:  Stretches the Star's display to fill the 
+    entire screen in fullscreen mode.  This maintains the original display's
+    aspect ratio.  Depending on the resolution of the screen, this may result
+    in a blurry display.
 
 
 4.4 Time Configuration
@@ -460,7 +470,7 @@ synopsis of the various commands at your disposal.
 ================
 
 - Speed throttling is not implemented on Unix platforms.
-- SDL is forced to software-rendering mode on Unix platforms 
+- SDL is forced to software-rendering mode on Unix platformst 
   due to an odd bug that has yet to be solved.  Performance may suffer as a 
   result.
 
@@ -554,6 +564,12 @@ https://github.com/flibitijibibo/SDL2-CS.
 11.0 Change History
 ===================
 
+v1.1
+----
+- Floppies can now be formatted and written.
+- Tweak to "No change" time configuration option (sets Power Loss flag.)
+- Added full screen display mode
+
 v1.0.0.1
 --------
 - Fixed Ethernet receiver; Ethernet controller now works reliably.
@@ -561,7 +577,7 @@ v1.0.0.1
   of failure
 - Removed 1MW memory option since it was never a shipping configuration and
   causes issues with various Xerox software.
-  
-V1.0
+
+v1.0
 ----
 Initial release.
