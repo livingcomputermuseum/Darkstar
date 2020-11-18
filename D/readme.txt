@@ -22,12 +22,12 @@ Darkstar currently emulates the following Star hardware:
    - 8 inch floppy drive
    - 10mbit Ethernet
    - Real-time clock
+   - Keyboard beeper
 
 1.2 What's Not
 --------------
 
 At this time, the below are not emulated by Darkstar:
-    - Sound
     - Serial ports
     - The LSEP printer interface
 
@@ -567,6 +567,7 @@ v1.1.0.0
 - Floppies can now be formatted and written.
 - Tweak to "No change" time configuration option (sets Power Loss flag.)
 - Added full screen display mode
+- Implemented keyboard beeper.
 
 v1.0.0.1
 --------

@@ -205,6 +205,8 @@ namespace D.Ethernet
                         Log.Write(LogType.Verbose, LogComponent.HostEthernet, "Packet received: dst {0} src {1}",
                             packet.DestinationHwAddress, packet.SourceHwAddress);
 
+                        _callback(new System.IO.MemoryStream(e.Packet.Data));
+
                         /*
                         if (Log.Enabled)
                         {
