@@ -128,7 +128,7 @@ namespace D
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Usage: Darkstar [-config <configurationFile>] [-rompath <path>]");
+            Console.WriteLine("Usage: Darkstar [-config <configurationFile>] [-rompath <path>] [-start]");
         }
     }
 }

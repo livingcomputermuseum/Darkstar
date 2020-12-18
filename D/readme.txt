@@ -1,4 +1,4 @@
-﻿Readme.txt for Darkstar v1.1:
+﻿Readme.txt for Darkstar v1.1.9.0:
 
 1. Introduction and Overview
 ============================
@@ -57,7 +57,9 @@ use.
 
 If you wish to make use of the emulated Star's Ethernet interface, you
 will need to have WinPCAP installed (on Windows) or libpcap (on the Unix of 
-your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.
+your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.    
+If only Dodo emulated XNS services are to be accessed from Darkstar, a direct
+connection to the Dodo NetHub can be configured instead of using a real network. 
 
 
 3.0 Getting Started
@@ -394,8 +396,13 @@ The System Configuration tab provides configuration for three options:
 --------------------------
 
 The Ethernet Configuration tab allows the selection of the host network interface
-to use with Darkstar.  If WinPcap or libpcap is unavailable, no interfaces will
-be listed.
+to use with Darkstar. The listbox for the available interfaces contains at least
+the entries "None" (for no ethernet adapter) and "[[ Dodo-Nethub ]]" (for a direct
+connection to a Dodo NetHub).  If WinPcap or libpcap is available, further network
+interfaces will be listed.
+
+If the "[[ Dodo-Nethub ]]" entry is selected, the 2 input fields for the NetHub
+Host and Port will be activated for specifying the destination NetHub.
 
 
 4.3 Display Configuration
@@ -465,16 +472,103 @@ The "?" or "help" command at the Console window will give you a brief
 synopsis of the various commands at your disposal.
 
 
-6.0 Known Issues
+6.0 Running from the command line
+=================================
+
+The Darkstar program accepts the following optional command line parameters:
+
+  -config <configurationFile>
+  specify the configuration file (see below) defining the presets
+  for the configuration to be used (these presets can be overriden
+  using the configuration dialog)
+  
+  -rompath <path>
+  specify the path where the ROM files are located
+  
+  -start
+  start the emulator when the UI is ready, this requires that the
+  disk image to be used is defined (either through the configuration
+  file or by the Windows defaults)
+
+(on the Windows platform, these parameters can be given either on the
+command line prompt or can be included in the program invocation line
+specified for a reference icon)
+
+Using configuration files simplifies using several Star machines, each
+consisting of a hard disk image file with the required presettings,
+each defined by a specific machine configuration file.
+
+The configuration file is a text file with "parameter = value" lines
+for setting configuration values; empty lines and lines starting with
+a hash character are ignored.
+
+The following configuration parameters can be given, matching the
+corresponding entries in the configuration dialog or the system menu:
+
+- MemorySize = nnn    
+  system memory size, in KWords as decimal value.
+
+- HardDriveImage = filename
+  filename for the hard disk image to load
+
+- FloppyDriveImage = filename
+  filename for the floppy disk image to load
+  
+- HostID = 12-hex-digits
+  the Ethernet host address for this machine, given as hexadecimal
+  number for the 48 bit machine id
+
+- HostPacketInterfaceName = device
+  the name of the Ethernet adaptor on the emulator host to use for
+  Ethernet emulation, one of: "None", "[[ Dodo-Nethub ]]" or any 
+  network adapter listed in the configuration dialog (as recognized
+  by WinPcap or libpcap if present)
+
+- ThrottleSpeed = boolean
+  whether to cap execution speed at native execution speed or not
+
+- DisplayScale = n
+  scale factor to apply to the display
+
+- FullScreenStretch = boolean
+  whether to apply linear or nearest-neighbor filtering to the display,
+  when scaled
+
+- SlowPhosphor = boolean
+  whether to apply a fake "slow phosphor" persistence to the emulated
+  display
+
+- TODSetMode = mode
+  how to set the TOD clock at power up/reset, one of:    
+  HostTimeY2K, HostTime, SpecificDateAndTime, SpecificDate, NoChange
+
+- TODDateTime = iso-datetime
+  the specific date/time to set the TOD clock to if TODSetMode is
+  "SpecificDateAndTime"
+
+- TODDate = iso-date
+  the specific date to set the TOD clock to if TODSetMode is "SpecificDate"
+
+- AltBootMode = mode
+  the preferred Alt-Boot mode for starting the machine, one of:
+  None, DiagnosticRigid, Rigid, Floppy, Ethernet, DiagnosticEthernet,
+  DiagnosticFloppy, AlternateEthernet, DiagnosticTrident1, DiagnosticTrident2,
+  DiagnosticTrident3, HeadCleaning
+
+- Start = boolean
+  start the system when the UI is ready? (default: false)
+
+
+7.0 Known Issues
 ================
 
 - Speed throttling is not implemented on Unix platforms.
-- SDL is forced to software-rendering mode on Unix platformst 
+- SDL is forced to software-rendering mode on Unix platforms 
   due to an odd bug that has yet to be solved.  Performance may suffer as a 
   result.
 
 
-7.0 Reporting Bugs
+8.0 Reporting Bugs
 ==================
 
 If you believe you have found a new issue (or have a feature request) please
@@ -491,7 +585,7 @@ The more detailed the bug report, the more possible it is for me to track down
 the cause.
 
 
-8.0 Source Code
+9.0 Source Code
 ===============
 
 The complete source code is available under the BSD license on GitHub at:
@@ -501,8 +595,8 @@ https://github.com/livingcomputermuseum/Darkstar
 Contributions are welcome!
 
 
-9.0 Hard Disk Image Format
-==========================
+10.0 Hard Disk Image Format
+===========================
 
 The Star's hard drive controller is implemented in microcode and controls the
 drive at a very low level, so the hard drive image format is not simply a dump
@@ -546,8 +640,8 @@ extract data, parse each track, looking for the address marks and CRCs to
 delineate the actual data.
 
 
-10.0 Thanks and Acknowledgements
-===============================
+11.0 Thanks and Acknowledgements
+================================
 
 Darkstar would not have been possible without the amazing preservation work of 
 Bitsavers.org
@@ -560,10 +654,21 @@ https://www.libsdl.org/ and is accessed using the SDL2-CS wrapper, see:
 https://github.com/flibitijibibo/SDL2-CS.
 
 
-11.0 Change History
+12.0 Change History
 ===================
 
+v1.1.9.0
+--------
+- new network device for direct connection to a Dodo NetHub
+- new optional command line parameter "-start" (start system when the UI is up)
+- new parameters in configuration-file to match relevant UI items
+- fix to Ethernet device for receiving packets larger than 56 bytes
+- fix to configuration-dialog to permit 48 significant bits for Host ID
+- fix to display for border pattern lines
+- added StarOS 5.0 disk image (including configuration file) to Disks subdirectory
+
 v1.1.0.0
+--------
 - Floppies can now be formatted and written.
 - Tweak to "No change" time configuration option (sets Power Loss flag.)
 - Added full screen display mode
