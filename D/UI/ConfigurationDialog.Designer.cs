@@ -68,6 +68,7 @@ namespace D.UI
             this.EthernetInterfaceListBox = new System.Windows.Forms.ListBox();
             this.label5 = new System.Windows.Forms.Label();
             this.DisplayTab = new System.Windows.Forms.TabPage();
+            this.FullScreenStretchCheckBox = new System.Windows.Forms.CheckBox();
             this.DisplayScaleComboBox = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.SlowPhosphorCheckBox = new System.Windows.Forms.CheckBox();
@@ -82,12 +83,16 @@ namespace D.UI
             this.label4 = new System.Windows.Forms.Label();
             this.OKButton = new System.Windows.Forms.Button();
             this.Cancel_Button = new System.Windows.Forms.Button();
-            this.FullScreenStretchCheckBox = new System.Windows.Forms.CheckBox();
+            this.lblNetHubHost = new System.Windows.Forms.Label();
+            this.txtNetHubHost = new System.Windows.Forms.TextBox();
+            this.numNetHubPort = new System.Windows.Forms.NumericUpDown();
+            this.lblNetHubPort = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.SystemPage.SuspendLayout();
             this.EthernetTab.SuspendLayout();
             this.DisplayTab.SuspendLayout();
             this.TimeTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numNetHubPort)).BeginInit();
             this.SuspendLayout();
             // 
             // TabControl
@@ -171,6 +176,10 @@ namespace D.UI
             // 
             // EthernetTab
             // 
+            this.EthernetTab.Controls.Add(this.lblNetHubPort);
+            this.EthernetTab.Controls.Add(this.numNetHubPort);
+            this.EthernetTab.Controls.Add(this.txtNetHubHost);
+            this.EthernetTab.Controls.Add(this.lblNetHubHost);
             this.EthernetTab.Controls.Add(this.EthernetInterfaceListBox);
             this.EthernetTab.Controls.Add(this.label5);
             this.EthernetTab.Location = new System.Drawing.Point(4, 22);
@@ -186,8 +195,9 @@ namespace D.UI
             this.EthernetInterfaceListBox.FormattingEnabled = true;
             this.EthernetInterfaceListBox.Location = new System.Drawing.Point(10, 24);
             this.EthernetInterfaceListBox.Name = "EthernetInterfaceListBox";
-            this.EthernetInterfaceListBox.Size = new System.Drawing.Size(332, 134);
+            this.EthernetInterfaceListBox.Size = new System.Drawing.Size(332, 121);
             this.EthernetInterfaceListBox.TabIndex = 1;
+            this.EthernetInterfaceListBox.SelectedValueChanged += new System.EventHandler(this.OnEthernetInterfaceChanged);
             // 
             // label5
             // 
@@ -211,6 +221,16 @@ namespace D.UI
             this.DisplayTab.TabIndex = 2;
             this.DisplayTab.Text = "Display";
             this.DisplayTab.UseVisualStyleBackColor = true;
+            // 
+            // FullScreenStretchCheckBox
+            // 
+            this.FullScreenStretchCheckBox.AutoSize = true;
+            this.FullScreenStretchCheckBox.Location = new System.Drawing.Point(6, 55);
+            this.FullScreenStretchCheckBox.Name = "FullScreenStretchCheckBox";
+            this.FullScreenStretchCheckBox.Size = new System.Drawing.Size(186, 17);
+            this.FullScreenStretchCheckBox.TabIndex = 3;
+            this.FullScreenStretchCheckBox.Text = "Stretch screen in Fullscreen mode";
+            this.FullScreenStretchCheckBox.UseVisualStyleBackColor = true;
             // 
             // DisplayScaleComboBox
             // 
@@ -367,15 +387,53 @@ namespace D.UI
             this.Cancel_Button.Text = "Cancel";
             this.Cancel_Button.UseVisualStyleBackColor = true;
             // 
-            // FullScreenFilterCheckBox
+            // lblNetHubHost
             // 
-            this.FullScreenStretchCheckBox.AutoSize = true;
-            this.FullScreenStretchCheckBox.Location = new System.Drawing.Point(6, 55);
-            this.FullScreenStretchCheckBox.Name = "FullScreenFilterCheckBox";
-            this.FullScreenStretchCheckBox.Size = new System.Drawing.Size(186, 17);
-            this.FullScreenStretchCheckBox.TabIndex = 3;
-            this.FullScreenStretchCheckBox.Text = "Stretch screen in Fullscreen mode";
-            this.FullScreenStretchCheckBox.UseVisualStyleBackColor = true;
+            this.lblNetHubHost.AutoSize = true;
+            this.lblNetHubHost.Location = new System.Drawing.Point(10, 150);
+            this.lblNetHubHost.Name = "lblNetHubHost";
+            this.lblNetHubHost.Size = new System.Drawing.Size(72, 13);
+            this.lblNetHubHost.TabIndex = 2;
+            this.lblNetHubHost.Text = "NetHub Host:";
+            // 
+            // txtNetHubHost
+            // 
+            this.txtNetHubHost.Location = new System.Drawing.Point(81, 147);
+            this.txtNetHubHost.Name = "txtNetHubHost";
+            this.txtNetHubHost.Size = new System.Drawing.Size(166, 20);
+            this.txtNetHubHost.TabIndex = 3;
+            this.txtNetHubHost.Validating += new System.ComponentModel.CancelEventHandler(this.OnNetHubHostValidating);
+            // 
+            // numNetHubPort
+            // 
+            this.numNetHubPort.Location = new System.Drawing.Point(282, 146);
+            this.numNetHubPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.numNetHubPort.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numNetHubPort.Name = "numNetHubPort";
+            this.numNetHubPort.Size = new System.Drawing.Size(60, 20);
+            this.numNetHubPort.TabIndex = 4;
+            this.numNetHubPort.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // lblNetHubPort
+            // 
+            this.lblNetHubPort.AutoSize = true;
+            this.lblNetHubPort.Location = new System.Drawing.Point(253, 149);
+            this.lblNetHubPort.Name = "lblNetHubPort";
+            this.lblNetHubPort.Size = new System.Drawing.Size(29, 13);
+            this.lblNetHubPort.TabIndex = 5;
+            this.lblNetHubPort.Text = "Port:";
             // 
             // ConfigurationDialog
             // 
@@ -404,6 +462,7 @@ namespace D.UI
             this.DisplayTab.PerformLayout();
             this.TimeTabPage.ResumeLayout(false);
             this.TimeTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numNetHubPort)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -436,5 +495,9 @@ namespace D.UI
         private System.Windows.Forms.DateTimePicker TODDatePicker;
         private System.Windows.Forms.RadioButton SpecifiedDateRadioButton;
         private System.Windows.Forms.CheckBox FullScreenStretchCheckBox;
+        private System.Windows.Forms.Label lblNetHubPort;
+        private System.Windows.Forms.NumericUpDown numNetHubPort;
+        private System.Windows.Forms.TextBox txtNetHubHost;
+        private System.Windows.Forms.Label lblNetHubHost;
     }
 }

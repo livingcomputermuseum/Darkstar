@@ -57,6 +57,9 @@ namespace D
             SlowPhosphor = true;
             HostPacketInterfaceName = String.Empty;
 
+            NetHubHost = "localhost";
+            NetHubPort = 3333;
+
             TODDateTime = new DateTime(1979, 12, 10);
             TODDate = new DateTime(1955, 11, 5);
             TODSetMode = TODPowerUpSetMode.HostTimeY2K;
@@ -139,6 +142,16 @@ namespace D
         public static string HostPacketInterfaceName;
 
         /// <summary>
+        /// The host name to connect to if the network interface is NetHub
+        /// </summary>
+        public static string NetHubHost;
+
+        /// <summary>
+        /// The port to connect to if the network interface is NetHub
+        /// </summary>
+        public static ushort NetHubPort;
+
+        /// <summary>
         /// Whether any packet interfaces are available on the host
         /// </summary>
         public static bool HostRawEthernetInterfacesAvailable;       
@@ -188,6 +201,16 @@ namespace D
         /// The types of logging to enable.
         /// </summary>
         public static LogType LogTypes;        
+        
+        /// <summary>
+        /// The preferred Alt-Boot mode
+        /// </summary>
+        public static AltBootValues AltBootMode = AltBootValues.None;
+        
+        /// <summary>
+        /// Do start system when the UI is brought up?
+        /// </summary>
+        public static bool Start = false;
 
         /// <summary>
         /// Reads the current configuration file from the appropriate place.
@@ -239,7 +262,9 @@ namespace D
             HardDriveImage = Properties.Settings.Default.HardDriveImage;
             FloppyDriveImage = Properties.Settings.Default.FloppyDriveImage;         
             HostID = Properties.Settings.Default.HostAddress;
-            HostPacketInterfaceName = Properties.Settings.Default.HostPacketInterfaceName;            
+            HostPacketInterfaceName = Properties.Settings.Default.HostPacketInterfaceName;
+            NetHubHost = Properties.Settings.Default.NetHubHost;
+            NetHubPort = Properties.Settings.Default.NetHubPort;
             ThrottleSpeed = Properties.Settings.Default.ThrottleSpeed;
             DisplayScale = Properties.Settings.Default.DisplayScale;
             FullScreenStretch = Properties.Settings.Default.FullScreenFilter;
@@ -255,7 +280,9 @@ namespace D
             Properties.Settings.Default.HardDriveImage = HardDriveImage;
             Properties.Settings.Default.FloppyDriveImage = FloppyDriveImage;            
             Properties.Settings.Default.HostAddress = HostID;
-            Properties.Settings.Default.HostPacketInterfaceName = HostPacketInterfaceName;            
+            Properties.Settings.Default.HostPacketInterfaceName = HostPacketInterfaceName;
+            Properties.Settings.Default.NetHubHost = NetHubHost;
+            Properties.Settings.Default.NetHubPort = NetHubPort;
             Properties.Settings.Default.ThrottleSpeed = ThrottleSpeed;
             Properties.Settings.Default.DisplayScale = DisplayScale;
             Properties.Settings.Default.FullScreenFilter = FullScreenStretch;
@@ -357,7 +384,7 @@ namespace D
 
                                     case "UInt16":
                                         {
-                                            UInt16 v = Convert.ToUInt16(value, 16);
+                                            UInt16 v = Convert.ToUInt16(value, 10);
                                             field.SetValue(null, v);
                                         }
                                         break;
@@ -425,6 +452,12 @@ namespace D
                                             }
 
                                             field.SetValue(null, sc);
+                                        }
+                                        break;
+                                        
+                                    case "AltBootValues":
+                                        {
+                                        	field.SetValue(null, Enum.Parse(typeof(AltBootValues), value, true));
                                         }
                                         break;
                                 }

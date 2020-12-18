@@ -48,6 +48,8 @@ namespace D.UI
         public bool ThrottleSpeed;
 
         public string HostPacketInterfaceName;
+        public string NetHubHost;
+        public ushort NetHubPort;
 
         public bool SlowPhosphor;
         public uint DisplayScale;
@@ -123,13 +125,19 @@ namespace D.UI
             //
             // Populate the list with the interfaces available on the machine, if any.
             //
-            EthernetInterfaceListBox.Enabled = Configuration.HostRawEthernetInterfacesAvailable;
+            EthernetInterfaceListBox.Enabled = true; // Configuration.HostRawEthernetInterfacesAvailable;
             EthernetInterfaceListBox.Items.Clear();
 
 
             // Add the "Use no interface" option
             EthernetInterfaceListBox.Items.Add(
                 new EthernetInterface("None", "No network adapter"));
+
+            // Add the "Use Nethub interface" option
+            EthernetInterfaceListBox.Items.Add(
+                new EthernetInterface(NethubInterface.NETHUB_NAME, "Network adapter to Dodo Nethub"));
+            txtNetHubHost.Text = NetHubHost;
+            numNetHubPort.Value = NetHubPort;
            
             // Add all interfaces that PCAP knows about.
             
@@ -199,7 +207,7 @@ namespace D.UI
                 ulong newValue = Convert.ToUInt64(stripped, 16);
 
                 // Ensure the value is in range
-                if ((newValue & 0xffff0000000000) != 0)
+                if ((newValue & 0xffff000000000000) != 0)
                 {
                     throw new ArgumentOutOfRangeException("HostID");
                 }
@@ -228,6 +236,8 @@ namespace D.UI
             FullScreenStretch = FullScreenStretchCheckBox.Checked;
 
             HostPacketInterfaceName = ((EthernetInterface)EthernetInterfaceListBox.SelectedItem).Name;
+            NetHubHost = txtNetHubHost.Text;
+            NetHubPort = (ushort)numNetHubPort.Value;
 
             if (CurrentTimeDateRadioButton.Checked)
             {
@@ -250,6 +260,23 @@ namespace D.UI
             else if (NoTimeDateChangeRadioButton.Checked)
             {
                 TODSetMode = TODPowerUpSetMode.NoChange;
+            }
+        }
+
+        private void OnEthernetInterfaceChanged(object sender, EventArgs e)
+        {
+            EthernetInterface iface = (EthernetInterface)EthernetInterfaceListBox.SelectedItem;
+            bool isNetHub = (iface.Name == NethubInterface.NETHUB_NAME);
+            txtNetHubHost.Enabled = isNetHub;
+            numNetHubPort.Enabled = isNetHub;
+        }
+
+        private void OnNetHubHostValidating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (String.IsNullOrEmpty(txtNetHubHost.Text))
+            {
+                MessageBox.Show("The NetHub host can not be empty");
+                txtNetHubHost.Text = "localhost";
             }
         }
     }
