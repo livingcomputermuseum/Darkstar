@@ -624,14 +624,12 @@ namespace D.Ethernet
                 _readerLock.ExitWriteLock();
 
                 if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Packet (length {0}) added to pending buffer.", data.Length);
-                //(debug) Console.Write("  -- Packet (length {0}) added to pending buffer -- currently enqueued: {1}\n", data.Length, _pendingPackets.Count);
             }
             else
             {
                 //
                 // Too many queued-up packets, drop this one.
                 //
-                //(debug) Console.WriteLine("Pending buffer full; dropping this packet.");
                 if (Log.Enabled) Log.Write(LogComponent.EthernetReceive, "Pending buffer full; dropping this packet.");
             }
             _readerLock.ExitUpgradeableReadLock();
@@ -721,12 +719,6 @@ namespace D.Ethernet
                     {
                         _inputPacket.Enqueue((ushort)(packetStream.ReadByte() << 8));
                     }
-
-                    // add 2 words to ensure that the ethernet task microcode does not ignore the packet
-                    // (the microcode seems to expect a 4 byte "frame check sequence" at the packet end)
-                    _inputPacket.Enqueue((ushort)0);
-                    _inputPacket.Enqueue((ushort)0);
-                    // end adding 2 words
 
                     _fifo.Clear();
                     _fifoHead = 0;
@@ -856,12 +848,14 @@ namespace D.Ethernet
             try
             {
 
-            	if (Configuration.HostPacketInterfaceName == NethubInterface.NETHUB_NAME) {
-            		_hostInterface = new NethubInterface();
-            		_hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
-            		Console.WriteLine("** connected to nethub");
-            	} else if (Configuration.HostRawEthernetInterfacesAvailable &&
-                    !string.IsNullOrWhiteSpace(Configuration.HostPacketInterfaceName)) {
+                if (Configuration.HostPacketInterfaceName == NethubInterface.NETHUB_NAME)
+                {
+                    _hostInterface = new NethubInterface();
+                    _hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
+                }
+                else if (Configuration.HostRawEthernetInterfacesAvailable &&
+                         !string.IsNullOrWhiteSpace(Configuration.HostPacketInterfaceName))
+                {
                     _hostInterface = new HostEthernetEncapsulation(Configuration.HostPacketInterfaceName);
                     _hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
                 }
@@ -869,10 +863,10 @@ namespace D.Ethernet
             catch (Exception e)
             {
                 _hostInterface = null;
-                Log.Write(LogComponent.HostEthernet, "Unable to configure network interface.  Error {0}", e.Message);
-                if (Configuration.HostPacketInterfaceName == NethubInterface.NETHUB_NAME) {
-                	Console.WriteLine("##\n## failed to connect to nethub: " + e.Message + "\n##");
-                }
+                Log.Write(LogType.Error, LogComponent.HostEthernet,
+                          "Unable to configure network interface '{0}':  Error {1}",
+                          Configuration.HostPacketInterfaceName,
+                          e.Message);
             }
         }
 

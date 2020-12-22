@@ -236,6 +236,7 @@ namespace D
                 //
                 ReadConfigurationUnix();
             }
+            Start |= StartupOptions.Start;
         }
 
         /// <summary>
@@ -457,7 +458,7 @@ namespace D
                                         
                                     case "AltBootValues":
                                         {
-                                        	field.SetValue(null, Enum.Parse(typeof(AltBootValues), value, true));
+                                            field.SetValue(null, Enum.Parse(typeof(AltBootValues), value, true));
                                         }
                                         break;
                                 }

@@ -61,24 +61,6 @@
   <PropertyGroup>
     <ApplicationIcon>Dandelion.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <BaseAddress>4194304</BaseAddress>
-    <Prefer32Bit>True</Prefer32Bit>
-    <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <StartAction>Project</StartAction>
-    <StartArguments>-config xde_5.0.cfg</StartArguments>
-    <StartWorkingDirectory>C:\_Hans\Darkstar_NewFeatures\D</StartWorkingDirectory>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PacketDotNet, Version=0.13.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Sharp_Pcap.4.2.0\lib\PacketDotNet.dll</HintPath>

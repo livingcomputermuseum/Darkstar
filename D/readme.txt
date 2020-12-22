@@ -58,8 +58,16 @@ use.
 If you wish to make use of the emulated Star's Ethernet interface, you
 will need to have WinPCAP installed (on Windows) or libpcap (on the Unix of 
 your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.    
+Using the Ethernet interface allows to access services on the network through
+the protocols supported by the guest operating system running in Darkstar. These
+can be TCP/IP based services like an FTP server or XNS (Xerox Network System)
+services. Real Xerox XNS server installations are rather seldom today, so
+using an XNS emulation like Dodo (see https://github.com/devhawala/dodo for
+setup and configuration details) may be an alternative for building up a virtual
+Xerox machines network.    
 If only Dodo emulated XNS services are to be accessed from Darkstar, a direct
-connection to the Dodo NetHub can be configured instead of using a real network. 
+connection to the Dodo NetHub can be configured instead of using a pcap device
+for accessing a real network.
 
 
 3.0 Getting Started

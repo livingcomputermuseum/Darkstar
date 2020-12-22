@@ -37,6 +37,8 @@ namespace D
         public static string ConfigurationFile;
 
         public static string RomPath;
+        
+        public static bool Start = false;
 
     }
     public class Program
@@ -44,7 +46,6 @@ namespace D
         [STAThread]
         static void Main(string[] args)
         {
-        	bool doStart = false;
             //
             // Check for command-line arguments.
             //            
@@ -79,7 +80,7 @@ namespace D
                             break;
 
                         case "-start":
-                            doStart = true;
+                            StartupOptions.Start = true;
                             break;
                             
                         default:
@@ -94,7 +95,6 @@ namespace D
             // Cons up a system to run stuff on.
             DSystem system = new DSystem();
             system.Reset();
-            Configuration.Start |= doStart;
 
             //
             // Start the UI, this will not return from ShowDialog

@@ -125,7 +125,6 @@ namespace D.UI
             //
             // Populate the list with the interfaces available on the machine, if any.
             //
-            EthernetInterfaceListBox.Enabled = true; // Configuration.HostRawEthernetInterfacesAvailable;
             EthernetInterfaceListBox.Items.Clear();
 
 
@@ -275,7 +274,7 @@ namespace D.UI
         {
             if (String.IsNullOrEmpty(txtNetHubHost.Text))
             {
-                MessageBox.Show("The NetHub host can not be empty");
+                MessageBox.Show("The NetHub host cannot be empty");
                 txtNetHubHost.Text = "localhost";
             }
         }

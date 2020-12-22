@@ -104,18 +104,18 @@ namespace D.UI
         
         private bool firstShown = true;
         
-		protected override void OnShown(EventArgs e)
-		{
-			base.OnShown(e);
-			if (firstShown) {
-				firstShown = false;
-				if (Configuration.Start && !_system.IsExecuting)
-	            {
-	                SystemExecutionContext context = new SystemExecutionContext(null, null, null, OnExecutionError);
-	                _system.StartExecution(context);
-	            }
-			}
-		}
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (firstShown) {
+                firstShown = false;
+                if (Configuration.Start && !_system.IsExecuting)
+                {
+                    SystemExecutionContext context = new SystemExecutionContext(null, null, null, OnExecutionError);
+                    _system.StartExecution(context);
+                }
+            }
+        }
 
         //
         // UI Event handlers:
@@ -550,7 +550,7 @@ namespace D.UI
 
         private void PopulateAltBoot()
         {
-        	_system.IOP.MiscIO.AltBoot = Configuration.AltBootMode;
+            _system.IOP.MiscIO.AltBoot = Configuration.AltBootMode;
             for (AltBootValues v = AltBootValues.None; v < AltBootValues.HeadCleaning; v++)
             {
                 ToolStripMenuItem item = new ToolStripMenuItem(v.ToString());

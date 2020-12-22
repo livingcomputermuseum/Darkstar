@@ -171,7 +171,7 @@ namespace D.Display
                 {
                     // Normal line : 32 bits of border pattern, 1024 bits of display, 32 bits of border pattern
                     // Border pattern: low byte on lines 4n, 4n+1; high byte on 4n+2, 4n+3.
-                    int patternByte = (effectiveScanline & 0x2) == 2 ? _displayBorder & 0xff : _displayBorder >> 8;
+                    int patternByte = (effectiveScanline & 0x2) == 0 ? _displayBorder & 0xff : _displayBorder >> 8;
                     ushort patternWord = (ushort)(patternByte | (patternByte << 8));
 
                     _scanlineData[0] = patternWord;
@@ -213,7 +213,7 @@ namespace D.Display
                 {
                     // Just display the border pattern everywhere:
                     // low byte on lines 4n, 4n+1; high byte on 4n+2, 4n+3.
-                    int patternByte = (effectiveScanline & 0x2) == 2 ? _displayBorder & 0xff : _displayBorder >> 8;
+                    int patternByte = (effectiveScanline & 0x2) == 0 ? _displayBorder & 0xff : _displayBorder >> 8;
                     ushort patternWord = (ushort)(patternByte | (patternByte << 8));
 
                     for (int i = 0; i < _scanlineData.Length; i++)
