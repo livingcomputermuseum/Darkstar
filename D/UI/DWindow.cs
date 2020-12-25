@@ -101,6 +101,21 @@ namespace D.UI
             UpdateFloppyDriveLabel();
             UpdateMouseState();            
         }
+        
+        private bool firstShown = true;
+        
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (firstShown) {
+                firstShown = false;
+                if (Configuration.Start && !_system.IsExecuting)
+                {
+                    SystemExecutionContext context = new SystemExecutionContext(null, null, null, OnExecutionError);
+                    _system.StartExecution(context);
+                }
+            }
+        }
 
         //
         // UI Event handlers:
@@ -305,6 +320,8 @@ namespace D.UI
             configDialog.MemorySize = Configuration.MemorySize;
             configDialog.HostID = Configuration.HostID;
             configDialog.HostPacketInterfaceName = Configuration.HostPacketInterfaceName;
+            configDialog.NetHubHost = Configuration.NetHubHost;
+            configDialog.NetHubPort = Configuration.NetHubPort;
             configDialog.ThrottleSpeed = Configuration.ThrottleSpeed;
             configDialog.DisplayScale = Configuration.DisplayScale;
             configDialog.FullScreenStretch = Configuration.FullScreenStretch;
@@ -331,9 +348,13 @@ namespace D.UI
                     ((IOPMemoryBus)_system.IOP.Memory).UpdateHostIDProm();
                 }
 
-                if (configDialog.HostPacketInterfaceName != Configuration.HostPacketInterfaceName)
+                if (configDialog.HostPacketInterfaceName != Configuration.HostPacketInterfaceName
+                    || configDialog.NetHubHost != Configuration.NetHubHost
+                    || configDialog.NetHubPort != Configuration.NetHubPort)
                 {
                     Configuration.HostPacketInterfaceName = configDialog.HostPacketInterfaceName;
+                    Configuration.NetHubHost = configDialog.NetHubHost;
+                    Configuration.NetHubPort = configDialog.NetHubPort;
                     _system.EthernetController.HostInterfaceChanged();
                 }
 
@@ -443,7 +464,7 @@ namespace D.UI
 
         private void OnFrameTimerTick(object sender, EventArgs e)
         {
-            FPSStatusLabel.Text = String.Format("{0} Fields/Sec ({1}%)", 
+            FPSStatusLabel.Text = String.Format("{0:d3} Fields/Sec ({1:d3}%)", 
                 _frameCount, 
                 (int)((_frameCount / 77.4) * 100.0));
 
@@ -529,6 +550,7 @@ namespace D.UI
 
         private void PopulateAltBoot()
         {
+            _system.IOP.MiscIO.AltBoot = Configuration.AltBootMode;
             for (AltBootValues v = AltBootValues.None; v < AltBootValues.HeadCleaning; v++)
             {
                 ToolStripMenuItem item = new ToolStripMenuItem(v.ToString());

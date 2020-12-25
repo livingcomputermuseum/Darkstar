@@ -1,4 +1,6 @@
-﻿/*
+using System;
+
+/*
     BSD 2-Clause License
 
     Copyright Vulcan Inc. 2017-2018 and Living Computer Museum + Labs 2018
@@ -24,33 +26,27 @@
     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-
-using System.Reflection;
+*/using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Darkstar")]
-[assembly: AssemblyDescription("A Xerox Star/1108 Emulator")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Living Computers: Museum+Labs")]
-[assembly: AssemblyProduct("Darkstar")]
-[assembly: AssemblyCopyright("Copyright ©  2017-2019")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
+[assembly: AssemblyTitle ("Darkstar")]
+[assembly: AssemblyDescription ("A Xerox Star/1108 Emulator")]
+[assembly: AssemblyConfiguration ("")]
+[assembly: AssemblyCompany ("Living Computers: Museum+Labs")]
+[assembly: AssemblyProduct ("Darkstar")]
+[assembly: AssemblyCopyright ("Copyright ©  2017-2019")]
+[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCulture ("")]
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
+[assembly: ComVisible (false)]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0590465e-1d91-4591-946e-ee3f7d82834b")]
-
+[assembly: Guid ("0590465e-1d91-4591-946e-ee3f7d82834b")]
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
@@ -61,5 +57,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion ("1.1.9.0")]
+[assembly: AssemblyFileVersion ("1.1.9.0")]
