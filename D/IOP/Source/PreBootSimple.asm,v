@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.25;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.25;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{-----------  Dandelion Processor Program - I/O Processor  -----------  DESCRIPTION:      Module containing the entry point of the PreBoot diagnostics.  Last modification by Roy RXO :   January 14, 1982  4:08 PM  File: PreBootSimple.asm  Stored:  [Iris]<WMicro>DLion>  Written by Roy RXO .  Dennis DEG     :  2-Sep-84 15:29:51, add copyright notice.}{ 	Copyright (C) 1982 by Xerox Corporation.  All rights reserved.};  Modification History:;  Contains only the ReadAltBoot subroutine.;	- Created (December 2, 1980  6:20 PM);	- Added DiagBootI, DiagBootN, LoopC init. (January 8, 1981  6:43 PM);	- Renamed to PreBootSimple. (June 17, 1981  1:31 PM);	- Modified ReadAltBoot for new AltBoot codes. (December 10, 1981  3:58 PM);	- Fixed AltBoot cycling so that 00 comes up first. (January 13, 1982  5:14 PM);	- Added Head cleaning AltBoot code. (January 13, 1982  5:14 PM);	- Moved ReadAltBoot to file AltBoot.asm. (January 14, 1982  2:33 PM);  DEFNITIONS:	get "SysDefs"	get "BootDefs"	get "BootLinkDefs";  EXPORTS:	EXP	PreBootGo	;  For RSTLinksK;  IMPORTS: 	IMP	ReadAltBoot	;  From AltBoot{  This code contains the PreBoot code that is run before Phase 0.  Currently all that is in thismodule is the dummy Entry point.};;  Entry point of PreBoot diagnostics:;  NOTE:  THis address is CALLed by the Boot code.PreBootGo:	jmp	PreBootStart;  Check for presence of AltBoot and set BootType, DiagBoot;  On return from ReadAltBoot:;    A = 0 => normal AltBoot code;    A # 0 => floppy head cleaningPreBootStart:	call	ReadAltBoot	ora	a		;  Check type of AltBoot code	jnz	DoFloppyHeadClean	;  nz => floppy head cleaning;  Needed for Boot diagnostics.InitDiag:	mvi	a,1		;  Initialize diagnostic flags	sta	DiagBootI	mvi	a,3	sta	DiagBootN	xra	a	sta	LoopC;  Return to the Boot code:	ret;  Special AltBoot code to do floppy head cleaning.;*** Currently unimplemented.DoFloppyHeadClean:	lxi	h,MPStartPhase0		;  Show a Phase 0 error	shld	MPOffset	mvi	c,ErrorInvalidBootType	;  ERROR:  Invalid BootType	jmp	ErrorReportExt	END	PreBootSimple@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

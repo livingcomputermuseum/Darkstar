@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  FloppyInitial.mcCopyright (C) 1981, 1982, 1984, 1987 by Xerox Corporation.  All rights reserved.  Description: Initial microcode for the floppy disk booting sequence, Author: PXJ   , Created: November 7, 1980, last edited by:   RDH   22-Apr-87 10:21:35   Add last edit line to reflect MDS relief. Last Edited: AHL,  1-Feb-87 12:13:17 - MDS relieve. See comment at label GFT. (This line added by RDH to satisfy my need for order.). Last Edited: Dennis DEG     ,  1-Sep-84 22:05:14 - add copyright notice. Last Edited: ETN  , January 13, 1982  3:14 PM - deleted at miscRet Last Edited: PXJ   , March 23, 1981  10:46 AM}SetTask[0],DoneOnceOnlyInit:{clear bank 0, 0-FFFF, takes 27 msec (411­-9 secs per click) (only the first two pages are of interest)}	Noop, {miscRet used to be here. Not needed}	c1;	rE¬ 0,	c2; {source of 0}	rD¬ 0, rDrh¬ 0,	c3;clearBank0:	MAR¬ [rDrh, rD+0],	c1;	MDR¬ rE, rD¬ rD+1, ZeroBr,	c2;	BRANCH[clearBank0, $],	c3;{ The germ is in memory, but the map is wrong. The first page of the germ is its GFT. We move it from virtual page 1 to virtual page 200. Then shift virtual pages down by 1. The Remap loop stops at page FE, but I dont think the germ will ever get bigger. AHL }	GFT:	rBrh ¬ 1, rB ¬ 1,					c1;	Noop,							c2;		rCrh ¬ 2, rC ¬ 0,					c3;			MAR ¬ [rBrh, rB], { read page 1 map }			c1;	rB ¬ 0FE, CANCELBR[$,2],				c2;	rS ¬ MD, 						c3;		Map ¬ [rCrh, rC], { page 200 ¬ old page 1 }		c1;	MDR ¬ rS,  						c2;	rS ¬ MD,						c3;Remap:	MAR ¬ [rBrh, rB], { FE ¬ 200, FD ¬ FE, 1 ¬ 2 }		c1;	MDR ¬ rS, rB ¬ rB - 1, CANCELBR[$,2], ZeroBr, WriteOK,	c2;	rS ¬ MD, BRANCH[Remap, DoneRemap],			c3;	DoneRemap:	{ end AHL }		Noop,	c1;	Noop,	c2;	GOTO[exitToEmulator],	c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

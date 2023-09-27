@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.23;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.23;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File:  Lsep56.mcDescription:  Lsep56 microcode for running at task 3 with a full display.Last edited by:  Dennis DEG        1-Sep-84 19:40:12 Add copyright notice.Last edited by:  AeF AEF       31-Aug-83  9:34:16 Move IOPage for larger VMLast edited by:  AeF AEF       September 22, 1982  2:28 PM  Rearrange, add comments, reduce by one instructionLast edited by:  NxK    NXK        7-Sep-82 10:28:28Last edited by:  AeF AEF       July 29, 1982  12:04 PM  Change offset namesLast edited by:  AeF AEF       June 28, 1982  1:34 PM}{ 	Copyright (C) 1982, 1983 by Xerox Corporation.  All rights reserved.}{These cannot be defined using the IOPage constants defined in Dandelion.df because of the fact that the offsets must be used both in relation to the Lsep CSB in the IOPage and in relation to an offset within a random real page.}Set[LsepRelocatedRunOffset, 0];Set[LsepRelocatedLowAddressOffset, 1];Set[LsepRelocatedHiAddressOffset, 2];Set[LsepRelocatedInterruptMaskOffset, 3];{The PCtl register has the following bits. 1: Enable Printer 2: ~Video JYW   4: Force Request 8: ~ClearLineActive10: Lsep56/Raven (changes task 3 into an LSEP/Raven task on properly modified HSIO boards)}SetTask[3];StartAddress[PrinterStart];{Disable the printer.  The Head will force the microcode to start running when it is time to print.}PrinterStart:	PCtl ¬ uDisableLSEP, CANCELBR[$, 0F],	c1;	dX ¬ uIOPage, ClrRefRq, GOTO [PrinterRestart1],	c2;{The Head will force the microcode to start running before printing and will force the microcode to stop running after printing.}PrinterRestart:	dX ¬ uIOPage, CANCELBR[$, 0],		c2;PrinterRestart1:	dX ¬ dX + LsepRunOffset,		c3;	rhdX ¬ IOPageHigh,			c1;	Noop,					c2;	Noop,					c3;				{Get the Run bit in the CSB (first line of band) or in the BandBuffer (subsequent lines of band) and set the Run word to zero to signal the Head that we have finished printing the line.  IF the Run bit is zero, the microcode watches the Run bit in the CSB until the head forces the microcode to stop running or the Run bit is one.}WaitLoop:	MAR ¬ [rhdX, dX + LsepRelocatedRunOffset],	c1;	MDR ¬ 0, CANCELBR[$, 0],	c2;	Xbus ¬ MD, XDisp,	c3;{Read the real address of the buffer}NextLineAddress:	MAR ¬ [rhdX, dX + LsepRelocatedLowAddressOffset], BRANCH[PrinterRestart, $, 0E],	c1;	uLsepTemporary ¬ dX, CANCELBR[$, 0],	c2;	dX ¬ MD,	c3;	uBandBufAddrLow ¬ dX, ClrRefRq,	c1;	dX ¬ uLsepTemporary,	c2;	PCtl ¬ uStartActive,	c3;{Wait for LineSync}	MAR ¬ [rhdX, dX + LsepRelocatedHiAddressOffset],	c1;	dX ¬ uBandBufAddrLow, ClrRefRq, CANCELBR[$, 0],	c2;	rhdX ¬ MD,	c3;{Output the band buffer one word at a time to the printer.  The data is assumed to be "right justified" with one word of pad, MesaInterruptMask, in a memory page.}PrintLoop:	MAR ¬ [rhdX, dX], dX ¬ dX + 1, PgCarryBr,	c1;	MDR ¬ 0, BRANCH[$, EndPrintLoop, 2], ClrRefRq,	c2;	POData ¬ MD, GOTO[PrintLoop],	c3;EndPrintLoop:	dX ¬ MD,	c3;{If the status is 0 (uLsepInterruptMask), then there are more lines in the band to be printed.  If the status is nonzero, send a Mesa interrupt and return to the beginning to wait for the next band.}	PCtl ¬ uEndBandScan,	c1;	Noop,	c2;	uLsepInterruptMask ¬ dX and dX, NZeroBr,	c3;NextBand:	dX ¬ uWP, BRANCH[NextLine, $],	c1;	dX ¬ dX or uLsepInterruptMask, MesaIntRq,	c2;	uWP ¬ dX, GOTO[NextBand],	c3;	NextLine:	dX ¬ uBandBufAddrLow,	c2;	dX ¬ dX and ~0FF, GOTO [WaitLoop],	c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

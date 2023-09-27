@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{Stored as [*]<*>BankNo0.asmlast edited by: DEG        2-Sep-84  0:05:40	add copyright notice. JMM      13-Feb-84 10:15:39	Fixed to work for Burdock and non-burdock. JMM     25-Oct-83 19:25:01}{	Copyright (C) 1983, 1984 by Xerox Corporation.  All rights reserved. };this is the bank to be loaded next.;For more banks, please type in the appropriate bank value in BankNo and fix the;file name accordingly.NewNextPhaseCode	EQU	4A56H	;MakeDLion starts IOP at 2000H.	JMP	NewNextPhaseCode	ORG	2A55H	;Our assembler treats this as relocatable from 2000H. jmmBankNo:	db	0		END			@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

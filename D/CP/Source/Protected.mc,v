@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  Protected.mcLast Edited: Dennis DEG       1-Sep-84 22:17:55:  Add copyright notice.Last Edited: AeF AEF      November 16, 1981  2:22 PM: Change register namesLast Edited: Jozef JF    November 4, 1981  3:18 PM: multiple allocation corrected (Carry changed to RefCarry)Last Edited: AeF AEF      October 23, 1981  11:40 AM: Change register names to prevent conflict with SAx00Initial.mc namesLast Edited: AeF AEF      September 11, 1981  9:52 AM: make clock update atomicLast Edited: Jim JXF      August 19, 1981  4:30 PM: add clock update to refresh task.Description: Protected microcode for Initial,Author: PXJ   ,Created: December 5, 1980,}{	Copyright (C) 1980, 1981 by Xerox Corporation.  All rights reserved. }Set[OverlayStart, Add[ProtectFence, 1]];Reserve[OverlayStart, 0FFF];	{	Phase0Protected (Protected.mc, IOPBoot.mc) resides in 0 - 00FF	Phase0 (Phase0.mc, DiskBootDLion.mc, EtherBootDLion.mc) resides in 0100 - 0FDF	The BootKernel resides in 0FE0 - 0FFF	Part of the BootKernel that can be overlaid resides in 0FD8 - 0FDF	}SetTask[0];{clobber only rC before going to external fault handler}Trap:	rC¬ RRot1 ErrnIBnStkp, ClrIntErr, CANCELBR[$, 0F],	c1, at[0];	[]¬ passTraps, ZeroBr,	c2;	BRANCH[$, Trap1],	c3;	GOTOABS[ErrorHandlerLoc],	c1; {pass the trap on}Trap1:	acR¬ bootTrap, GOTO[catchAll2],	c1;catchAll1:	Noop,	c1, at[Maintenance1Loc];catchAll2:	Noop,	c2, at[Maintenance2Loc];catchAll3:	rB¬ 0, rBrh¬ 0,	c3, at[Maintenance3Loc];	MAR¬ [rBrh, rB+1],	c1;	MDR¬ acR and 0FF, CANCELBR[$, 0],	c2;	IOPCtl¬ IOPInMode,	c3; {enable IOP}infinite:	GOTO[infinite],	c*, at[IdleLoc];SetTask[1];  StartAddress[Refresh];	{We come here once per line, or every 28.8 usec. 	That means 34,722 times per second}Refresh:	rJ ¬ rJ - 1 {Decrement clock low}, ZeroBr, Refresh, CANCELBR[$, 0F],	c1;	BRANCH[NoCarry, RefCarry],	c2;RefCarry:	rG ¬ rG - 1 {Decrement clock high}, GOTO[TestTimeout],	c3;NoCarry:	Noop,	c3;TestTimeout:	Ybus ¬ rJ or rG, ZeroBr, Refresh,	c1;	rN ¬ 1, BRANCH[$, Timeout],	c2;	ClrDPRq, GOTO[Refresh],	c3;Timeout:	uTimeout ¬ rN, ClrDPRq, GOTO[Refresh],	c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

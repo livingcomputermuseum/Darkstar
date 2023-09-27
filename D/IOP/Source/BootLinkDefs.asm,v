@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{-----------  Dandelion Processor Program - I/O Processor  -----------  DESCRIPTION:      Definitions for Boot code:  Link defintions for Boot code.  Last modification by Roy RXO : January 19, 1982  3:02 PM  File: BootLinkDefs.asm  Stored:  [Iris]<WMicro>DLion>BootLinkDefs.asm  Written by Roy RXO .Dennis DEG       1-Sep-84 22:47:14, add copyright notice}{	Copyright (C) 1980, 1982 by Xerox Corporation.  All rights reserved. };  Modification History:;;	- Created (November 18, 1980  9:53 PM);	- Add links to FloppyInit and DoSeekCmd (January 14, 1982  1:39 PM);  Note:  StartLinkTable, SizeLink is defined in BootDefs.asm.;  This table is mantained upwards in memory, i.e. successive links are stored in lower addresses.BootGoExt	equ	StartLinkTable		;  Boot entry pointDoBootPhaseExt	equ	StartLinkTable-(1*SizeLink)	;  Start of Boot file interpreterGetNextWordExt	equ	StartLinkTable-(2*SizeLink)	;  Get the next word from the boot fileBootInitExt	equ	StartLinkTable-(3*SizeLink)		;  Boot initialization subroutineReadMainMemExt	equ	StartLinkTable-(4*SizeLink)	;  Read a word of main memoryInitCPCmdExt	equ	StartLinkTable-(5*SizeLink)	;  Start a CPport Read or WriteWriteCPwordExt	equ	StartLinkTable-(6*SizeLink)	;  Write a CP wordReadCPwordExt	equ	StartLinkTable-(7*SizeLink)	;  Read a CP wordClearMPanelExt	equ	StartLinkTable-(8*SizeLink)	;  Clear maintenance panelIncrMPExt	equ	StartLinkTable-(9*SizeLink)	;  Increment maintenance panelPutMPExt	equ	StartLinkTable-(10*SizeLink)	;  Put a number in  M PanelDelayExt		equ	StartLinkTable-(11*SizeLink)		;  Delay subroutineErrorReportExt	equ	StartLinkTable-(12*SizeLink)		;  ErrorReport loopMoveLinkTableExt	equ	StartLinkTable-(13*SizeLink)	;  (DUMMY)FloppyInitExt	equ	StartLinkTable-(14*SizeLink)	;  External entry point for FloppyInitDoSeekCmdExt	equ	StartLinkTable-(15*SizeLink)	;  Do a seek commandNextLink	equ	StartLinkTable-(16*SizeLink)	;  Address of next link to be allocated	END	BootLinkDefs@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

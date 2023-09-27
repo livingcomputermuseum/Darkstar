@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.20;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.20;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File: [Iris]<WMicro>CommonDefs.asmHGM,  3-Nov-82 15:03:21: Changes for BurdockModification History:    JAC	    : 11-Jun-85 15:02:17  Added RS232CNotifyLoc as requested by MAT    DEG     :  1-Sep-84 17:21:03: Added copyright notice    MAT     : 27-Feb-84 16:23:22: Changed RS232CMiscCSBLoc from 0FF2C to 0FF70    MAT     : 27-Dec-83  8:53:14: Chancge in RS232CMiscCSBSize for Flow control.    JXF      August 3, 1982  10:14 AM: Change IOPage format    JXF      May 3, 1982  10:20 AM: rewrite DominoCreated by Roy RXO  May 13, 1980  11:46 AM}{ 	Copyright (C) 1980, 1982, 1983 by Xerox Corporation.  All rights reserved.}	; Multi-Tasker definitions.; Task Control Block (TCB) index valuesTCBStkp	equ	1		;  Saved task Stack pointerTCBStkChk	equ	3	;  Location of Constant used to mark end of stackTCBStkChkVal	equ	0ABH	;  Value of constant used to mark end of stackTCBSize		EQU	62;  CP Port Control Block (PCB) indexes.CPportCtlBlkSize	equ	8	;  Size of CPport control block (bytes);  CP address occupies 4 bytes, least significant to most significant.CPAddr3	equ	0		;  CP address byte 3CPAddr		equ	CPAddr3	;  Index of CP address (low) in Control BlockCPAddr2	equ	1		;  CP address byte 2CPAddr1	equ	2		;  CP address byte 1NotifyFlag	equ	3		;  Completion flagCPCnt		equ	4		;  Low byte of Count (in bytes)CPCntHi	equ	5		;  High byte of Count (in bytes)CPIOPAddr	equ	6		;  IOP address pointer (low byte)CPIOPAddrHigh	equ	6		;  IOP address pointer (high byte);  CP microcode commands.CPWriteCmd	equ	2	;  Write CP blockCPReadCmd	equ	1	;  Read CP blockCPNotifyCmd	equ	0	;  Naked Notify;  Dma Control Block indexes.DmaBufCnt	equ	0		;  CP address byte 2DmaBufAddr	equ	2		;  CP address byte 2;  Maintenance Panel progress codes.;  Domino Exec:MPStartDomino	equ	500	;  In ExecMPInitTOD	equ	501	;  In ExecMPInitTODDone	equ	502	;  In Exec;  Maintenance Panel error codes.;  These codes will blink in the Maintenance Panel.BlinkConst	equ	60000	;  Blink constant (~.5 sec);  Domino Exec:ErrorCSParity	equ	505	;  CS parity error detectedErrorBurdockCPDisabled	equ	506	;  Burdock attempted to use EtherKludgeErrorCPBurdockDisabled	equ	507	;  CP attempted to use EtherKludgeErrorIOPBreak	equ	508	;  Assembled in IOP breakpoint with no IOP kernel;  CPSubs:   510-519ErrorBadMapEntry	equ	510	;  In CPSubsErrorNoCPDmaComplete	equ	511	;  In CPSubsErrorNoCPDmaChannel	equ	512	;  In CPSubsErrorReadCPPortDead	equ	513	;  Read CPPort timeoutErrorWriteCPPortDead	equ	514	;  Write CPPort timeoutErrorIllegalSIOInterrupt	EQU	515;  MultiTask: 520-?ErrorStackOverflow	equ	520	;  In MultiTask;  KBTask:ErrorInvToneCmd	equ	565	;  In KBTask;  MPTask:  570 - 575ErrorInvProcCmd	equ	570	;  In MPTaskErrorUnImplCmd	equ	571	;  In MPTaskErrorSetTOD	equ	572	;  In MPTask;  LSEPTask:  576ErrorLSEPCtlOVR	equ	576	;  LSEP Control CSB overrun set (shouldn't occur);  FloppyTask:  580 - 590ErrorNoValidCommand	equ	580	;  Invalid IOCB commandErrorUnImplFloppyCmd	equ	581	;  Unimplemented IOCB commandErrorInvalidEscapeCmd	equ	582	;  Invalid Escape commandErrorCommandTrackError	equ	583	;  Track register is not correctErrorTrackToBig	equ	584	;  Track number is too largeErrorBadDmaChannel	equ	585	;  Couldn't program Dma Controller channelErrorNoDmaEndCount1	equ	586	;  External Dma End Count not setErrorNoDmaEndCount2	equ	587	;  Internal Dma End Count not setKBDiagWait	equ	2247	;  Wait value of ~ 15 msec for KB Diag;;  --------------Addresses in main memory ------------------------------;  Device CSB'sCPIOPageHi	equ	0	; virtual address high of IOPage; LSEP CSBCommandLoc		EQU	0FF10HLSEPDataLoc		EQU	0FF10HLSEPStatusLoc		EQU	0FF11HMPNumberLoc		EQU	0FF12HFloppyIocbLoc		EQU	0FF13HTTYCommandLoc		EQU	0FF14HProcCommandLoc		EQU	0FF15HMouseChangeFlagLoc	EQU	0FF16HToneCommandLoc		EQU	0FF17HRS232CMiscFlagLoc	EQU	0FF18HRS232CPutFlagLoc	EQU	0FF19HRS232CGetFlagLoc	EQU	0FF1AHBurdockIocbLoc		EQU	0FF1BH		; *** HGMCommandDataSize:	EQU	12*2				; *** HGM;Reserve space for 3 new commands		  *** HGMLSEPCSBLoc		EQU	0FF1FHLSEPCSBSize		EQU	2*2FloppyCSBLoc		EQU	0FF21HFloppyCSBSize		EQU	1*2TTYOutCSBLoc		EQU	0FF22HTTYOutCSBSize		EQU	2*2TTYInCSBLoc		EQU	0FF24HTTYDeviceStatusLoc	EQU	0FF25HTTYInCSBSize		EQU	2*2ProcessorCSBLoc		EQU	0FF26HProcessorCSBSize	EQU	3*2MouseChgCSBLoc		EQU	0FF29HMouseChgCSBSize		EQU	2*2ToneCSBLoc		EQU	0FF2BHToneCSBSize		EQU	1*2RS232CMiscCSBLoc	EQU	0FF70H	;note change from FF2C RS232CMiscCSBSize	EQU	8*2RS232CPutCSBLoc		EQU	0FF31HRS232CPutCSBSize	EQU	2*2RS232CGetCSBLoc		EQU	0FF33HRS232CGetCSBSize	EQU	2*2RS232CDeviceStatusLoc	EQU	0FF35HRS232CDeviceStatusSize	EQU	1*2RS232CParameterLoc	EQU	0FF36HRS232CParameterSize	EQU	1*2RS232CNotifyLoc		EQU	0FF78HRS232CNotifySize	EQU	1*2;Other IO Page areasTODLoc			EQU	0FF37HTODSize			EQU	8	;Size in bytes of TODMXLoc			EQU	0FF3BHMStateSize		EQU	6KBLoc			EQU	0FF3EHKeyMapSize		EQU	12;  ---------------------------------------------------------------;  Ethernet Host address information.;  The Ethernet host number in logical format is a 48-bit number:;	B5 B4 B3 B2 B1 B0,  where Bi is a byte.;  The address is transmitted as:  B0 B1, B2 B3, B4 B5 (High, Middle, Low words).;  B0 B1 B2 B3 (high, middle words) is fixed for Dandelions as 00 00, AA 00 (Hex).;  B4 B5 (low word) is the variable processor ID.EtherHostHigh	equ	0000H	;  B0..B1EtherHostMiddle	equ	0AA00H	;  B2..B3;  ---------------------------------------------------------------	END	ExecDefs@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

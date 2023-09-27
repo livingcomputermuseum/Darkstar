@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{	File name: BandBLTSubs.mc	Description: Subroutines to support BandBLT byte-code	Author: Patrick PXO     	Created: June 10, 1980  2:40 PM	Last edit by Jim JXF     ,  January 23, 1981  10:54 AM	Last edit by PXO     ,  April 21, 1981  4:37 PM:  Changed a  "BRANCH[$, justEob, 1]" to "BRANCH[$, justEob, 0D]."	Last edit by PXO     ,  March 23, 1981  4:10 PM:  Changed spellings of all occurrences of "uregMumble" to "uMumble."	Last edit by PXO     ,  March 20, 1981  7:57 PM:  Changed writeLO to write SetLevel and SetInk commands if needed before	  writing leftovers.	Last edit by Dennis DEG     ,  1-Sep-84 19:17:19:  Add copyright notice.	  }{ 	Copyright (C) 1980, 1981 by Xerox Corporation.  All rights reserved.}{	Subroutine writeLO is called to write an entry in the output leftover list.  The number of words to be written is encoded in rJunk.  If this	number is 0C, only uChar2 (i.e., an end-of-band command) will be stored in memory; if it is 0, the words written are uChar0, uChar1,	uChar2.  The pointer to the leftover list is in uSaveLOwritePHigh,,uSaveLOwritePLow; it is updated and saved before the subroutine	returns.  Before writing the leftover, uCurrentLevelCmd is compared to uLastLevelLOwritten; if they differ,	uCurrentLevelCmd is written to the output leftover list and uLastLevelLOwritten is set to uCurrentLevelCmd.  Similarly,	uCurrentInkCmd is compared to uLastInkLOwritten; if they differ, uCurrentInkCmd is written to the output leftover list and	uLastInkLOwritten is set to uCurrentInkCmd.  Note that these tests are skipped if Link register 1 has bit 2 (i.e., 21) set to 1; this	is to avoid writing SetInk and SetLevel leftover list entries when writing end-of-band commands to the output leftover list.  This puts the	obvious constraints on the values that can be used for subroutine linkage.  writeLO modifies link register L2, and returns through label	writeLORets via link register L1. }writeLO:	rLOwriteP ¬ uSaveLOwritePLow, L1Disp	,c1, at[writeLO.0, 10, writeLORets];	rhLOwriteP ¬ uSaveLOwritePHigh, BRANCH[$, justEob, 0D]	,c2;	rLoop ¬ uCurrentLevelCmd, pCall2	,c3;	[] ¬ rLoop xor uLastLevelLOwritten, ZeroBr	,c1, at[5, 10];	uLastLevelLOwritten ¬ rLoop, BRANCH[$, TestInk]	,c2;	Noop	,c3, at[4, 10, NoCross];	rLOwriteP ¬ MAR ¬ [rhLOwriteP, rLOwriteP + 1]	,c1;	MDR ¬ rLoop, rTemp ¬ rLoop, PgCrBRANCH[LevNoCross, $]	,c2;	rScratch ¬ uLOwriteV, CALL[updatePgNum]	,c3, at[7, 10, NoCross];LevNoCross:TestInk:	rLoop ¬ uCurrentInkCmd, pCall2	,c3, at[5, 10, NoCross];	Ybus ¬ rLoop xor uLastInkLOwritten, ZeroBr	,c1, at[9, 10];	uLastInkLOwritten ¬ rLoop, BRANCH[$, InkNoCross]	,c2;	Noop	,c3, at[8, 10, NoCross];	rLOwriteP ¬ MAR ¬ [rLOwriteP, rLOwriteP + 1]	,c1;	MDR ¬ rLoop, rTemp ¬ rLoop, PgCrBRANCH[InkNoCross, $]	,c2;	rScratch ¬ uLOwriteV, CALL[updatePgNum]	,c3, at[0B, 10, NoCross];InkNoCross:	Ybus ¬ rJunk, YDisp, GOTO[LOwriteLoop]	,c3, at[9, 10, NoCross];justEob:	Ybus ¬ rJunk, YDisp, GOTO[LOwriteLoop]	,c3;LOwriteLoop:	rLOwriteP ¬ MAR ¬ [rhLOwriteP, rLOwriteP + 1], pCall2, DISP4[writec2]	,c1;writec2:	MDR ¬ uRect0, rTemp ¬ uRect0, DISP4{PgCrBRANCH}[NoCross{, reWrite}]	,c2, at[0, 10];	MDR ¬ uRect1, rTemp ¬ uRect1, DISP4{PgCrBRANCH}[NoCross{, reWrite}]	,c2, at[6, 10, writec2];	MDR ¬ uRect2, rTemp ¬ uRect2, DISP4{PgCrBRANCH}[LOwriteDone{, LastCross}, 0C]	,c2, at[0C, 10, writec2];NoCross:	rJunk ¬ rJunk + 6, YDisp, GOTO[LOwriteLoop]	,c3, at[0, 10];AnotherNoCross:	rJunk ¬ rJunk + 6, YDisp, GOTO[LOwriteLoop]	,c3, at[6, 10, NoCross];LastCross:	rScratch ¬ uLOwriteV, CALL[updatePgNum]	,c3, at[0E, 10, NoCross];reWrite:	rScratch ¬ uLOwriteV, CALL[updatePgNum]	,c3, at[2, 10, NoCross];updatePgNum:	rhLOwriteV ¬ rLOwriteV ¬ rScratch LRot8	,c1;	rScratch ¬ rScratch + 1	,c2;	uLOwriteV ¬ rScratch	,c3;	Map ¬ [rhLOwriteV, rLOwriteV]	,c1;	Noop	,c2;	rhLOwriteP ¬ rLOwriteP ¬ MD	,c3;	rLOwriteP ¬ MAR ¬ [rhLOwriteP, 0 + 0], pRet2	,c1;	MDR ¬ rTemp, RET[NoCross]	,c2;LOwriteDone:	Noop	,c3, at[0C, 10, NoCross];	uSaveLOwritePLow ¬ rLOwriteP	,c1;	rLOwriteP ¬ rhLOwriteP, pRet1	,c2;	uSaveLOwritePHigh ¬ rLOwriteP, RET[writeLORets]	,c3;{	Subroutine Read is called to read the memory word addressed by the virtual pointer in [rhReadV,,rReadV].  It loads	[rhReadP,,rReadP] with the physical pointer to this word, and loads uVirtPage and rJunk with the next virtual page number.  The	Map is neither checked nor maintained.  The memory word is returned in rTemp.  Read returns through label ReadRets.}Read:	rTemp ¬ rReadV	,c1;	rReadV ¬ rReadV and ~00FF	,c2;	rReadV ¬ rReadV or rhReadV	,c3;	rReadV ¬ rReadV LRot8 {virtual page number}	,c1;	rReadP ¬ rReadV + 1 {next virtual page}	,c2;	rReadV ¬ rTemp	,c3;ReadMap:	Map ¬ [rhReadV, rReadV]	,c1;	uVirtPage ¬ rReadP	,c2;	rhReadP ¬ rReadP ¬ MD	,c3;	rReadP ¬ MAR ¬ [rhReadP, rReadV + 0]	,c1;	rJunk ¬ uVirtPage, pRet2	,c2;	rTemp ¬ MD, RET[ReadRets]	,c3;{	Subroutine reRead is called when the physical pointer in [rhReadP,,rReadP] crosses a page.  It requires rTemp to contain	the virtual page number of the page to be read, and returns in rTemp the first word of this page.  It leaves [rhReadP,,rReadP]	pointing to this word, and loads uVirtPage and rJunk with the next virtual page number.  The Map is neither checked nor maintained.	reRead uses subroutine Read and returns through label ReadRets.}reRead:	rhReadV ¬ rReadV ¬ rTemp LRot8	,c1;	rReadP ¬ rTemp + 1	,c2;	rReadV ¬ rReadV and ~00FF, GOTO[ReadMap]	,c3;{	Subroutine SaveReadPtr is called to save the current input list (bandlist or leftover list) real pointer and the	virtual page number needed when a page-cross occurs in that list.  It saves the low half (rReadP) in uSaveReadPLow,	the high half (rhReadP) in uSaveReadPHigh, and the virtual page number (uVirtPage) in uSaveVirtPage.	SaveReadPtr returns through label SaveReadPtrRets via pRet2.}SaveReadPtr:	uSaveReadPLow ¬ rReadP	,c*;	rReadP ¬ rhReadP	,c*;	uSaveReadPHigh ¬ rReadP	,c*;	rReadP ¬ uVirtPage, pRet2	,c*;	uSaveVirtPage ¬ rReadP, RET[SaveReadPtrRets]	,c*;{	Subroutine PageNumToPtr is called to convert the virtual page number in rTemp to a long pointer. The low word is left in rJunk, and the high byte in rTemp.  (Note that, on return, only the low eight bits of rTemp are valid.)	PageNumToPtr returns through label PageNumToPtrRets via pRet2.}PageNumToPtr:	rTemp ¬ rTemp LRot8, pRet2	,c*;	rJunk ¬ rTemp and ~00FF, RET[PageNumToPtrRets]	,c*;{	Subroutine TempRot12 is called to rotate rTemp by 12. A dispatch is pending.}TempRot12:	rTemp ¬ rTemp LRot12, DISP4[Rot12Ret]	,c*;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

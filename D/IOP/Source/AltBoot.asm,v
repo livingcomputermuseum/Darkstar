@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{-----------  Dandelion Processor Program - I/O Processor  -----------  DESCRIPTION:      Module containing the AltBoot switch subs.  Last modification by Roy RXO :   January 14, 1982  4:10 PM  File: AltBoot.asm  Stored:  [Iris]<Workstation>BootEPromRAM.dm  Written by Roy RXO .  Dennis DEG     :  2-Sep-84 15:14:34, add copyright notice.}{ 	Copyright (C) 1982 by Xerox Corporation.  All rights reserved.};  Modification History:;	- Created (January 14, 1982  2:25 PM);  DEFNITIONS:	get "SysDefs"	get "BootDefs"	get "BootLinkDefs";  EXPORTS:	EXP	ReadAltBoot	;  For PreBoot (and PreBootSimple)	EXP	DefaultBootVal	;  For debugging with Burdock;  IMPORTS:  (none){  This code contains the subroutine for reading the AltBoot switch and making the decision.};  Subroutine:  ReadAltBoot.;  After the Boot button is pressed, the AltBoot switch is checked.;  If it is true, then increment the maintenance panel and wait 1 second.;  Repeat until AltBoot is false.  The number in the MP is the Boot type.;  Wrap the number around after the maximum Boot type number.;  On exit:;    BootType is set to the MP value.;    If there is no AltBoot, then BootType will be set to 0.;    If The BootType is diagnostic, then set DiagBoot to 1.;    A = 0 => normal AltBoot code;    A # 0 => floppy head cleaning;  Note:  BootInit should be called before calling ReadAltBoot, to initialize the MiscClocks1 register.ReadAltBoot:	call	ClearMPanelExt		;  MP = 0000SetDefaultBoot:	mvi	a,DefaultBoot	;  Set to default value	sta	BootTypeDefaultBootVal	equ	SetDefaultBoot+1	;  Byte for modification by Burdock command file.ReadAltLoop:	lxi	h,AltBootDelay1	;  Delay about 1/2 sec	call	DelayExt		lxi	h,AltBootDelay2	;  Delay about 1/4 sec	call	DelayExt	in	MiscInput1	;  Check if AltBoot is true	ani	AltBootMask	jz	EndReadAlt	;  z => switch not down		lxi	h,BootType	;  Point to BootType	inr	m		;  Increment BootType	call	IncrMPExt	mvi	a,MaxBootType+1	;  Check for maximum number	cmp	m		;  Compare Max+1 with BootType	jnz	ReadAltLoop	;  nz => not maximum+1 yet	xra	a		;  Set MP and BootType back to 0	mov	m,a		;  BootType _ 0	call	ClearMPanelExt	;  MP _ 0	jmp	ReadAltLoop;  Table of DiagBoot values.  Indexed by BootType.DiagBootTable:	db	1	;  0:  diagnostic rigid	db	0	;  1:  rigid	db	0	;  2:  floppy	db	0	;  3:  ethernet	db	1	;  4:  diagnostic ethernet	db	1	;  5:  diagnostic floppy	db	0	;  6:  alternate ethernet	db	1	;  7:  diagnostic Trident1	db	1	;  8:  diagnostic Trident2	db	1	;  9:  diagnostic Trident3;  Entry for 10 is not needed, since it is the Head cleaning function.;  No more AltBoot.  Check if diagnostic AltBoot.;  Note that the range of BootType is checked, in case the default boot was used.EndReadAlt:	lda	BootType	;  Check range of BootType	cpi	MaxBootType+1	jnc	BootTypeTooBig	;  nc => BootType >= MaxBootType+1	cpi	AltFloppyHeadClean	;  Check if Floppy Head cleaning	jz	FloppyHeadCleanRet	;  z =>  BootType = AltHeadClean;  Is BootType a diagnostic boot?  A has BootType.	mov	c,a		;  Form table index in B,C	xra	a	mov	b,a	lxi	h,DiagBootTable	;  Point to start of table	dad	b		;  H,L _ Start of Table + BootType	mov	a,m		;  Read value for DiagBoot	sta	DiagBoot		;   and store	xra	a		;  A _ 0, for normal return	ret; Floppy head clean return:FloppyHeadCleanRet:	mvi	a,0FFH		;  A _ #0	ret;  Value of BootType is larger than the maximum.BootTypeTooBig:	lxi	h,MPStartPhase0		;  Show a Phase 0 error	shld	MPOffset	mvi	c,ErrorInvalidBootType	;  ERROR:  Invalid BootType	jmp	ErrorReportExt	END	AltBoot@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

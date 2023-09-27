@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ExtraBanksKernel.mc  Last edited by: -- DEG      28-Sep-84 21:33:08 - Add copyright notice . -- purcell 14-May-84 13:38:35 - perform refresh during task 0 idle loop . -- JMM    17-Oct-83 14:01:02 - deleted definitions already appearing   				in Dandelion.dfn . -- HXS    :           16-Sep-83 15:59:48				} { Copyright (C) 1983, 1984 by Xerox Corporation.  All rights reserved. }{Init the TPC's for all the tasks (except 6, and 7) to point to Idle.  Idle must be at[0F,10] to cancel possible pending condition bits.}	SetTask[0]; StartAddress[IdleRefresh];	SetTask[1]; StartAddress[Idle];	SetTask[2]; StartAddress[Idle];	SetTask[3]; StartAddress[Idle];	SetTask[4]; StartAddress[Idle];	SetTask[5]; StartAddress[Idle];	{the code for this module will lie in low mem, in the so called cp image?  The new IOP assembly code will assure that the cp image remains unchanged as each bank is loaded, thus the Idle loop will appear in each bank at the same address}Reserve[0]; Reserve[80,0FFF];Idle:	CANCELBR[Idle, 0F],	c*, at[0F];IdleRefresh: Refresh,	c*, at[1F];	Refresh,	c*;	Refresh,	CANCELBR[IdleRefresh, 0F],c*;{following register definitions use registers specified in Dandelion.df as belonging to Emulator, IOP/Kernel or IOP}SetTask[7]; StartAddress[KStart];KStart:	rK ¬ 41, CANCELBR[$, 0F],	c1;	DCtl ¬ rK LRot0, GOTO[KEntry],	c2; {not sure if Dctl needed}				{following code borrowed from bootkernel.mc of apilot100}{Set[IOPInMode, 1];	{IOP port input mode}Set[IOPAWMode, 3];	{IOP port alwaysWU mode}}KEntry:	uKSaveR ¬ rK,			c*;	rK ¬ RShift1 ~IOPStatus,	c*;	uIOPCtlSave ¬ rK,		c*;	IOPCtl ¬ IOPInMode,		c*;  {enable IOP port}KRefresh:	Refresh,	c*;	Refresh,	c*;	Refresh,	c*;KLoop:	Xbus¬ IOPStatus, XLDisp,	c*; {IOPReq?, x.8 guaranteed 0}	rK¬ rK+1, NibCarryBr, BRANCH[$, KCommand],	c*;	BRANCH[KLoop, KRefresh],	c*;{here for kernel command from IOP}{this loop seems to get the cycles into phase}{I always thought a task woke up at c1, hence there should be no issue, however, the code I am copying has these loops}KCommand:	Xbus¬ 0, XC2npcDisp, CANCELBR[$, 1],	c*;KCommand1:	BRANCH[$, KDisp, 1],	c*;	Xbus¬ 0, XC2npcDisp, GOTO[KCommand1],	c*;KDisp:	Noop,	c1;	Xbus ¬ IOPIData, XDisp,	c2;	DISP2[KTable],	c3;{****************************************************************************************}{command = 0, exit Kernel}{****************************************************************************************}KTable:	ExitKernel,				c1, at[0C, 10, KTable];	rK ¬ uKSaveR,				c2;	IOPCtl ¬ uIOPCtlSave, GOTO[KEntry],	c3;					{****************************************************************************************}{command = 1, refresh}{****************************************************************************************}KRefCmd:	Refresh, GOTO[KRefresh], {sneak in an extra refresh}	c1, at[0D, 10, KTable];		{****************************************************************************************}{command = 2, set bank register  [this is the new command]}{****************************************************************************************}{first wait for IOPStatus to become valid again}KCmd2:	Refresh,			c1, at[0E, 10, KTable];	{noop}				c2;	{noop}				c3;{now wait for the bank number to show up}	Xbus ¬ IOPStatus, XLDisp,	c1;	BRANCH[$, KCmd2b, 2],		c2;	GOTO[KCmd2],			c3;{now do it}KCmd2b:	rK ¬ IOPIData,			c3;		Bank ¬ Ybus ¬ rK,		c1; 	IOPOData ¬ rK LRot0,		c2; {let IOP know what the new bank is}	{noop} GOTO[KRefresh],		c3;{****************************************************************************************}{command = 3}{my boot multi bank patch will use the command to see if my kernel is listening}{****************************************************************************************}KCmd3:	IOPOData ¬ 7,		c1, at[0F, 10, KTable];	{noop}			c2;	{noop} GOTO[KRefresh],	c3;{Remarks: 1-Sep-83  9:06:24:	Original version used a task 0 which did an EnterKernel to capture Kernel task, with a dance involving a register to determine that subsequent task 0 execution should go to idle.  Now I just use two explict task starts, I am pretty sure that the boot code in IOP will load the low cp before setting the task registers, so that kernel will simply suddenly start executing in my new code.  Also had to add protect statements to CedarOpsA and CedarOpsB to keep the ordinary code out of the Low cp area, thus preventing ordinary code from clobbering my special low cp code. 1-Sep-83 10:31:32: remove the DCtl ¬ 0 I had placed in the Idle loop 1-Sep-83 11:06:46: add cmd 3 to provide a test that this kernel is running, also start reserve at 80 rather than 100, since cpimage in IOP is only 80 long.  1-Sep-83 13:03:38: add a response byte to SetBank command, so IOP will know what the new bank is for debugging   1-Sep-83 13:09:47: added a LRot0 to the cmmand loading bank register, since assembler insisted on some such for IOPOData    1-Sep-83 15:41:13: must save IOPCtl to restore when leaving Kernel mode, as kernel can be called when IOP task is sending data to IOP, as well as when IOP task is waiting for a request from IOP.  For the moment, I am setting bank absolutely to 1.  will fix this later. 1-Sep-83 15:57:39: ExitKernel must go to KEntry upon re-entry to kernel, so that it can save IOPCtl  1-Sep-83 16:39:38: added DCtl ¬ 41 to KStart, not sure if needed.   2-Sep-83 16:43:17: UGH: KENtry must not only save IOPCtl, but also must save rK, as this is used by the IOP read memory loop, which is active!  failure to do so causes loss of 2nd byte of first work of the three work group making up one control store word.   16-Sep-83 12:43:21: rename as ExtraBankKernel.mc, name tne bank command in the comments as SetBank, and modify the code to take a bank number from the IOP.   16-Sep-83 14:20:20: forgot to wait 3 cyscle for IOPCntl to become valid after getting the command byte   16-Sep-83 14:44:18: need a refresh in the wait loop also   16-Sep-83 15:14:15: still dies when trying SeBank command, so maybe I ned to use BRAnCH[x, x, 2], to mask out the top bit of the XLDisp.  (Not likely)   16-Sep-83 15:59:42: UGH, in making the change, I dropped the "at[0E, 10, KTable]­ from the entry to the SetBank comamand code.}	@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

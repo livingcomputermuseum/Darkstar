@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.11;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.11;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@; Copyright (C) 1980  by Xerox Corporation. All rights reserved. ;; Definitions.;  Program mode, stored in location Mode.ConstantDataVal	equ	0	;  00 = constant data (TPC, CS test)RandomDataVal	equ	1	; 01 =  random data (TPC, CS test)AddressDataVal	equ	2	; 10 = address data (CS test)BufferSize	equ	100H	; Buffer size (256 bytes)EnCPport	equ	62H	;  DmaMode: TCS, EW, Enable channel 1CPDmaComplMask	equ	1	;  Mask of CP DmaComplete bit in CPStatusDelayVU0	equ	0000H		;  delay valueDelayVU1	equ	0001H		;  delay valueDelayVU2	equ	0005H		;  delay valueDelayVU3	equ	0004H		;  delay valueDelayVU4	equ	0098H		;  delay valueDelayVU5	equ	0114H		;  delay valueDelayVU6	equ	0128H		;  delay valueDelayVU7	equ     8000H		;  delay value;-----------------------------------------------------------------;tty defs and stuffTCONTINUE equ 5FHTSP equ 20HTCR equ 0DHTA equ 61HTB equ 62HTC equ 63HTD equ 64HTE equ 65HTF equ 66HTI equ 69HTJ equ 6AHTK equ 6BHTL equ 6CHTM equ 6DHTN equ 6EHTO equ 6FHTP equ 70HTQ equ 71HTR equ 72HTS equ 73HTT equ 74HTU equ 75HTV equ 76HTW equ 77HTX equ 78HTY equ 79HTZ equ 7AHT0 equ 30HT1 equ 31HT2 equ 32HT3 equ 33HT4 equ 34HT5 equ 35HT6 equ 36HT7 equ 37HT8 equ 38HT9 equ 39HOSCcmd	EQU	36H		;  Counter#0, LSB & MSB, Mode3, BinaryReset0	EQU	80H		;  First character of reset sequence (see notes)Reset1	EQU	00H		;  Second character of reset sequenceReset2	EQU	40H		;  Third character of reset sequencePTMode	EQU	0CEH		;  2 stop, parity none, 8 bits, 16XPTMode630	EQU	5EH	;  1 stop, parity odd, 8 bits, 16XPrtBreak EQU	08H		;  Send long breakErrRst	EQU	10H		;  Error Reset CommandEnable	EQU	25H		;  Rx /TxEnable, CTSTTYERROR	EQU	38H		;  Framing, Overrun, Parity ErrorDSR	EQU	80H		; Data Set Ready Flag of UART StatusCRCode	EQU	0DH		;  Carrige Return CodeLFCode	EQU	0AH		;  Line Feed CodeTTYDataWait	equ	1000	;  Wait value of ~ ?msec for TTY Data;-----------------------------------------------------------------;kb defs and stuffKSTN equ 22HKSTOP equ 35HKDEL equ 3BHKSP equ 36HKCR equ 50HKA equ 5CHKB equ 48HKC equ 4AHKD equ 5AHKE equ 6AHKF equ 59HKI equ 65HKJ equ 56HKK equ 55HKL equ 54HKM equ 46HKN equ 47HKO equ 64HKP equ 63HKQ equ 6CHKR equ 69HKS equ 5BHKT equ 68HKU equ 66HKV equ 49HKW equ 6BHKY equ 67HKZ equ 4CHK0 equ 73HK1 equ 7CHK2 equ 7BHK3 equ 7AHK4 equ 79HK5 equ 78HK6 equ 77HK7 equ 76HK8 equ 75HK9 equ 74HMPWait		equ	5FFFH	;  Wait value of ~ .5 sec for MPKBDataWait	equ	1000H	;  Wait value of ~ 50 usec for KB DiagKBDiagWait	equ	1733	;  Wait value of ~ 15 msec for KB DataKBD1		equ	10H	;  D1 diagnostic character from keyboardKBD2		equ	6FH	;  D2 diagnostic character from keyboard;-----------------------------------------------------------------MLoad equ 0HFLoad equ 5HMPSetLoop0 equ 99MPSetLoop2 equ 80MPSetLoop3 equ 81MPSetLoop4 equ 82MPSetLoop5 equ 83MonitorP equ 1BootP equ 2BootP1 equ 3BootP2 equ 4BootP3 equ 5UtilP equ 6MemP equ 7DiskP equ 8PrintP equ 9MagP equ 10DisplaceMent  equ 1H  ; displacement value from one boot file to next;  TPC Test valuesMaxTPCAddr	equ	70H	; Maximum TPC addressTPCFeedbackMask	equ	53H	; Mask for TPC data random number generator (12 bits);  CS Test values.CSFeedbackMask	equ	1DH	; Mask for CS data random number generator (8 bits)MinCSAddr	equ	0H	; First CS address to be tested;  Test, test number values.; IOP Program MOONLIGHT; Stops at MoonBurdock+ if succuessful.; Stops at ErrorLoop+? if a test fails.; Testn is a memory loc which has number of test in error.KBT   	equ	1 	; Doing KEYBOARD DIAGTest.CSCDTO	equ	2 	; Doing CS Constant data (ONES)Test.CSCDTZ	equ	3 	; Doing CS Constant data (ZERO)Test.TPCDT	equ	4 	; Doing TPC Data Test.CSADT	equ	5 	; Doing CS Address data Test.CSRDT	equ	6 	; Doing CS Random data Test.InBrA	    equ	7 	; Doing Instruction Branch and x,y bus Test.InBrC	    equ	8 	; Doing Instruction branch on cyc2 test.InPI	    equ	9 	; Doing Instruction port in Test.InPO	    equ	10 	; Doing Instruction port out Test.InPIDma    equ	11 ;Doing Instruction DMA port in Test.InPODma   equ	12 ;Doing Instruction DMA port out Test.InSun1      equ	13 ;Doing Instruction SUNLIGHT SEGMENT 1 Test.InSun2      equ	14 ;Doing Instruction SUNLIGHT SEGMENT 2 Test.InSun3      equ	15 ;Doing Instruction SUNLIGHT SEGMENT 3 Test.InSun4      equ	16 ;Doing Instruction SUNLIGHT SEGMENT 4 Test.InSun5      equ	17 ;Doing Instruction SUNLIGHT SEGMENT 5 Test.InMem      equ	18 ;Doing Instruction JxK  CPMEM Test.InCur       equ	19 ;Doing Instruction cursor Test.InCyc      equ	20 ;Doing Instruction JxK  CYCLE Test.InTC      equ	21 ;Doing Instruction JxK  TASKTC Test.InEith      equ	22 ;Doing Instruction Eithernet ETHBtest.InRTC      equ	23 ;Doing Instruction R.T.C. Test.InHost      equ	24 ;Doing Instruction Host Prom Test.InCS0   equ	25 ;Doing Instruction INC CS 0 Test.InCS1   equ	26 ;Doing Instruction INC CS 1 Test.InMouse   equ	27 ;Doing Instruction Mouse Test.InCSBank   equ	28 ;Doing Instruction CS Bank Conf.EXTPCDT	equ	29 	; Doing TPC Data Test.EXCSCDTO equ	30 	; Doing CS Constant data (ONES)Test.EXCSCDTZ equ	31 	; Doing CS Constant data (ZERO)Test.EXCSADT	equ	32 	; Doing CS Address data Test.EXCSRDT	equ	33 	; Doing CS Random data Test.LastKTaskN    equ	InPODma	; Last task 7 test.FirstInt      equ	InBrA	; Last internel task  test.	END	MOONSysDefs@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

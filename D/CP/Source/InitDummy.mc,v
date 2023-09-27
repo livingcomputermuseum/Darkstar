@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  InitDummy.mc Description: Mesa Emulator initialization, Author: R. RXJ     , DEG        1-Sep-84 22:07:57  Add copyright notice. Last Edited: November 10, 1980  9:57 AM} {	Copyright (C) 1981 by Xerox Corporation.  All rights reserved. }DoneOnceOnlyInit:	GOTO[InitDummy],	c1;InitDummy: GOTO[InitDummy],	c*;{starting at ZMem zeros 768K of memory}ZAgain:	uTickCount ¬ L xor ~L,	c3;ZMem:	T ¬ 41, CANCELBR[$,0F],	c1;	DCtl ¬ T LRot0,	c2;	MCtl ¬ 0, rhRx ¬ 0,	c3;	T ¬ 0C{loop count},	c1;	TT ¬ RShift1 ~0FF,	c2;	Rx ¬ 0,	c3;ZLoop:	MAR ¬ [rhRx, Rx+0],	c1;	MDR ¬ TT, Rx ¬ Rx + 1, CarryBr,	c2;	Q ¬ rhRx + 1, BRANCH[ZLoop,$],	c3, Suppress Timing Warning;	T ¬ T - 1, ZeroBr,	c1;	rhRx ¬ Q LRot0, BRANCH[$,ZAgain],	c2;	GOTO[ZLoop],	c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

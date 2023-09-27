@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.24;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.24;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  File:  [Iris]<WMicro>DLion>MPTask.asmDennis DEG       1-Sep-84 16:51:09: Add copyright notice.Last change by Dennis DEG      18-Jan-83 17:39:31: make the code even more efficient.Last change by Dennis DEG       5-Dec-82 17:52:08: alter the way the MP is displayed.Last change by AeF AEF      19-Nov-82  9:10:25: Delete yield after 256 incrementsLast change by Jim JXF      July 23, 1982  12:52 PM: new IO Page formatLast change by Jim JXF      April 6, 1982  7:33 AMWritten by Jim JXF      April 2, 1982  8:26 AM}{ 	Copyright (C) 1982, 1983 by Xerox Corporation.  All rights reserved.}	GET	"SysDefs"	IMP	MPNumber	; From Common	IMP	NegativeMPValue	IMP	PutMPanel1   	; From CommonMPTask:	LHLD	MPNumber	;  HL ¬ new number	XCHG			; Place new MP Value in DE	LHLD	NegativeMPValue	; Load the negative of the current MP value	DAD	D		; Subtract the old value from the new value	MOV	A,L		; make quick check to see if MP has changed	ORA	H	{  Put a number in the maintenance panel. Number is put modulo 10,000D. On entry:  H,L contains the number to be put in the panel.}	CNZ	PutMPanel1	{The number is in the panel.  Pass control to the next task specified in Domino.cfg}MPTaskYield:	DS	0	END	MPTask@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

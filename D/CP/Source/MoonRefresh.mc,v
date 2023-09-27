@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. } {File name:  <JXK         >MEMTEST.mc Description: MEMORY test code, Author: J. JxK , Created: 8 APRIL 80, Last Edited: }SetTask[1];StartAddress[LOOP];LOOP: Refresh,CANCELBR[$,0F],     c1;        Noop,       c2;        Noop,       c3;        Refresh,    c1;        Noop,       c2;        ClrRefRq, GOTO[LOOP],  c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

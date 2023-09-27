@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.18;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name BandBLTBBInit.mcDescription: Special stripped-down version of BitBlt code, used only by BandBLT.Author: CrF   CRFCreated: June 4, 1982  10:34 AMLOG 1-Sep-84 19:08:50	DEG       Add copyright notice 2-Aug-83 10:56:20	AEF       Change @@BITBLT to jump to ESCb July 6, 1982  3:47 PM	CRF	Created file (adapted from RavenBBInit.mc of 26-Mar-82 16:24:26)}{ 	Copyright (C) 1982, 1983 by Xerox Corporation.  All rights reserved.}{TO DO:1. Check for interrupt inside ItemRefill3 loop?}@@BITBLT:{Opcode is unimplemented; only BandBlt is allowed to use this microcode.}	PC ¬ PC - 1, GOTO[ESCb]				,c1, at[0B,10,ESC2n];{*****************************************************************************	BandBLT interrupt check entry:	  if BandBLT was interrupted in the middle of a bit transfer operation, control	  remains here in the bit transfer ucode, otherwise control returns to the	  beginning of BandBLT mainline ucode.*****************************************************************************}	Xbus ¬ ErrnIBnStkp, XDisp	,c2, at[Savebb.BANDBLT,10,SavebbRegsRet];	Noop, DISP4[HowBigStack,06]	,c3;	{interrupt entry goes thru this code}	{restore rh from u regs}BandBLTNormEntry:	rhVS ¬ UrhVS, GOTO[rhfromu]	,c1, at[hbs.C,10,HowBigStack];	rhVS ¬ UrhVS, GOTO[rhfromu]	,c1, at[hbs.D,10,HowBigStack];rhfromu:	rhVD ¬ UrhVD	,c2;IntTest:	Rbb3{W} ¬ UWidth, MesaIntBr	,c3;wdcTest:	[] ¬ uWDC, ZeroBr, BRANCH[bbNoInt, MaybeInt]	,c1;MaybeInt:	[] ¬ uWP, ZeroBr, BRANCH[bbNoWDC, bbWDC]	,c2;bbWDC:	BRANCH[bbDoInt, bbIntCont]	,c3;bbNoWDC:	CANCELBR[bbIntCont]	,c3;bbIntCont:	Noop, GOTO[bbNoInt]	,c1;bbNoInt:	Rbb0{W-1} ¬ Rbb3{W} - 1, NegBr, CANCELBR[$] {test if width = 0}	,c2;	Rbb2 ¬ 0F, BRANCH[$,Widtheq0]	,c3;	Rbb2 ¬ Rbb2 LRot12	,c1;	[] ¬ Rbb2 and Rbb3, ZeroBr	,c2;	Rbb1 ¬ 8, BRANCH[wnotsmall,wsmall]	,c3;wnotsmall:	Q ¬ 2	,c1;	Q ¬ Q or rhType	,c2;	rhType ¬ Q LRot0	,c3;wsmall:	Rbb4 ¬ UFlags	,c1;	Rbb3 ¬ Rbb4 LRot4	,c2;	Rbb1 ¬ 0	,c3;	Rbb2{W-1} ¬ Rbb0{W-1}	,c1;	Rbb2 ¬ Rbb2 and ~0F	,c2;	Rbb2 ¬ Rbb2 LRot12{this only used for PgCarry and sign check}	,c3;	UWidthM1 ¬ Rbb0	,c1;	UWidthW ¬ Rbb2	,c2;	[] ¬ UHeight, ZeroBr {test if height = 0}	,c3;	{L3 ¬ 0,,gr,,0,,sF}	{gr and srcFunc}	Rbb0 ¬ LRot1 Rbb3, BRANCH[$,Heighteq0]	,c1;	Rbb0 ¬ Rbb0 and 3	,c2;	Rbb0 ¬ Rbb0 + 6	,c3;	[] ¬ Rbb0 and 5, YDisp	,c1;	Xbus ¬ dtRet.L3, L3 ¬ 0, XDisp, DISP4[dT]	,c2;	{dT subroutine here {1 cycle}	,c3;}	{dstFunc and dir}	Rbb0 ¬ Rbb4 LRot8	,c1, at[dtRet.L3,10,dTRets];	Rbb0 ¬ Rbb0 and 6	,c2;	[] ¬ Rbb0 or Rbb1, YDisp	,c3;	Xbus ¬ dtRet.L1, L1 ¬ 0, XDisp, DISP4[dT]	,c1;	{dT subroutine here {1 cycle}	,c2;}	Rbb1 ¬ UDstBit	,c3, at[dtRet.L1,10,dTRets];	{Lcount ¬ number of dest words to be written minus 1 }	Lcount ¬ Rbb1 and 0F	,c1;	Rbb0 ¬ UWidthM1	,c2;	Lcount ¬ Lcount + Rbb0	,c3;	{Umask1 ¬ Rmask[0 - DstBit]}	Lcount ¬ Lcount and ~0F	,c1;	[] ¬ 0F - Rbb1{db}, YDisp	,c2;	Xbus ¬ maskRet.f1, XDisp, DISP4[MaskTbl]	,c3;	{MaskTbl subroutine here {1 cycle}	,c1;}	Lcount ¬ Lcount LRot12	,c2, at[maskRet.f1,10,MaskRet];	ULcntsav ¬ Lcount	,c3;	{MASKS HERE}	Umask1 ¬ Rbb2	,c1;	Rbb0{-w+1} ¬ 0 - Rbb0{w-1}	,c2;	[] ¬ Rbb0{-w+1} - Rbb1{db} - 1, YDisp	,c3;	Xbus ¬ maskRet.f2, XDisp, DISP4[MaskTbl]	,c1;	{MaskTbl subroutine here {1 cycle}	,c2;}	Rbb2 ¬ RShift1 ~Rbb2, SE ¬ 1	,c3, at[maskRet.f2,10,MaskRet];	Umask2 ¬ Rbb2	,c1;	{L0 ¬ skew + 2}	Rbb0{sb} ¬ USrcBit	,c2;	Rbb1{db} ¬ UDstBit	,c3;	{Q ¬ Rmask[SrcBit - DstBit]}	[] ¬ Rbb0{sb} - Rbb1{db} - 1, YDisp	,c1;	Xbus ¬ maskRet.fQ, XDisp, DISP4[MaskTbl]	,c2;	{MaskTbl subroutine here {1 cycle}	,c3;}	{leave pre-Qmask in Rbb2}	Rbb0{skew} ¬ Rbb0{sb} - Rbb1{db}	,c1, at[maskRet.fQ,10,MaskRet];	[]{skew+2} ¬ Rbb0{skew} + 2, YDisp	,c2;	[] ¬ dtRet.L0, L0 ¬ 0, XDisp, DISP4[dT]	,c3;	{dT subroutine here {1 cycle}	,c1;}	scDisp	,c2, at[dtRet.L0,10,dTRets];	rhRet ¬ MapOne, sc3DISP[FixQ]	,c3;	Rbb2 ¬ LRot1 Rbb2, GOTO[SavQval]	,c1, at[0D,10,FixQ];	Rbb2 ¬ RRot1 Rbb2, GOTO[SavQval]	,c1, at[0F,10,FixQ];SavQval:	UmaskL ¬ Rbb2	,c2;	VS ¬ USrcVALo, CALL[SrcMapSpec] {set up SrcA}	,c3;{	SrcMapSpec subroutine here  2 clicks	,c1-c3;}	Mask2 ¬ Umask2 {Mask2 = VS}	,c1, at[MapOne,8,SrcMapRet];	Noop	,c2;	VD ¬ UDstVALo, CALL[DstMapSpec] {set up DstA}	,c3;{	DstMapSpec subroutine here  2 clicks	,c1-c3;}	Noop, GOTO[detLoopX]	,c1, at[MapOne,4,DstMapRet];{	ITEM REFILL	}	{updateHeight, test if thru}ItemRefill3:	Rbb0 ¬ UHeight, L2 ¬ sd.src	,c3;	Rbb0 ¬ Rbb0 - 1, ZeroBr	,c1;	UHeight ¬ Rbb0, grDisp, BRANCH[$,bbNormExit]	,c2;	Rbb2 ¬ USrcVALo, grDISP[srcgrayornot]	,c3;	{Update font bitmap source virtual address for next scan line of character (not inked)}{notGray}	TempWpl ¬ USrcWpl	,c1, at[gr.notgray,grM,srcgrayornot];	rhVS ¬ VS ¬ UrhVS	,c2;	Rbb2 ¬ Rbb2 + TempWpl, CarryBr	,c3;	Noop, BRANCH[dstUphere, $ {64K boundary cross}]	,c1;	VS ¬ VS + 1	,c2;	rhVS ¬ VS LRot0	,c3;	UrhVS ¬ VS, GOTO[dstUphere]	,c1;	{Update inkwell source virtual address for next scan line of rectangle/rulette.	This code ASSUMES:  1) that inkwells (BandBLT's version of gray bricks) do not cross page	boundaries; and 2) that it is never necessary to wrap around to the first word of the inkwell	within a single band since inkwells and bands are bit-aligned and have the same width (16	scan lines).}{gray}	Rbb2 ¬ Rbb2 + 1 {, GOTO[dstUphere]}	,c1, at[gr.gray,grM,srcgrayornot];	{Save new source virtual address and update destination real address}dstUphere:	USrcVALo ¬ Rbb2	,c2;	DstA ¬ UDstRA	,c3;	DstA ¬ DstA + 0FF + 1	,c1;	rhRet ¬ MapSrcBandBLT	,c2;	VS ¬ USrcVALo, CALL[SrcMapSpec]	,c3;	Mask2 ¬ Umask2	,c1, at[MapSrcBandBLT,8,SrcMapRet];detLoopX:	Noop	,c2;	UDstRA ¬ DstA	,c3;	Lcount ¬ ULcntsav	,c1;	{determine loop and entry point in BandBLTLoops}detLoop:	Mask1 ¬ Umask1, grDisp	,c2;	Q ¬ UmaskL, grDISP[chooseLoop]	,c3;	{if gray then enter at TransferInkedScan, else at TransferCharScan.	Always returns to ItemRefill3.}	{Exits}Heighteq0:	Noop	,c2;bbNormExit:	CANCELBR[$,Sub[grM,1]]	,c3;Widtheq0:	[] ¬ rhType, XDisp, L0 ¬ restore.term	,c1;	stackP ¬ 0, DISP3[LSEPReturn,2]	,c2;	{will go to RestoreRandRHRegs if not LSEP}	{RestoreRandRHRegs subroutine {2 1/3 clicks}	,c3-c3;}BBExit:{	Xbus ¬ uPCCross, XRefBr	,c1, at[restore.term,10,RestoreCallers];	Noop, BRANCH[$,BBSetInt]	,c2;	Noop, GOTO[BBThru]	,c3;BBSetInt:	MesaIntRq, GOTO[BBThru]	,c3;}BBThru:	PC ¬ PC + 1, GOTO[IBDispOnly]	,c1;	{Mesa Interrupt}bbDoInt:	stackP ¬ 0C	,c1;	L0 ¬ restore.int	,c2;	Xbus ¬ rhType, XDisp	,c3;	DISP3[MoverhVToStkandRestore,3]	,c1;	{RestoreRandRHRegs subroutine {2 1/3 clicks}	,c2-c2;}	Rx ¬ pInt, push	,c3, at[restore.int,10,RestoreCallers];	TOS ¬ STK, pop, GOTO[SaveRegs]	,c1;	{PAGE FAULTS}DFault:	UVSsave ¬ Q	,c3;	uFaultParm0 ¬ VD	,c1;	Q ¬ rhVD, GOTO[pfCom]	,c2;SFault:	UVSsave ¬ Q	,c3;	uFaultParm0 ¬ VS, sdDisp	,c1;	Q ¬ rhVS, sdDISP[pfCom]	,c2;pfCom:	stackP ¬ 0C, GOTO[bbDoFault]	,c3, at[sd.src,sdM,pfCom];	stackP ¬ 1, GOTO[bbDoFault]	,c3, at[sd.spec,sdM,pfCom];bbDoFault:	uFaultParm1 ¬ Q	,c1;	L0 ¬ restore.pf	,c2;	Xbus ¬ rhType, XDisp	,c3;	DISP3[MoverhVToStkandRestore,3]	,c1;	{RestoreRandRHRegs subroutine {2 1/3 clicks}	,c2-c2;}	T ¬ UVSsave {Trap index}	,c3, at[restore.pf,10,RestoreCallers];	Rx ¬ pFault, GOTO[SaveRegs]	,c1;		{END}@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

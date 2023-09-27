@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.07;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.07;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. }{File name:  <JXK         >moonkernel.mc Description: moon kernel test code, Author: J. JxK , Created: 8 APRIL 80, Last Edited: }SetTask[7];StartAddress[KSTART];KSTART:	ClrIntErr, CANCELBR[$, 0F],	c*; KSTART1:	XC2npcDisp, 	R0¬0, c2;	 R3¬0F8 ,BRANCH[BadCy, GoodCy, 0D],	c3;BadCy:	Noop,	c*, at[0D,10,GoodCy];	Noop,	c*;	Noop, GOTO[KSTART1],	c*;GoodCy:	EOCtl¬ 0 ,	c1, at[0F,10,BadCy];	R0 ¬ RShift1(R0 xor  R0), Cin¬ 1 ,	c2;	MCtl ¬ R0{8000} or 2 ,	c3;        Noop ,	c1;	Noop ,	c2;	KCtl¬ R3 LRot8 ,	c3;        DCtl ¬ 2,	c1;	PCtl¬ 0 ,	c2;	Xbus ¬ IOPIData , ClrRefRq,	c3;WAIT:	 IOPCtl ¬ 5 , 	c1;CWait:	    Xbus ¬ IOPStatus, XLDisp , 	c2;	       EICtl¬ 0 ,BRANCH[CWait1, CIn, XOdd] ,	c3;CWait1:   KCmd¬ 0,GOTO[CWait],         c1;CIn:	R0¬IOPIData  ,           c1;		{Set mode of IOP port, clear Attn}	    R6¬R0 and 7F,     c2;	{}	    CONF¬R6,        c3;	{}	R0 ¬ R0 and ~0F,	c1;        PARITYMEM¬R0 ,		c2;        R0 ¬ 0A,	c3;WAIT1: BANKS¬0,ClrIOPRq,	c1;	PAGES¬0 ,	c2;	WORDS¬0 ,	c3;    STYPE¬0,	c1;	NODATAINC¬0 ,	c2;	NOTYPEINC¬0 ,	c3;    MCTLDATA¬0,	c1;	MAP¬0 ,	c2;	DELAYV¬0 ,	c3;    STOPONERR¬0,	c1;	REFCONTROL ¬ 0 ,	c2;	IOPCtl ¬ 0 ,	c3;    BANKE ¬ R6 ,		c1;    PASSCOUNT ¬ R0 ,	c2;    R0 ¬ 2 ,	c3;    TEST ¬ R0,	c1;	R0 ¬ 0FF ,	c2;    PAGEE ¬ R0,	c3;	WORDE ¬ R0 ,ExitKernel,	c1;	USEED ¬ R0 ,ClrDPRq,	c2;    LSEED ¬ R0,		c3;    Kerror: GOTO[Kerror],	c*;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  File: [Iris]<WMicro>DLion>Burdock.asmModification History:	DEG     .PA:	 1-Sep-84 17:56:03: Add copyright notice	DEG     .PA:	14-Nov-83 14:40:52: put buffer back in Buffer.asm	AEF     .PA:    8-Nov-83  9:53:18}	{ 	Copyright (C) 1983 by Xerox Corporation.  All rights reserved.}		GET	"RS232CDefs.asm"	GET	"SysDefs.asm"	GET	"CommonDefs.asm"	IMP	ProcData0	;BookKeepingTask	IMP	ProcData1	;BookKeepingTask	IMP	ProcData2	;BookKeepingTask	IMP	TransferProcessorCSB	;BookKeepingTask	IMP	Wait		;Common	IMP	BurdockIOCB		;CPSubs	IMP	BurdockDataBuffer	;From Buffer	IMP	ReadCPBuffer		;CPSubs	IMP	WriteCPBuffer		;CPSubs	IMP	StartCPReadDma		;CPSubs	IMP	StartCPWriteDma		;CPSubs	IMP	CheckCPDmaComplete	;CPSubs	IMP	DoNakedNotify		;CPSubs	IMP	ZeroCommand		;From Common	EXP	OldReadUmbilical	EXP	OldWriteUmbilical	EXP	DoBurdockCmdStartBurdockCode:TimeOutConst	equ	0A000H	;  Approx. .25 secOldReadUmbilical:{Processor Command 7:  Read a Block of Data from the other IOP via the Umbilical boxProcData2 contains the number of bytes to transfer. ProcData1 and ProcData0 contain a Long Pointer to the user's buffer area. This area must be resident.}	CALL	SetupOldDataPCB	LXI	D,BurdockDataBuffer	;DE ¬ IOP Buffer addressReadBlockLoop:{Wait for a byte from (other) IOP Kernel. The inner loop is approximately 49 cycles (~= 17 usec). The delay is approximately 17 * TimeOutConst usec.}	LXI	H,TimeOutConstWaitToReadByte:	IN	AltoPPIC	ANI	IntBMask	;[7]	JNZ	ReadByte	;[7]  nz => Byte is ready	DCX	H		;[6]	MOV	A,H		;[4]	ORA	L		;[4]	JNZ	WaitToReadByte	;[10]	JMP	SetUmbilicalReturnCodeReadByte:	IN	AltoPPIB	STAX	D		;Store byte in buffer	INX	D		;Increment buffer address	LHLD	BlockCopyCount	DCX	H	SHLD	BlockCopyCount	MOV	A,H	ORA	L	JNZ	ReadBlockLoop	CALL	WriteDataBuffer	; Send block to CP	JMP	SetUmbilicalReturnCodeOldWriteUmbilical:{Processor Command 8:  Do Write Umbilical Block Command.ProcData2 contains the number of bytes to write in the high order byte. ProcData1 and ProcData0 contain a Long Pointer to the user's buffer area. This area must be resident.}; Set up the PCB to transfer the data between CP virtual memory and BurdockDataBuffer.	CALL	SetupOldDataPCB	CALL	ReadDataBuffer	; Read block from CP	LXI	D,BurdockDataBuffer	;DE ¬ IOP Buffer addressWriteBlockLoop:	LDAX	D		;A ¬ next byte from buffer	OUT	AltoPPIA	;Write data{Now wait for the (other) IOP Kernel to grab the byte. The inner loop is approximately 49 cycles (~= 17 usec). The delay is approximately 17 * TimeOutConst usec.}	LXI	H,TimeOutConstWaitAckLoop:	IN	AltoPPIC	;[11]	ANI	IntAMask	;[7]	JNZ	NextByte	;[7]  nz => IOP Kernel took byte	DCX	H		;[6]	MOV	A,H		;[4]	ORA	L		;[4]	JNZ	WaitAckLoop	;[10]SetUmbilicalReturnCode:	LHLD	BlockCopyCount	;Will be zero if		SHLD	ProcData0	;all bytes transferred	JMP	TransferProcessorCSBNextByte:	INX	D		;Increment buffer address	DB	opLXIH		;HL ¬ BlockCopyCountBlockCopyCount:	DW	0	DCX	H	SHLD	BlockCopyCount	MOV	A,H	ORA	L	JNZ	WriteBlockLoop	JMP	SetUmbilicalReturnCodeSetupOldDataPCB:; Set up the PCB to transfer the data between CP virtual memory and BurdockDataBuffer.	LHLD	ProcData1	SHLD	BurdockDataLo	LHLD	ProcData0	SHLD	BurdockDataHi	LHLD	ProcData2	SHLD	BlockCopyCount	INX	H		; Make the count even	MOV	A,L	ANI	0FEH	MOV	L,A	SHLD	BurdockByteCnt	RET	;BaseAddress	EQU	AltoPPI		; For IN and OUTStatus		EQU	BaseAddress+0BufferFrmCPFull	EQU	8HBufferToCPFull	EQU	10HCPData		EQU	BaseAddress+1Finger		EQU	BaseAddress+2Contents	EQU	BaseAddress+3{Beware of byte order: the bytes within a word get swapped}BurdockInfo:	DS	0BurRegister:	DS	1	; Register to use for DebuggerBoard operationsBurCommand:	DS	1	; Command byteBurNotifyBits:	DS	2	; Naked Notify bitsBurDataLow:	DS	2	; CP buffer pointer (low)BurDataHigh:	DS	2	; CP buffer pointer (high)BurByteCount:	DS	2BurdockInfoEnd:	DS	0BurdockInfoSize	EQU	BurdockInfoEnd-BurdockInfoCopyBurdockIocb:	DS	2		; CP buffer pointer (low)	DW	0		; CP buffer pointer (high)	DW	BurdockInfoSize	; CP buffer count (bytes)	DW	BurdockInfo	; Pointer to IOP buffer	ZeroBurdockIocb:	DW	BurdockIocbLoc	; CP buffer pointer (low)	DW	CPIOPageHi	; CP buffer pointer (high)	DW	2		; CP buffer count (bytes)	DW	ZeroCommand	; Pointer to IOP bufferBurdockDataPCB:	 ; PortControlBlock for sloshing Burdock dataBurdockDataLo:	DW	0BurdockDataHi:	DW	0BurdockByteCnt:	DW	0		DW	BurdockDataBufferDoBurdockCmd:	LHLD	BurdockIOCB	SHLD	CopyBurdockIocb	LXI	H,CopyBurdockIocb	CALL	ReadCPBuffer		; Copy over IOCB	LHLD	BurDataLow;		; Setup data PCB	SHLD	BurdockDataLo	LHLD	BurDataHigh	SHLD	BurdockDataHi	LHLD	BurByteCount	INX	H			; Make the count even	MOV	A,L	ANI	0FEH	MOV	L,A	SHLD	BurdockByteCnt	LDA	BurCommand	CPI	1	JZ	ReadUmbilicalBlock	CPI	2	JZ	WriteUmbilicalBlock	CPI	3	JZ	ReadDebuggerBlock	CPI	4	JZ	WriteDebuggerBlock	CPI	5	JZ	ReadCPBlock	CPI	6	JZ	WriteCPBlock	JMP	UnknownBurdockCommand	ReadUmbilicalBlock:	CALL	WriteDataBuffer	JMP	UnknownBurdockCommand	WriteUmbilicalBlock:	CALL	ReadDataBuffer	JMP	UnknownBurdockCommandReadDebuggerBlock:	LDA	BurRegister	OUT	Finger	LXI	D,BurdockDataBuffer	;DE ¬ IOP Buffer addressReadDebuggerBlockLoop:	IN	Contents	STAX	D			; Store byte in buffer	INX	D			; Increment buffer address	LHLD	BurByteCount	DCX	H	SHLD	BurByteCount	MOV	A,H	ORA	L	JNZ	ReadDebuggerBlockLoop	CALL	WriteDataBuffer	JMP	FinishBurdockCommandWriteDebuggerBlock:	CALL	ReadDataBuffer	LDA	BurRegister	OUT	Finger	LXI	D,BurdockDataBuffer	; DE ¬ IOP Buffer addressWriteDebuggerBlockLoop:	LDAX	D			; Load byte from buffer	OUT	Contents	INX	D			; Increment buffer address	LHLD	BurByteCount	DCX	H	SHLD	BurByteCount	MOV	A,H	ORA	L	JNZ	WriteDebuggerBlockLoop	JMP	FinishBurdockCommandReadCPBlock:	LXI	D,BurdockDataBufferReadCPBlockLoop:	LXI	H,TimeOutConstReadCPBlockWait:	DCX	H	MOV	A,H	ORA	L	JZ	Timeout       	IN	Status	ANI	BufferFrmCPFull	JZ	ReadCPBlockWait	IN	CPData	STAX	D	INX	D	LHLD	BurByteCount	DCX	H	SHLD	BurByteCount	MOV	A,H	ORA	L	JNZ	ReadCPBlockLoop	CALL	WriteDataBuffer	JMP	FinishBurdockCommandWriteCPBlock:	CALL	ReadDataBuffer	LXI	D,BurdockDataBufferWriteCPBlockLoop:	LDAX	D			; A ¬ next byte from buffer	OUT	CPData	LXI	H,TimeOutConstWriteCPBlockWait:	DCX	H	MOV	A,H	ORA	L	JZ	Timeout       	IN	Status	ANI	BufferToCPFull	JNZ	WriteCPBlockWait	INX	D	LHLD	BurByteCount	DCX	H	SHLD	BurByteCount	MOV	A,H	ORA	L	JNZ	WriteCPBlockLoop	JMP	FinishBurdockCommandUnknownBurdockCommand:	XRA	A	STA	BurCommand		; Smash command byte for error markerTimeout:FinishBurdockCommand:	LXI	H,CopyBurdockIocb	; Write back updated byte count	CALL	WriteCPBuffer	LXI	H,ZeroBurdockIocb	CALL	WriteCPBuffer	LHLD	BurNotifyBits	JMP	DoNakedNotify		; and RETReadDataBuffer:	LXI	H,BurdockDataPCB	CALL	StartCPReadDma	JMP	WaitForTransferWriteDataBuffer:	LXI	H,BurdockDataPCB	CALL	StartCPWriteDmaWaitForTransfer:	CALL	CheckCPDmaComplete	JZ	WaitForTransfer	RET	END	Burdock@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

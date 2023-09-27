@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  File: [Iris]<WMicro>DLion>Buffer.asmModification History:	CH	 22-May-87 17:37:43 Replaced ds line for buffersize	CH	 1-May-87 17:46:36  Took out copyright for MDS relief	DEG     .PA:	 6-Oct-84  0:12:59: Fix copyright notice to include 1984.	DEG     .PA:	 1-Sep-84 18:44:08: Add copyright notice.	DEG     .PA:	14-Nov-83 14:45:03: Fix buffer sizes.	AEF     .PA:   8-Nov-83  9:55:59: Remove Burdock and Start code.	DEG     .PA:   9-Oct-83 13:28:03: Fix up kludges.	DEG     .PA:  26-Sep-83 22:54:07: Fold in Hals changes for Burdock.	DEG     .PA:  12-Apr-83 20:08:14: Overlay the voice and RS232C Buffers.	Jim JXF     :  September 15, 1982  4:53 PM: Initialize KeyMap in the IO Page.	Jim JXF     :  August 9, 1982  4:15 PM: Add BlockBuffer for Processor ReadBlock and WriteBlock commands. Put initial code and Burdock code in the Floppy buffer.	Jim JXF     :  April 22, 1982  1:05 PM: Rewrite RS232C}{ 	Copyright (C) 1982, 1983 by Xerox Corporation.  All rights reserved.}{  This file contains the allocation of the large buffer areas for Domino.  The buffers are allocated at the end of the code, so that they do not take up room during the loading of Domino during booting.  NO CODE SHOULD RESIDE IN THIS MODULE.  This module should always be the LAST module in the Dominoconfiguration. }	GET	"RS232CDefs.asm"	GET	"SysDefs.asm"	GET	"CommonDefs.asm"	EXP	BurdockDataBuffer	;Burdock.asm	EXP	EndFDBuffer	; FloppyTask buffer	EXP	RxFIFO	 	; For RS232CTask	EXP	StartFDBuffer	; FloppyTask buffer	EXP	SpeechOutBuffer0	; From Buffer	EXP	SpeechOutBuffer1	; From Buffer	EXP	SpeechInBuffer0		; From Buffer	EXP	SpeechInBuffer1		; From Buffer	EXP	TxBuffer; Voice equates to eventually go into SysDefs.asmVoiceBufferSize	EQU	512TxRemBufferSize	EQU	TxBufferSize-(2*VoiceBufferSize)VBSMinusTxRBS	EQU	VoiceBufferSize-TxRemBufferSizeRxRemBufferSize	EQU	RxFifoSize-VoiceBufferSize-VBSMinusTxRBS; RS232C Task BuffersTxBuffer:	DS	RxFifoSize+TxBufferSize;	DS	4*VoiceBufferSize	(whichever is greater)SpeechOutBuffer0	EQU	TxBufferSpeechOutBuffer1	EQU	SpeechOutBuffer0+VoiceBufferSizeSpeechInBuffer0		EQU	SpeechOutBuffer1+VoiceBufferSizeSpeechInBuffer1		EQU	SpeechInBuffer0+VoiceBufferSizeRxFIFO			EQU	TxBuffer+TxBufferSize;{  Floppy Task buffers:Note that the Start code and the Burdock code is in the Floppy buffers. This means that the Burdock code cannot be used if the Floppy has been used. (Each buffer is large enough to hold a one page sector):(The area from StartFDBuffer to EndFDBuffer can hold 4 standard Sectors)};BufferSize	EQU	2048StartFDBuffer:BurdockDataBuffer:{For the copyright notice to be readable in the microcode file every other character has to be switched.  Also it is important that the copyright notice begin on an even boundary.}{*This was removed to attempt to run MDS relief with dominoCopyrightNotice:	DB	"oCypirhg tC( )9108 ,9118 ,9128 ,9138 ,9148b  yeXor xoCprrotaoi.n  lA lirhgstr sereev.d"EndOfCopyrightNotice:CopyrightNoticeLength	EQU	EndOfCopyrightNotice-CopyrightNotice	ds	BufferSize-CopyrightNoticeLength;}{* and this was put back in}	ds	BufferSizeEndFDBuffer:	ds	0;-----------------------------------------------------NextLoc:	ds	1		;  Next free location	END	Buffer@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

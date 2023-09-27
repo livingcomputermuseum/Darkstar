@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  IOPBoot.mc Last Edited: Jim JXF     , January 14, 1982  11:39 AM: Comment out registers not used by load U regiser command. Last Edited: Jim JXF     , December 14, 1981  10:55 AM: Put uDiagnostic back where it was. Last Edited: Jim JXF     , November 23, 1981  4:58 PM: Check for page cross on first read. Last Edited: Jim JXF     , November 17, 1981  4:26 PM: Make it smaller Last Edited: Jim JXF     , August 21, 1981  10:24 AM: changes for new assembler Last Edited: RXO , July 10, 1981  3:30 PM Last Edited: Jim JXF     , November 13, 1981  1:12 PM Description: PROM uCode used in starting booting sequence, Author: RXO , Created: August 25, 1980, Dennis DEG     :  2-Sep-84 15:48:00, add copyright notice.}{ 	Copyright (C) 1980, 1981, 1982 by Xerox Corporation.  All rights reserved.}{  COMMANDS:	1 - Read Memory Block 	3 - load U registers	4 - set parameters}{Top of the IOP code.  The code is started at this point for a new command.  IOP Control should be set to InMode.}{Read in first byte from the IOP port and interpret it as a command}	SetTask[5];{IOPStart used only for debugging when port might be in undefined state.  The first click of Phase0 sets IOPCtl to zero.  The three cycle delay at IOPStart is for the case that the IOP task runs before the emulator task after an exit kernel.  During a normal booting sequence, the IOP port will be disabled.}IfEqual[Config,1,SkipTo[NotDebugging],];	StartAddress[IOPStart];IOPStart:	Noop, CANCELBR[$, 0F],	c1; {only for debugging}	Noop,	c2; {wait for IOPCtl¬ 0}	Noop,	c3;	SkipTo[Debugging];NotDebugging!	StartAddress[IOPIdle];Debugging!IOPIdle:	CANCELBR[$, 0F],	c1; IOPIdlex:	Xbus ¬ IOPIData, XDisp,	c2, at[0F,10,NoopRet];	{Load L7 with 9 (Read memory block), 0B (Write U block), 	or 0C Set Boot parameters)}	rIOP ¬ 0 {For Write Register}, DISP4[IOPCmd, 8], L7 ¬ 8,	c3;{COMMAND 1:  Read memory block  . . . .  IOP Control is in InMode.     Format of transfer (bytes):	command (4 bits), low addr (10:17), mid. addr (2:9), high addr (0:1),	 low count-1 (8:15), high count-1 (0:7)	 => returns:   low data, high data}{Read the address. L7 = 9.}CReadMem:	rTmp ¬ IOPIData, CALL[ReadWordx], 	c1, at [9, 10, IOPCmd];	{Return with real address low in rTmp}	rIOP ¬ rTmp, L7 ¬ 6,	c3, at[9,10,ReadWordRet];{Read the high address into rhIOP.}	rhIOP ¬ IOPIData, CALL[Noop2],  	c1;{	Noop,	c2;}{	Noop,	c3;}{Next comes the count parameter.  The value is (count-1) words.}	rTmp ¬ IOPIData, L7¬ 5, CALL[ReadWordx], 	c1, at[6,10,NoopRet];	rTmp ¬ rTmp {count} + rIOP + 1 {address low},	IOPCtl ¬ IOPOutMode,   	c3, at[5,10,ReadWordRet]; {We will wakeup here since the data register is empty, and the port is in OutMode.  The IOP task will continue to wakeup until a byte is output to the port.  Data is sent to the port high byte first, then low byte.  At this point rhIOP is set up with addr[0:1], rTmp with addr[2:17].}{Fetch the first word from the buffer.}SendAddress:	MAR ¬ [rhIOP, rIOP], rIOP ¬ rIOP + 1, L7 ¬ 1, 	c1, at[5,10,NoopRet]; 	{Assume we start on page boundary, so no page cross here}	uBufMax ¬ rTmp {Save max address+1}, BRANCH[$, RPgCrFirst, 1],	c2;	rTmp ¬ MD, L7Disp, CALL[Noop1],    	c3;{Read Memory Block Inner Loop}{	Noop,   	c1;} RLoByte:	{Output Low byte of word.}	IOPOData ¬ rTmp LRot0,	c2, at[1,10,NoopRet];	[] ¬ rIOP xor uBufMax, ZeroBr,  	c3;{Process the high byte.  Check for page crossing as well.}RHi:	MAR ¬ [rhIOP, rIOP], rIOP¬rIOP+1, BRANCH[$, RHi2Last], 	c1; {Read next word}	{Output low byte}	IOPOData ¬ rTmp LRot8, BRANCH [$, RPgCross, 1],	c2; 	rTmp ¬ MD, L7Disp, CALL[Noop1],    	c3;{	Noop, GOTO[RLoByte],   	c1;} {This byte is the last byte.  L7 = 1.  The next address might have generated a page crossing, but we don't need to worry about it. Just cancel it, and go back to the top of the loop. }RHi2Last:	IOPOData ¬ rTmp LRot8, L7Disp, CANCELBR[TestLast,2], 	c2; {Output low byte}{	IOPCtl ¬ IOPInMode, GOTO [IOPIdle],	c3;} {The first MAR¬ instruction generated a page cross branch. rIOP points to the beginning of this page, instead of at the beginning of the next page. Catch the first memory data, fix up rIOP to the correct address and continue. We will also }RPgCrFirst:	rTmp ¬ MD, GOTO[RPgCr1],	c3;{The previous MAR¬ instruction generated a page cross branch.  rTmp is now pointing to the begining of this page, instead at the beginning of the next page.  Catch the last memory data, fix up rTmp to the correct address and continue.  We will also put the remap code here later.}RPgCross:	rTmp ¬ MD,  	c3; {Save memory data}RPgCr1:	rIOP ¬ rIOP + 0FF + 1, GOTO[RLoByte],	c1;{COMMAND 3:  Write U register block.     Format of transfer (bytes): command (4 bits), block, 16 words of data (low byte first)}{writeU:	Noop, 	c1, at[0B, 10, IOPCmd];	Noop,	c2;}	rhIOP¬ IOPIData, CALL[ReadWord],	c3, at[0B,10,NoopRet];	IOPCtl¬ IOPAWMode,  	c3, at[0B, 10, ReadWordRet];{Currently, we only write into Register Block 7.Register blocks not used are commented out.}	Xbus¬ rhIOP, XDisp,	c1;	[]¬ rIOP, AltUaddr, DISP4[uBlockWrite],	c2;uBlockWrite:{	uBlock0¬ rTmp, GOTO[NextU],	c3, at[0,10,uBlockWrite];	uBlock1¬ rTmp, GOTO[NextU],	c3, at[1,10,uBlockWrite];	uBlock2¬ rTmp, GOTO[NextU],	c3, at[2,10,uBlockWrite];	uBlock3¬ rTmp, GOTO[NextU],	c3, at[3,10,uBlockWrite];	uBlock4¬ rTmp, GOTO[NextU],	c3, at[4,10,uBlockWrite];	uBlock5¬ rTmp, GOTO[NextU],	c3, at[5,10,uBlockWrite];	uBlock6¬ rTmp, GOTO[NextU],	c3, at[6,10,uBlockWrite];}	uBlock7¬ rTmp, GOTO[NextU],	c3, at[7,10,uBlockWrite];{	uBlock8¬ rTmp, GOTO[NextU],	c3, at[8,10,uBlockWrite];	uBlock9¬ rTmp, GOTO[NextU],	c3, at[9,10,uBlockWrite];	uBlockA¬ rTmp, GOTO[NextU],	c3, at[0A,10,uBlockWrite];	uBlockB¬ rTmp, GOTO[NextU],	c3, at[0B,10,uBlockWrite];	uBlockC¬ rTmp, GOTO[NextU],	c3, at[0C,10,uBlockWrite];	uBlockD¬ rTmp, GOTO[NextU],	c3, at[0D,10,uBlockWrite];	uBlockE¬ rTmp, GOTO[NextU],	c3, at[0E,10,uBlockWrite];	uBlockF¬ rTmp, GOTO[NextU],	c3, at[0F,10,uBlockWrite];}NextU:	Noop,	c1;	rIOP¬ rIOP+1, NibCarryBr, 	c2;TestLast:	IOPCtl¬ IOPInMode, BRANCH[ReadWord, IOPIdle],	c3;{COMMAND 4:  set boot parameters, order and size in bytes, in parentheses, of parameters	ethernet host address(6) uEHost0, uEHost1, uEHost2	diagnostic flags(1) uDiagnostic	boot device(1) bootDevice}{Read word Subroutine}ReadWord:	rTmp¬ IOPIData,	c1, at[0C, 10, IOPCmd];ReadWordx:	rTmp¬ rTmp LRot8, {0 Disp}, CALL[Noop1],	c2;{	Noop,	c3;}	rTmp¬ rTmp or IOPIData, L7Disp,	c1, at[0,10,NoopRet];	rTmp¬ rTmp LRot8, RET[ReadWordRet],	c2;	uEHost0¬ rTmp, L7¬ 2,	c3, at[0C, 10, ReadWordRet];	rTmp¬ IOPIData, CALL[ReadWordx],	c1;	uEHost1¬ rTmp, L7¬ 7,	c3, at[2, 10, ReadWordRet];	rTmp¬ IOPIData, CALL[ReadWordx],	c1;	uEHost2¬ rTmp,	c3, at[7, 10, ReadWordRet];	rTmp¬ IOPIData, CALL[Noop2],	c1;{	Noop,	c2;}{	Noop,	c3;}	uDiagnostic¬ rTmp, L7 ¬ 0F,	c1, at[7,10,NoopRet];	rTmp¬ IOPIData,	c2;	bootDevice¬ rTmp, GOTO[IOPIdle],	c3;	{Noop Subroutine to use up cycles}Noop2:	L7Disp,	c*, at[0B, 10, IOPCmd];Noop1:	RET[NoopRet], 	c*;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

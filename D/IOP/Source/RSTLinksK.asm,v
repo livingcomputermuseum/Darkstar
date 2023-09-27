@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.27;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.27;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{-----------  Dandelion Processor Program - I/O Processor  -----------  DESCRIPTION:      Restart instruction Link Table for Kernel EProm  Last modification by Roy RXO : September 22, 1981  4:39 PM  File: RSTLinksK.asm  Stored:  [Iris]<WMicro>DLion>  Written by Roy RXO .  Dennis DEG     :  2-Sep-84 15:38:15, add copyright notice.}{ 	Copyright (C) 1981 by Xerox Corporation.  All rights reserved.};  Modification History:;;  Created  (September 18, 1981  1:09 PM);  DEFNITIONS:	get "SysDefs"	get "BootDefs";  IMPORTS/EXPORTS:	IMP	PreBootGo	;  From PreBootSimple	IMP	ColdStart	;  From IOPKernel	IMP	KernelStart	;  From IOPKernel	IMP	IOPBreakpoint	;  From IOPKernel	IMP	BurdockCPInt	;  From IOPKernel;  This module contains the Link Table for the PreBoot entry point, as well as the RST instructions.;   This file is for the Kernel EProm.;  The RST instructions are found in EProm in addresses 0 - 3FH.;  The RST link table starts in the 4th EProm at address 1800H.PreBootLink:	jmp	PreBootGo	;  Link for PreBoot start (to PreBootSimple)RST0Link:	jmp	ColdStart	;  RST 0 - Hardware Reset ONLY (to Kernel)RST1Link:	jmp	KernelStart	;  RST 1 - Manual Kernel restart (to Kernel)RST2Link:	jmp	IOPBreakpoint	;  RST 2 - IOP breakpoint (to Kernel)RST3Link:	jmp	RSTTrap		;  RST 3 - (unused) (Trap)RST4Link:	jmp	RSTTrap		;  RST 4 - (unused) (Trap)TRAPLink:	jmp	RSTTrap		;  RST TRAP - (unused) (Trap)RST5Link:	jmp	RSTTrap		;  RST 5 - (unused) (Trap)RST55Link:	jmp	BurdockCPInt	;  RST 5.5 - Burdock or CP Interrupt (to Kernel)RST6Link:	jmp	RSTTrap		;  RST 6 - (unused) (Trap)RST7Link:	jmp	RSTTrap		;  RST 7 - (unused) (Trap)Spare0Link:	jmp	RSTTrap		;  Spare link (Trap)Spare1Link:	jmp	RSTTrap		;  Spare link (Trap)Spare2Link:	jmp	RSTTrap		;  Spare link (Trap)Spare3Link:	jmp	RSTTrap		;  Spare link (Trap)Spare4Link:	jmp	RSTTrap		;  Spare link (Trap);  Trap for illegal links.RSTTrap:	lxi	h,ErrorRSTTrapOffset		;  Put error code in MP		shld	MPOffset	mvi	c,ErrorRSTTrap	jmp	ErrorReportProm	;  Have to use the EProm link, since the boot link				;   table might not be there	END	RSTLinksK@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

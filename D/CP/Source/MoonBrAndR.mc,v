@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.06;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.06;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. }{File name:  <JXK         >JxK .mc Description: JxK  test code, Author: J. JxK , Created: May 16, 1980  12:01 PM, Last Edited: } SetTask[7]; StartAddress[START];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c*, at[0];TERROR:	  GOTO[TERROR],   c*;START:	ClrIntErr, CANCELBR[$, 0F],	                     c*;    R0¬R0 xor R0, NZeroBr,	                                     c*;	R1¬ 0FF,BRANCH[Test1,ErrorR0ZeroBranch]             c*;{R0=0000 R1=00FF}Test1: R0¬~R0, NZeroBr,                                        c*;    BRANCH[ErrorR0OnesBranch,Test2],	                     c*;{R0=FFFF R1=00FF}Test2: R0¬ 0, ZeroBr,	       	                                 c*;	RH0¬R0¬R0 LRot0,BRANCH[XBusNotZero,Test3],	     c*;{R0=0000 R1=00FF}Test3: R0¬R0, ZeroBr,	                                         c*;	R0¬ LShift1 R0,SE¬1,BRANCH[YBusNotZero,Test4],      c*;{R0=0000 R1=00FF}Test4: R0¬ LShift1 R0,SE¬1,	                                 c*;	R0¬ LShift1 R0,SE¬1,	                                     c*;    R0¬ LShift1 R0,SE¬1,	                                     c*;    R0¬ LShift1 R0,SE¬1,	                                     c*;    R0¬ LShift1 R0,SE¬1,	                                     c*;    R0¬ LShift1 R0,SE¬1,	                                     c*;    R0¬ LShift1 R0,SE¬1,	                                     c*;    []¬ R0 xor R1, ZeroBr,	       	                             c*;	BRANCH[LowerXBusNotOnes,Test5] ,                      c*;{R0=00FF R1=00FF}Test5: R0¬ R0 LRot0	                                             c*;	[]¬R0 xor R1, ZeroBr,	                                     c*;	BRANCH[LowerYBusNotOnes,Test6] ,                      c*;{R0=00FF R1=00FF}Test6: R0¬ R0 LRot8	                                             c*;	[]¬R0 xor ~R1, ZeroBr,	                                     c*;	BRANCH[UpperXBusNotOnes,Test7] ,                      c*;{R0=FF00 R1=00FF}Test7: R0¬ R0 LRot0	                                             c*;	[]¬R0 xor ~R1, ZeroBr,	                                     c*;	BRANCH[UpperYBusNotOnes,Test8] ,                      c*;{RH0=00 R1=00FF}Test8: R0¬ RH0 ZeroBr	                                         c*;	BRANCH[YHBusNotZero,Test9] ,                            c*;{RH0=00 R1=00FF}Test9: RH1¬ R1 LRot0	                                          c*;	R0¬ 0FF 	                                                     c*;	R1¬ RH1 	                                                     c*;	[]¬R0 xor R1, ZeroBr,	                                     c*;	BRANCH[YHBusNotOnes,GOOD] ,                         c*;{R0=00FF R1=00FF}GOOD:   GOTO[NOERROR],	                                 c*;ErrorR0ZeroBranch: CANCELBR[ErrorR0ZeroBranch],GOTO[ErrorR0ZeroBranch], c*;ErrorR0OnesBranch: GOTO[ErrorR0OnesBranch],             c*;XBusNotZero: GOTO[XBusNotZero],                             c*;YBusNotZero: GOTO[YBusNotZero],                    	      c*;LowerXBusNotOnes: GOTO[LowerXBusNotOnes],              c*;LowerYBusNotOnes: GOTO[LowerYBusNotOnes],              c*;UpperXBusNotOnes: GOTO[UpperXBusNotOnes],              c*;UpperYBusNotOnes: GOTO[UpperYBusNotOnes],              c*;YHBusNotZero: GOTO[YHBusNotZero],              c*;YHBusNotOnes: GOTO[YHBusNotOnes],              c*;NOERROR:   GOTO[NOERROR],	                           	c*, at[0FFF];@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

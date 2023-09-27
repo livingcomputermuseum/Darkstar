@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. } {File name:  <JXK         >JxK .mc Description: JxK  test code, Author: J. JxK , Created: May 16, 1980  12:01 PM, Last Edited: } SetTask[7]; StartAddress[START];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c*, at[0];TERROR:	  GOTO[TERROR],   c* ,at[0F];START:	ClrIntErr, CANCELBR[$, 0F],	                     c*, at[1];    GOTOABS[80],	                                     c*, at[1F];	NOERROR:   GOTO[NOERROR],	                           	c*, at[0FFF];@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

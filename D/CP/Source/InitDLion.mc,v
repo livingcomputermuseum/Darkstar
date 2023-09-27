@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.22;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  InitDLion.mcDescription: Mesa Emulator initialization,Last Edited by Dennis DEG     :  1-Sep-84 22:06:25 Add copyright notice.Last Edited by AeF AEF     : 13-Sep-83 16:03:33 Add support for 24-bit VA spaceLast Edited by AXD    :  5-Aug-83 10:57:41 uPMask ¬ uPMask2 ¬ 1FF8 (was 0FFC)Last Edited by AeF AEF     : September 22, 1982  5:12 PM Add uTMErRst initialization for MagTapeLast Edited by AeF AEF     : September 22, 1982  5:12 PM Delete uStartScan initializationLast Edited by AeF AEF     : August 5, 1982  1:49 PM Change IOPage referencesLast Edited by AeF AEF     : June 29, 1982  9:11 AM Add LSEP initializationsLast Edited by AeF AEF     : May 18, 1982  10:19 AM Change display registersLast Edited by AeF AEF     : February 9, 1982  10:48 AM Replace Trident/Shugart conditional assembly initializations with branches based on CPBootDevice (accomodates etherbooting).Last Edited by Jim JXF     : February 2, 1982  1:22 PM Initialize uE3FF.Last Edited by AeF AEF     : January 6, 1982  4:01 PM Bug fix - branch to DisplayInit after initializing SAx000 registersLast Edited by Jim JXF     : December 17, 1981  1:03 PM Use only two registers for initialization.Last Edited by J. JF   : December 8, 1981  2:07 PM, Added new Trident reg. UF000JGS     : November 17, 1981  1:24 PM New instruction setLast Edited by Jim JXF     : November 8, 1981  5:00 PM initialize new display registers for smooth scrollingLast Edited by ETN  : October 13, 1981  11:20 AM Trident IntegrationLast Edited by Jim JXF     : April 1, 1981  2:09 PM: initialize UtbFlagsAuthor: JGS    ,}{	Copyright (C) 1981, 1982, 1983 by Xerox Corporation.  All rights reserved. }Reserve[0F6F]; Reserve[0F78]; Reserve[0F7F,0FFF];	{Kernel}SetTask[0];{NOTE: we must use only two regisers (dY and dZ) for initialization so that register usage will not conflict with booting. For example, Protected.mc uses three registers to check for Ethernet timeout. We do Display initialization last since the Display microcode counts on two of its registers being initialized, and we use these two registers for all other initialization.}IfEqual[Config, 3, SkipTo[SetEtherBoot],];IfEqual[Config, 2, SkipTo[SetTrident],];OnceOnlyInit:	CPBootDevice ¬ 0,	c1;	Noop,	c2;SkipTo[SkipSetTrident];SetTrident!OnceOnlyInit:	dY ¬ 0C,	c1;	CPBootDevice ¬ dY,	c2;SkipSetTrident!	Noop,	c3;	dZ ¬ LShift1 0FF, SE¬1, CANCELBR[$,0F],	c1;SkipTo[StartInit];SetEtherBoot!OnceOnlyInit:	dZ ¬ LShift1 0FF, SE¬1, CANCELBR[$,0F],	c1;StartInit!	dZ ¬ LShift1 dZ, SE¬1,	c2;	u3FF ¬ dZ, dZ ¬ dZ LShift1, SE¬1,	c3;	MCtl ¬ dZ + 1,	c1;	u7FF ¬ dZ, dZ ¬ dZ LShift1, SE¬1,	c2;	dZ ¬ dZ LShift1, SE¬1,	c3;	u1FFF ¬ dZ, dZ ¬ dZ LShift1, SE¬1,	c1;	u3FFF ¬ dZ,	c2;	dZ ¬ 64,	c3;	dZ ¬ dZ LRot8, Refresh,	c1;	UtbFlags ¬ dZ,	c2;	dZ ¬ LShift1 0F, SE¬1,	c3;	dZ ¬ dZ LRot8, ClrIntErr,	c1;	dZ ¬ dZ or 0F8,	c2;	uPMask ¬ dZ,	c3;	uPMask2 ¬ dZ, Refresh,	c1;	dZ ¬ 0E,	c2;	dZ ¬ dZ LRot12,	c3;	uPPMask ¬ dZ, Refresh,	c1;	dZ ¬ RShift1 0, SE ¬ 1,	c2;	u8000 ¬ dZ,	c3;	dY ¬ 0, Refresh,	c1; 	dZ ¬ IOPage,	c2;	dZ ¬ dZ LRot8, 	c3;	rhdZ ¬ IOPageHigh,	c1; 	uIOPage ¬ dZ,		c2;	Noop,	c3;{clear I/O page, TOS = 0}IOPageLoop:	MAR ¬ [rhdZ, dZ+0],	c1;	MDR ¬ dY{=0}, dZ ¬ dZ + 1, PgCrOvDisp,	c2;	uPCCross ¬ 0, BRANCH[IOPageLoop,$,1],	c3;EtherInit:	Refresh,	c1;	dZ ¬ 55,	c2;	dZ ¬ dZ LRot8 or dZ,	c3;	uEPreamble ¬ dZ, Refresh,	c1;	dZ ¬ dZ or 0C0,	c2;	uELastPreamble ¬ dZ,	c3;	dZ ¬ LShift1 0FF, SE ¬ 1 {1FF},	c1;	dZ ¬ LShift1 dZ, SE ¬ 1 {3FF},	c2;	uE3FF ¬ dZ,	c3;MagTapeInit:	rTWc ¬ CTClrMEr,	c1;	rTWc ¬ rTWc LRot8,	c2;	uTMErRst ¬ rTWc,	c3;	DiskInit:	Xbus ¬ CPBootDevice, XDisp,	c1;	BRANCH[SAx000Init, TridentInit, 7],	c2;SAx000 Init:	Noop,	c3;{initialize 16 bit const used to clear mem errorflags}	dZ ¬ CClearMemError,	c1;	dZ ¬ dZ LRot8,	c2;	U0C00 ¬ dZ,	c3;	{form top byte of status mask, bottom byte depends on drive connected}	dY ¬ CHeadMsk,	c1;	dY ¬ dY LRot8,	c2;	Xbus ¬ KStatus, XwdDisp,	c3;	dZ ¬ CSA1MaxSectTst, BRANCH[SetSA1Const, SetSA4Const,2],	c1;SetSA4Const:	{sector test number}	dZ ¬ CSA4MaxSectTst, 	c2, at[3,4,SetSA1Const];	UMaxSectTst ¬ dZ,	c3;	{synchronization word and error mask}	dZ ¬ dZ xor ~dZ,	c1;	dY ¬ dY or CSA4ErrMsk, GOTO[SetURegs],	c2;SetSA1Const:	UMaxSectTst ¬ dZ,	c2, at[2,4,SetSA4Const];	dZ ¬ CAddrMkHi,	c3;	{address mark and error mask}	dZ ¬ dZ LRot8,	c1;	dY ¬ dY or CSA1ErrMsk,	c2;SetURegs:	dZ ¬ dZ or CAddrMkLo,	c3;	{save sync word or address mark; set status mask}	USyncAdrMk ¬ dZ, Refresh,	c1;	UStatusMsk ¬ dY,	c2;	GOTO[DisplayInit],	c3;TridentInit:	Noop,	c3;{Initialization of U0C00 -- A 16 bit constant used to clear memory error flags}	dZ ¬ 0C	,c1;	dZ ¬ dZ LRot8	,c2;	U0C00 ¬ dZ	,c3;{Initialization of U0C04 -- A 16 bit constant used to reset Control Tag in the Command register}	dZ ¬ dZ or 4	,c1;	U0C04 ¬ dZ	,c2;	dZ ¬ 2C	,c3;{Initialization of U2C04 -- A 16 bit constant used to set the Head Tag in the Command register}	dZ ¬ dZ LRot8	,c1;	dZ ¬ dZ or 4	,c2;	U2C04 ¬ dZ	,c3;{Initialize U2C05 register and prepare initializing UCStatMask.}	dZ ¬ dZ or 1	,c1;	U2C05 ¬ dZ	,c2;	dZ ¬ 4E	,c3;{Initialize UCStatMask with 4E06.}	dZ ¬ dZ LRot8	,c1;	dZ ¬ dZ or 6	,c2;	UCStatMask ¬ dZ	,c3;{Initialization of UF001 -- A 16 bit constant used to turn on "Sequence" for all four drives in the Control register}	dZ ¬ 0F0	,c1;	dZ ¬ dZ LRot8	,c2;	UF000 ¬ dZ	,c3;{Initialization of UF001 -- A 16 bit constant used to turn on "Sequence" for all four drives in the Control register}	dZ ¬ 1F	,c1;	dZ ¬ dZ LRot12	,c2;	UF001 ¬ dZ	,c3;{Initialize U0400 register}	dZ ¬ 4	,c1;	dZ ¬ dZ LRot8	,c2;	U0400 ¬ dZ	,c3;{Initialization of U4000 and KCmd register (TestCtl = 1) and USIP with 0.}KRegInit:	KCmd ¬ dZ ¬ dZ LRot4	,c1;	U4000 ¬ dZ	,c2;	USIP ¬ 0	,c3;{Initialize KCtl with 0F000 .}	dZ ¬ 0F	,c1;	KCtl ¬ dZ  LRot12	,c2;	dZ ¬ 0FF + 1	,c3;{Initialize  U0100.}EndInit:	U0100 ¬ dZ, Refresh	,c1;	Noop	,c2;	Noop, 	,c3;DisplayInit:	rhdY ¬ IOPageHigh, Refresh,	c1;	dZ ¬ uIOPage,	c2;	Noop,	c3;	Noop,	c1;	dZ ¬ dZ + IOPage.DCSB.cursorMap,	c2;	uInitCurMapAddr ¬ dZ,	c3;	dZ ¬ 88,	c1;	dZ ¬ dZ LRot8,	c2;	dZ ¬ dZ or 22 {8822},	c3;	uInitBorder ¬ dZ, Refresh,	c1;	dZ ¬ PicLenShifted,	c2;	dY ¬ dZ LRot8,	c3;	uInitCurBufAddr ¬ dY,	c1;	dZ ¬ LRot1 dZ,	c2;	dZ ¬ LRot1 dZ, rhdZ ¬ 0,	c3;	uInitPicLength ¬ dZ {328'x}, Refresh,	c1;	uClockBits ¬ 0,	c2;	Noop,	c3;	ClrDPRq,	c1;	dZ ¬ uPatchCount ¬ 0,	c2;	dY ¬ 7,	c3;	uCopyCount ¬ dY, Refresh,	c1;	uPatchLine ¬ dZ xor ~dZ,	c2;	dY ¬ 3F,	c3;	dY ¬ dY LRot4,	c1;	u3F0 ¬ dY,	c2;	dY ¬ 0FC,	c3;	dY ¬ dY LRot8,	c1;	uNormalFifo ¬ dY,	c2;LsepInit:	dY ¬ 10,	c3;	uDisableLSEP ¬ dY,	c1;	dY ¬ 15,	c2;	uEndBandScan ¬ dY,	c3;	dY ¬ 1B,	c1;	uStartActive ¬ dY,	c2;	dY ¬ 1, GOTO[DoneOnceOnlyInit]	c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{JMM    1983Dennis DEG       2-Sep-84  0:00:26, add copyright notice}{	Copyright (C) 1983 by Xerox Corporation.  All rights reserved. }Reserve[1,7F]; Reserve[800,801]; Reserve[0F6F]; Reserve[0F78]; Reserve[0F7F,0FFF];	{Kernel}Set[MyLabel1,0F79];Set[MyLabel2,0F7A];Set[MyLabel3,0F7B];SetTask[0],	StartAddress[SetEmulatorBank];SetEmulatorBank:	Bank ¬ 1,			c1, at[MyLabel1];			Noop,				c2, at[MyLabel2];			GOTO[SetEmulatorBank],		c3, at[MyLabel3];	@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

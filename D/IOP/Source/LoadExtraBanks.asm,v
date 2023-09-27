@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.23;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.23;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  LoadExtraBanks.asm   (LoadExtraBanksX.asm does not provide the fake BootMain exports) last edited by : Dennis DEG       2-Sep-84  0:02:07, add copyright notice -- JMM    13-Feb-84 10:19:58 - fixed so that it lies where Burdock version lies. -- JMM    18-Oct-83 15:29:21 - commented out calls to MP code and also				 made bank byte a variable. -- HXS    :   16-Sep-83 16:16:39}{	Copyright (C) 1983 by Xerox Corporation.  All rights reserved. }	get	"SysDefs.asm"	get	"BootDefs.asm"	get	"BootLinkDefs.asm"	; LoadExtraBanksHandle will place a jmp to NewNextPhaseCodeProlog at 2000H; actually, for a first try this code will be loaded at 2000H, since this code will not be running when domino is loaded, so domino can load right on top of it.	EXP	NewNextPhaseCodeProlog	; this module is expected to be loaded with BootSubs		IMP	CheckCPStopped, GetNextWord, IncrMP, PhaseToMP 	IMP	StartCP, StartNextRead, TransferCSImage, TransferTPCImage; Boot subs needs the following, but will not actually use it	EXP	StartIOPBoot, StartNextPhase; this definition is for BurdockStartIOPAddressHigh	equ	StartIOPAddress+1	; this definition logically belongs in BootDefs, among CPKernelconstantsCPSetBank	equ	02H	; command to Kernel to Set the bank registerCPKernelTest	equ	03H	; command to Kernel to see if FakeKernel is present;this is the bank to be loaded next.BankNo:		db	0		;jmm  9-Feb-84 17:03:46NewNextPhaseCodeProlog:; compute address of StartBootBlock in BootMain	lhld	DoBootPhaseExt+1	lxi	b, 3	dad	bprol1:	shld	StartBB+1; change StartIOPAddressprol2:	lxi	h, NewNextPhaseCode	shld	StartIOPAddress			NewNextPhaseCode:;prol3:	lxi	h, Phase;  Increment phase number;	inr	m;	call	PhaseToMP;  Put Phase*50 + 99 in MP	prol4:	call	CheckCPStopped;  put it into Kernel if not already there	call	TestForMyKernel;	see if all is well;	call	TestForMyKernel;	see if all is wellprol5:	call	StepBank;;	call	TestForMyKernel;	see if all is well	call	TestForMyKernel;	see if all is well	call	TransferCSImage;	low CP memory, including idle loop	call	TestForMyKernel;	see if all is well;	call	IncrMP	call	StartCP;	safe now that idle loop in the new bank;	call	IncrMP;		lxi	h,1	call	StartNextRead	lxi	h,Header	call	GetNextWord;	skip over check sum word of last .db; now we know that both my Kernal and the (cp) IOP (task 5) is working, lets try shutting down and starting up again	call	CheckCPStopped        call	TestForMyKernel	call	StartCP;		call	InitTPCsOnly;	reset the TPCs, don't init the image	; the address is loaded during prologStartBB:	jmp	0	; jmp BootMain.StartBootBlock, don't init the image				; init only the TPCs, do not change the low CP mem image; this code copied from BootSubs, extracted from InitCSTPCImage;  Initialize the TPC array with all slots empty, i.e. high bit of word = 1.InitTPCsOnly:	mvi	c,8		;  Counter for 8 words	mvi	e,0		;  Initialize TPC slot to 8000H (empty)	mvi	d,80H	lxi	h,TPCBuffer	;  Start of BufferInitTPCImageLoop:	mov	m,e		;  Store low byte	inx	h	mov	m,d		;  Store high byte	inx	h	dcr	c		;  More TPC's?	jnz	InitTPCImageLoop	;  nz =>  More to do	ret; request the Kernel to advance the bank registerStepBank:	mvi	a, CPSetBank		call	WriteCPbyte	lda	BankNo	call	WriteCPbyte	call	ReadCPbyte	sta	LatestBank	ret	; see if my FakeKernel is really runningTestForMyKernel:	mvi	a, CPKernelTest	call	WriteCPbyte	call	ReadCPbyte	mvi	b, 7	cmp	b	rz		; Kernel PresentKernelNotPresent: 	jmp	KernelNotPresent; following exists in BootSubs, but not exported; Subroutine:  WriteCPbyte.;  Write CP byte.;  Byte in A register written into port.WriteCPbyte:	out	CPOut		;  Output dataWaitCPOutAck:	in	CPStatus	;  Read the port interrupt bits	ani	CPOutIntMask	;  CPOut requesting an interrupt, i.e data read? 	jz	WaitCPOutAck	;  Zero means no interrupt	ret; following exists in BootSubs, but not exported; Subroutine:  ReadCPbyte.;  Read CP byte.;  Byte returned in A register.ReadCPbyte:	in	CPStatus	;  Read the port interrupt bits	ani	CPInIntMask	;  CPIn requesting an interrupt? 	jz	ReadCPbyte	;  Zero means no interrupt	in	CPIn		;  get data	ret;DATA section:; this is for debugging to see if correct bank was loaded.LatestBank:	db	07FH	; following code is to satisfy the imports of boot subsStartIOPBoot	dw	0;	this is only used during boot initialization, so not usedStartNextPhase	dw	0;	also applies to this word		END	LoadExtraBanks@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

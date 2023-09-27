@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  StartMesa.mc Chris RCH   :  18-Mar-87  9:12:55 fixed reserve clause for kernal/MDS JAC		31-May-85  9:27:48 add config stuff for multiport Dennis DEG     1-Sep-84 19:50:24  Add copyright notice AeF AEF     :  30-Nov-83 14:06:28  Move rhTT out of conditional assembly AeF AEF     :  10-Nov-83 16:57:40  Change comments only AeF AEF     :  31-Aug-83  9:32:08  Move the IOPage for larger VM AXD         :	24-Jun-83 17:25:54  Get xtFC0 from Mesa.df AeF AEF     :  June 29, 1982  9:00 AM  Add PCtl ¬ 11 for LSEP AeF AEF     :  April 27, 1982  11:25 AM  Add TCtl ¬ 1 for mag tape AeF AEF     :  April 23, 1982  1:40 PM  Add assembly configs for MagTapeMesa RXJ     :  December 28, 1981  3:53 PM  Floppy boot MDS 0 JGS      November 13, 1981  2:33 PM  New instruction set Last Edited by Jim JXF     : November 3, 1981  2:20 PM: change Display CSB for smooth scrolling. Init uWP and uPCCross in InitDLion. Last Edited: By Ev. ETN   October 9, 1981  3:56 PM Added Trident Init under switch. Description: Mesa Emulator initialization, Author: R. RXJ     }{ 	Copyright (C) 1981, 1982, 1983 by Xerox Corporation.  All rights reserved.}Reserve[0F6F]; Reserve[0F77]; Reserve[0F7F,0FFF];	{Kernel}{Assembly Configs:Config#		File0	Mesa.db1	RavenMesa.db2	TridentMesa.db3	TridentRavenMesa.db4	MagTapeMesa.db5	TridentMagTapeMesa.db6	Multiport.db}StartAddress[Germ];{Normal boot starts at Germ, Floppy boot starts at Germ+1}Germ:	TOS ¬ 0, rhMDS ¬ 0, CANCELBR[SetMDS,0F],		c1, at[0,2,Germ];	TOS ¬ 0, rhMDS ¬ 0, CANCELBR[SetMDS,0F],		c1, at[1,2,Germ];{Start at Go for Burdock loaded bootfile without germ}Go:	TOS ¬ 3, rhMDS ¬ 3, CANCELBR[SetMDS,0F],			c1;SetMDS:	UvMDS ¬ TOS,							c2;	IOPCtl ¬ IOPInMode,						c3;	uWP ¬ 0, ClrIntErr,						c1;IfEqual[Config, 6, SkipTo[Multiport], ];IfGreater[Config, 3, SkipTo[MagTape], ];IfEqual[Config, 3, SkipTo[Printer], ];IfEqual[Config, 1, SkipTo[Printer], ];	L ¬ 41,								c2;	DCtl ¬ L LRot0,							c3;	Noop,								c1;	L ¬ 11,								c2;	PCtl ¬ L LRot0,							c3;SkipTo[DisplayOrPrinterOrMagTape];Printer!	DCtl ¬ 2,							c2;	PCtl ¬ 3,							c3;SkipTo[DisplayOrPrinterOrMagTape];MagTape!	DCtl ¬ 2,							c2;	TCtl ¬ 1,							c3;	SkipTo[DisplayOrPrinterOrMagTape];Multiport!	DCtl ¬ 0,							c2;	PCtl ¬ 3,							c3;			DisplayOrPrinterOrMagTape!MoreInit:	UvG ¬ TOS ¬ 0,							c1;	UBrkByte ¬ 0,							c2;	TT ¬ uIOPage,							c3;		rhTT ¬ IOPageHigh,						c1;	uGFI ¬ 0,							c2;	uSourceLo ¬ 0, {probably dont need this}			c3;{set all keys up; 2003D thru 20043 ¬ -1}	uXTS ¬ stackP ¬ 0,						c1;	T ¬ 0FF LShift1, SE ¬ 1,					c2;	Q ¬ 7,								c3;KeyLoop:	MAR ¬ [rhTT, IOPage.keyBitsm1+Q], BRANCH[$,KeyDone],	c1;	uTickCount ¬ MDR ¬ L xor ~L, CANCELBR[$,0],			c2;	Q ¬ Q - 1, ZeroBr, GOTO[KeyLoop],				c3;KeyDone:IfGreater[Config, 1, , SkipTo[ShugartInit]];IfEqual[Config, 4, SkipTo[ShugartInit],];IfEqual[Config, 6, SkipTo[ShugartInit],];	PC ¬ 0+0+1, CANCELBR[$,0],				c2;  {Trident}	uWDC ¬ PC,						c3;  {Trident}	RCnt ¬ 0F,						c1;  {Trident}	KCtl ¬ RCnt LRot12,					c2;  {Trident}	KCmd ¬ U0400,						c3;  {Trident}SkipTo[EitherDisk];ShugartInit!	KCtl ¬ 0, PC ¬ 0+0+1, CANCELBR[$,0],			c2;  {SAx000}	uWDC ¬ PC,						c3;  {SAx000}EitherDisk!	MAR ¬ [rhTT, IOPage.DSCB.fieldCmd+0],				c1;	MDR ¬ L{picture off, enable display request},			c2;	T ¬ T + 3{@@SD[sBoot]},						c3;LastChance:	MAR ¬ [rhTT, IOPage.DSCB.syncCmd+0],				c1;	MDR ¬ L, rhT ¬ xtFC0 {picture off, enable display request},	c2;	uDestLo ¬ T, YDisp, L ¬ 0, GOTO[XFER],				c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

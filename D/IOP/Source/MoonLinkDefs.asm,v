@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@; Copyright (C) 1980  by Xerox Corporation. All rights reserved. ;; LInk Definitions.;-----------------------------------------------------------------ExtStart   equ    2000H    ExtMonitorSt equ ExtStart+3ExtStartCP equ ExtMonitorSt+3ExtStopCP equ ExtStartCP+3ExtDoInstTest2 equ ExtStopCP+3ExtStartDelay equ ExtDoInstTest2+3ExtMonitorSetP equ ExtStartDelay+3ExtMonitorTestDone equ ExtMonitorSetP+3ExtLogTPCError equ ExtMonitorTestDone+3ExtLogDError equ ExtLogTPCError+3ExtLogDMAError equ ExtLogDError+3ExtLogPError equ ExtLogDMAError+3ExtAltBoot equ ExtLogPError+3ExtShowError equ ExtAltBoot+3ExtGetNextTest equ ExtShowError+3ExtDoInstTest equ ExtGetNextTest+3ExtDelay equ ExtDoInstTest+3ExtMPNumber equ ExtDelay+3ExtTimeDelay equ ExtMPNumber+3ExtMDisplay equ ExtTimeDelay+3ExtReadKBByte equ ExtMDisplay+3ExtReadCPport equ ExtReadKBByte+3ExtWriteCPport equ ExtReadCPport+3ExtDisableDma equ ExtWriteCPport+3ExtReadTPC equ ExtDisableDma+3ExtReadCS equ ExtReadTPC+3ExtWait equ ExtReadCS+3ExtMonitorKeyIn equ ExtWait+3ExtMPNumber2 equ ExtMonitorKeyIn+3ExtBlankIt equ ExtMPNumber2+3ExtLeftAlignTPCAddr equ ExtBlankIt+3ExtMonitorSTOP equ ExtLeftAlignTPCAddr+3ExtMPNumberCall equ ExtMonitorSTOP+3ExtEITestLoop   equ ExtMPNumberCall+3    ExtTEIIndexAdd equ ExtEITestLoop+3ExtEIReport equ ExtTEIIndexAdd+3ExtEIAccu equ ExtEIReport+3ExtEIDFault equ ExtEIAccu+3ExtEIShowTest equ ExtEIDFault+3ExtEIConfiguer equ ExtEIShowTest+3ExtEIAccuH equ ExtEIConfiguer+3ExtPhase1Entry equ ExtEIAccuH+3ExtRTCSetUp equ 3000HExtLSEPSetUp equ ExtRTCSetUp+3ExtRS232SetUp equ ExtLSEPSetUp+3ExtLearSSetUp equ ExtRS232SetUp+3ExtHOSTSetUp equ ExtLearSSetUp+3ExtFSetUp equ ExtHOSTSetUp+3ExtPrintSetUp equ 3000HExtVoiceSetUp equ 3E00HExtTTYInit   equ    4000H    ExtLoopbacktest   equ ExtTTYInit+3    ExtTPCTest   equ ExtLoopbacktest+3    ExtDoCSTest1 equ ExtTPCTest+3ExtDoCSTest2 equ ExtDoCSTest1+3ExtDoCSTest3 equ ExtDoCSTest2+3ExtDoCSTest4 equ ExtDoCSTest3+3ExtPortIn equ ExtDoCSTest4+3ExtPortInDma equ ExtPortIn+3ExtPortOutDma equ ExtPortInDma+3ExtAFault   equ    4600H    ExtARestore   equ ExtAFault+3    ExtAShowErrors   equ ExtARestore+3    ExtSetSize   equ ExtAShowErrors+3ExtAClrLog   equ ExtSetSize+3 ExtCSBank   equ    4300HExtCSTest   equ    4500HEiExtR   equ  4800HEiExtH   equ  EiExtR+3EiExtM   equ  EiExtH+3ExtDoCSTest5 equ EiExtM+3ExtDoCSTest6 equ ExtDoCSTest5+3ExtBANKS equ 51A0HExtFAULT equ 51BCHExtNODATAINC equ ExtFAULT+1ExtNOTYPEINC equ ExtNODATAINC+1ExtNotused equ ExtNOTYPEINC+1MoveIt        equ    08CAH   ;for 2.4 EPROMboot ;MoveIt        equ    08CFH   ;for 2.2 and 2.3 EPROMboot ;MoveIt       equ    47CAH   ;for softboot with boot22 at 4500;-----------------------------------------------------------------Conf equ 2C70HTask equ Conf+1StopOnError equ Task+1ExpectedCSLow equ StopOnError+1ExpectedCSHigh equ ExpectedCSLow+1ObservedCSlow equ ExpectedCSHigh+1ObservedCSHigh equ ObservedCSlow+1ExpectedData equ ObservedCSHigh+1ObservedData equ ExpectedData+1Fault equ ObservedData+1KBBuffer equ Fault+1WaitConst equ KBBuffer+1LoopIn equ WaitConst+2TestLoop equ LoopIn+1DiagBootS equ TestLoop+1RInx equ DiagBootS+1AccuReg equ RInx+1ConfiguerF equ AccuReg+1SkipF equ ConfiguerF+1DFaultF equ SkipF+1AFlag equ DFaultF+1AInPF equ AFlag+1MemSize equ AInPF+1MemSize1 equ MemSize+1Hex equ MemSize1+1IgNor equ Hex+1IFlag equ IgNor+1InCSData equ IFlag+1;-----------------------------------------------------------------TestNI equ 2CA0HTestNE equ TestNI+1TestN equ TestNE+1CFBoot equ TestN+1CFReportF equ CFBoot+1CFTIndexF equ CFReportF+1CFNumBias equ CFTIndexF+1CFConF equ CFNumBias+2;-----------------------------------------------------------------ExtInBrA   equ	CFConF+26 	ExtInBrC   equ	ExtInBrA+0132H 	ExtInPI	   equ	ExtInBrC+006EHExtInPO	   equ	ExtInPI+0064HExtInSun1  equ	CFConF+10 	ExtInSun2  equ	ExtInSun1+0620HExtInSun3  equ	ExtInSun2+0AB2HExtInSun4  equ	ExtInSun3+05AEHExtInSun5  equ	CFConF+8ExtInMem   equ	ExtInSun5+052EHExtInCur   equ	ExtInMem+0DEAH ExtInCyc   equ	CFConF+30ExtInTC    equ	ExtInCyc+052AHExtInEith  equ	ExtInTC+03F2HExtInCS    equ	ExtInEith+0B3AHExtInCSBank    equ ExtInCS+002EHExtUtility equ  CFConF+64ExtMem     equ	CFConF+64ExtDisk    equ	CFConF+64ExtPrint   equ  CFConF+64ExtMag     equ  CFConF+64;-----------------------------------------------------------------;-----------------------------------------------------------------BootIndexes equ 5080HEIIndexes equ 4C80H;-----------------------------------------------------------------	END	MOONLinkDefs@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

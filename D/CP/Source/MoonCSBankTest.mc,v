@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.07;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.07;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1985  by Xerox Corporation. All rights reserved. }SetTask[7];StartAddress[KSTART];KSTART:	ClrIntErr, CANCELBR[$, 0F],	c*; KSTART1:	XC2npcDisp, 	R0¬ 0, c2;	 R3¬0F8 ,BRANCH[BadCy, GoodCy, 0D],	c3;BadCy:	Noop,	c*, at[0D,10,GoodCy];	Noop,	c*;	Noop, GOTO[KSTART1],	c*;GoodCy:	EOCtl¬ 0 ,	c1, at[0F,10,BadCy];	R0 ¬ RShift1(R0 xor  R0), Cin¬ 1 ,	c2;	KCtl¬ R3 LRot8 ,	c3;	                DCtl ¬ 2,	c1;	MCtl ¬ R0{8000} or 2 ,	c2;	Xbus ¬ IOPIData , ClrRefRq,	c3;WAIT:	 IOPCtl ¬ 5 , 	c1;CWait:	    Xbus ¬ IOPStatus, XLDisp , 	c2;	       EICtl¬ 0,BRANCH[CWait1, CIn, XOdd] ,	c3;CWait1:   KCmd¬ 0,GOTO[CWait],         c1;CIn:	   R0¬IOPIData  ,           c1;		{Set mode of IOP port, clear Attn}	   IOPCtl ¬ 0 ,     c2;	{}	   ClrIOPRq,R0¬R0,        c3;	{Bank¬ is ClrIOPRq}    Kerror:  GOTO[Kerror],	c*;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

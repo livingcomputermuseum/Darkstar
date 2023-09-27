@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.12;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.12;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. }SetTask[1];StartAddress[Task1];Task1: Noop,CANCELBR[$,0F],     c1;        pCall1,	c2;	    R8¬R8 LRot0,XDisp ,CALL[DISPACH1],	c3, at[0,10];Task1C: Noop, at[0,10,DisRet1],    c1;        R1 ¬R1-1,ZeroBr,       c2;        BRANCH[Task1,Task1D],  c3;Task1D:  DCtl ¬0,    c1;        Noop,       c2;        GOTO[Task1],  c3;SetTask[2];StartAddress[Task2];Task2: Noop,CANCELBR[$,0F],     c1;        pCall2,	c2;	    R8¬R8 LRot0,XDisp ,CALL[DISPACH2],	c3, at[0,10];Task2C: R8¬R8 xor 0F, at[0,10,DisRet2],    c1;        R2 ¬R2-1,ZeroBr,       c2;        BRANCH[Task2,Task2D],  c3;Task2D:  EOCtl ¬0,    c1;        Noop,       c2;        GOTO[Task2],  c3;SetTask[3];StartAddress[Task3];Task3: Noop,CANCELBR[$,0F],     c1;        pCall3,	c2;	    R8¬R8 LRot0,XDisp ,CALL[DISPACH3],	c3, at[0,10];Task3C: R8¬R8 xor 0F, at[0,10,DisRet3],    c1;        R3 ¬R3-1,ZeroBr,       c2;        BRANCH[Task3,Task3D],  c3;Task3D:  PCtl ¬0,    c1;        ClrRefRq,       c2;        GOTO[Task3],  c3;SetTask[4];StartAddress[Task4];Task4: Noop,CANCELBR[$,0F],     c1;        pCall4,	c2;	    R8¬R8 LRot0,XDisp ,CALL[DISPACH4],	c3, at[0,10];Task4C: Noop, at[0,10,DisRet4],    c1;        R4 ¬R4-1,ZeroBr,       c2;        BRANCH[Task4,Task4D],  c3;Task4D:  KCtl ¬RB LRot8,    c1;        KCmd ¬0,       c2;        GOTO[Task4],  c3;SetTask[5];StartAddress[Task5];Task5: Noop,CANCELBR[$,0F],     c1;        pCall5,	c2;	    R8¬R8 LRot0,XDisp ,CALL[DISPACH5],	c3, at[0,10];Task5C: Noop, at[0,10,DisRet5],    c1;        R5 ¬R5-1,ZeroBr,       c2;        BRANCH[Task5,Task5D],  c3;Task5D:  IOPCtl ¬0,    c1;        Noop,       c2;        GOTO[Task5],  c3;SetTask[0];StartAddress[START];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c*, at[0];TERROR:	  GOTO[TERROR],   c*;START: R1¬0F,CANCELBR[$,0F],            c1;	R8¬0A,	c2;	R9¬CONF,	c3;	RB¬0F8,	c1;	RA¬R9 and 0C0,	  c2;	RA¬RA xor 40, 	c3;		Noop,	c1;	R9¬R9 and 20,	  c2;	R9¬R9,ZeroBr, 	c3;    R4¬0F,BRANCH[START1,START2],    c1;START1:	R2¬0,	GOTO[START3],  c2;START2:	R2¬0F,GOTO[START3],  c2;    START3: R3¬R2,  c3;    RA¬RA,ZeroBr,    c1;    R5¬0F,BRANCH[StX000,LFSt],       c2;LFSt:	R0 ¬ 8,	  c3;    R0 ¬ R0 LRot8,             c1;	KCtl ¬ RB LRot8,	c2; 	KCmd ¬ R0 LRot0,GOTO[Start4],	c3; StX000:	R0 ¬ CDkStartCmdHi,  c3;        R0 ¬ R0 LRot8,             c1;	R0 ¬ R0 or CDkStartCmdLo,	c2; 	KCtl ¬ R0 LRot0,	c3; Start4: R0¬0F,	c1;    EOCtl¬1,	c2;	IOPCtl ¬ 3,	c3;Task0: DCtl¬3,CANCELBR[$,0F],     c1;        PCtl¬1,pCall0,	c2;	    R8¬R8 LRot0,XDisp ,CALL[DISPACH],	c3, at[0,10];Task0C: Noop,    c1, at[0,10,DisRet];        R0 ¬R0-1,ZeroBr,       c2;        BRANCH[Task0,Task0D],  c3;Task0D: R7 ¬ 0FF,	c1;Task0D1: R7 ¬ R7 -1,ZeroBr,	c2;	BRANCH[Delay,CkRZero],	c3;Delay: GOTO[Task0D1],	c1;{SUBROUTINES*************************************}CkRZero: R0 ¬ R0,NZeroBr,	c1;	R1 ¬ R1,NZeroBr,BRANCH[$,ErrorTask0],	c2;	R2 ¬ R2,NZeroBr,BRANCH[$,ErrorTask1],	c3;	R3 ¬ R3,NZeroBr,BRANCH[$,ErrorTask3],	c1;    R4 ¬ R4,NZeroBr,BRANCH[$,ErrorTask2],	c2;	R5 ¬ R5 ,NZeroBr,BRANCH[$,ErrorTask4],	c3;	BRANCH[NOERROR1,ErrorTask5],	c1;NOERROR1: GOTO[NOERROR],   c2;             NOERROR: GOTO[NOERROR],   c*, at[0FFF];ErrorTask0: CANCELBR[ErrorTask0],GOTO[ErrorTask0],	c*;ErrorTask1: CANCELBR[ErrorTask1],GOTO[ErrorTask1],	c*;ErrorTask2: CANCELBR[ErrorTask2],GOTO[ErrorTask2],	c*;ErrorTask3: CANCELBR[ErrorTask3],GOTO[ErrorTask3],	c*;ErrorTask4: CANCELBR[ErrorTask4],GOTO[ErrorTask4],	c*;ErrorTask5: CANCELBR[ErrorTask5],GOTO[ErrorTask5],	c*;DISPACH: R8¬R8 xor 0F,DISP4[SaveTC] ,	c1;SaveTC: GOTO[Error],	c2, at[0, 10, SaveTC];	      pRet0,GOTO[DISPACHRET],	c2, at[5, 10, SaveTC];	      pRet0,GOTO[DISPACHRET],	c2, at[0A, 10, SaveTC];	    DISPACHRET: RET[DisRet],	c3;DISPACH1:  R8¬R8 xor 0F,DISP4[SaveTC1] ,	c1;SaveTC1: GOTO[Error],	c2, at[0, 10, SaveTC1];	      pRet1,GOTO[DISPACHRET1],	c2, at[5, 10, SaveTC1];	      pRet1,GOTO[DISPACHRET1],	c2, at[0A, 10, SaveTC1];	    DISPACHRET1: RET[DisRet1],	c3;DISPACH2:  R8¬R8 xor 0F,DISP4[SaveTC2] ,	c1;SaveTC2: GOTO[Error],	c2, at[0, 10, SaveTC2];	      pRet2,GOTO[DISPACHRET2],	c2, at[5, 10, SaveTC2];	      pRet2,GOTO[DISPACHRET2],	c2, at[0A, 10, SaveTC2];	    DISPACHRET2: RET[DisRet2],	c3;DISPACH3:  R8¬R8 xor 0F,DISP4[SaveTC3] ,	c1;SaveTC3: GOTO[Error],	c2, at[0, 10, SaveTC3];	      pRet3,GOTO[DISPACHRET3],	c2, at[5, 10, SaveTC3];	      pRet3,GOTO[DISPACHRET3],	c2, at[0A, 10, SaveTC3];	    DISPACHRET3: RET[DisRet3],	c3;DISPACH4: R8¬R8 xor 0F,DISP4[SaveTC4] ,	c1;SaveTC4: GOTO[Error],	c2, at[0, 10, SaveTC4];	      pRet4,GOTO[DISPACHRET4],	c2, at[5, 10, SaveTC4];	      pRet4,GOTO[DISPACHRET4],	c2, at[0A, 10, SaveTC4];	    DISPACHRET4: RET[DisRet4],	c3;DISPACH5: R8¬R8 xor 0F,DISP4[SaveTC5] ,	c1;SaveTC5: GOTO[Error],	c2, at[0, 10, SaveTC5];	      pRet5,GOTO[DISPACHRET5],	c2, at[5, 10, SaveTC5];	      pRet5,GOTO[DISPACHRET5],	c2, at[0A, 10, SaveTC5];	    DISPACHRET5: RET[DisRet5],	c3;Error: GOTO[Error],	c*;       @
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

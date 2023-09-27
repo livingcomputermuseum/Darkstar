@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.20;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.20;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  Defs.asmDennis DEG     :  2-Sep-84 15:20:27, Add copyright notice}{ 	Copyright (C) 1980 by Xerox Corporation.  All rights reserved.}	get "SysDefs"	get "BootDefs"	get "BootLinkDefs";  Space available:SpaceLeft	equ	MoveLinkTableExt-NextVar	;  Space left (in bytes)	END	Defs@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

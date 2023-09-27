@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.11;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.11;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. }	{File name:  <Workstation>mc>Sunlight-O.mc}		SetTask[0]; StartAddress[TrapTest];{5. Microcode trap tests}Set[StkOVF, 0F];Trap:	R1 ¬ RRot1 ErrnIBnStkp, ClrIntErr, CANCELBR[$, 0F],	c1, at[0];	Xbus ¬ R1 LRot0, XwdDisp,	c2;	DISP2[TrapType],	c3;{Should never get CS Parity Err}TrapType:	GOTO[CSPar],	c1, at[0,4,TrapType];	GOTO[NotCSPar],	c1, at[1,4,TrapType];	GOTO[NotCSPar],	c1, at[2,4,TrapType];	GOTO[NotCSPar],	c1, at[3,4,TrapType];NotCSPar:	R7 ¬ UA5,	c2;	R7 ¬ R7 xor 0E2,	c3;{Which Trap Test are we doing?}	[] ¬ R7, NZeroBr,	c1;	[] ¬ R0 xor 0, ZeroBr, BRANCH[$, BadTrapB],	c2;	[] ¬ R0 xor 1, ZeroBr, BRANCH[$, StkSimUF],	c3;	[] ¬ R0 xor 2, ZeroBr, BRANCH[$, StkSim2UF],	c1;	[] ¬ R0 xor 3, ZeroBr, BRANCH[$, Stk2UF],	c2;	[] ¬ R0 xor 4, ZeroBr, BRANCH[$, StkOF],	c3;	[] ¬ R0 xor 5, ZeroBr, BRANCH[$, StkOFp]	c1;	{[] ¬ R0 xor 6, ZeroBr,} BRANCH[$, StkEReg],	c2;	Noop, {[] ¬ R0 xor 7, ZeroBr, BRANCH[$, VirtPF1],}	c3;	[] ¬ R0 xor 8, ZeroBr, {BRANCH[$, VirtEReg],}	c1;	[] ¬ R0 xor 9, ZeroBr, BRANCH[$, MemEReg],	c2;	[] ¬ R0 xor 0A, ZeroBr, BRANCH[$, IBTestc2],	c3;	BRANCH[BadTrapA, IBEReg],	c1;{Set UA5 to E2 to indicate legit trap through 0}TrapTest:	R0 ¬ 0E2, CANCELBR[$, 0F],	c1;	UA5 ¬ R0,	c2;	R0 ¬ 0,	c3;{Stack Pointer overflow & underflow tests}StkUF:	stackP ¬ 0,	c1;	pop, GOTO[WaitTrapc3],	c2, at[0F,10];StkSimUF:	stackP ¬ 0, CANCELBR[$],	c1;	R0 ¬ 1, fXpop, push, GOTO[WaitTrapc3],	c2;StkSim2UF:	stackP ¬ 1, CANCELBR[$],	c2;	R0 ¬ 2,	c3;	fXpop, fZpop, push, GOTO[WaitTrapc2],	c1;Stk2UF:	stackP ¬ 1, CANCELBR[$],	c3;	DCtl ¬ R0 ¬ 3,	c1;	fXpop, fZpop, GOTO[WaitTrapc3],	c2;StkOF:	stackP ¬ StkOVF, CANCELBR[$],	c1;	R0 ¬ 4, push, GOTO[WaitTrapc3],	c2;StkOFp:	stackP ¬ StkOVF, CANCELBR[$],	c2;	R0 ¬ 5,	c3;	push, fZpop, GOTO[WaitTrapc2],	c1;{Does Error register really say stackP error?}StkEReg:	Xbus ¬ R1 LRot0, XwdDisp, CANCELBR[$],	c3;	DISP2[StkEE],	c1;StkEE:	GOTO[ErrRStkp],	c2, at[0,4,StkEE];	GOTO[ErrRStkp],	c2, at[1,4,StkEE];	GOTO[MemF],  {EKErr=2 on stackP err}	c2, at[2,4,StkEE];	GOTO[ErrRStkp],	c2, at[3,4,StkEE];{Emulator Double bit memory error}MemF:	R2 ¬0FF,	c3;	R0 ¬ 0C0,	c1;MWait:	R5 ¬ RShift1(R5 xor  R5), Cin¬ 1,	c2;	R2 ¬ R2-1 ,NZeroBr,	c3;	R5 ¬ R5 or 2, BRANCH[MemF2, MWait],	c1; MemF2:	MCtl ¬ R0 or R5 {invert 2 syndrome bits},	c2;	rhR2 ¬ R2 LRot0,	c3;	MAR ¬ [rhR2, R2+0],	c1;	MDR ¬ R2,  {Write bad word}	c2;	Noop,	c3;	MAR ¬ [rhR2, R2+0],	c1;	R0 ¬ 8,	c2;	R3 ¬ MD, GOTO[WaitTrapc1], {Read bad word}	c3;{Does Error register really say memory error?  Is MStatus[0] set?  Is it reset?}MemEReg:	Xbus ¬ R1 LRot0, XwdDisp, CANCELBR[$],	c3;	DISP2[MemEE],	c1;MemEE:	GOTO[ErrRMem],	c2, at[0,4,MemEE];	R3 ¬ R0 LRot8, GOTO[MemStatE],	c2, at[1,4,MemEE];	GOTO[ErrRMem],	c2, at[2,4,MemEE];	GOTO[ErrRMem],	c2, at[3,4,MemEE];MemStatE:	Xbus ¬ MStatus, XLDisp,	c3;		MCtl ¬ R3 or R5, {MCtl¬800}, BRANCH[MStatBad1, $, 1],	c1;	Xbus ¬ MStatus, XLDisp,	c2;	BRANCH[IBTestc1, MStatBad0, 1],	c3;{IBEmpty error NOT in c1}IBTestc1: MCtl ¬ R5	c1;	Noop,	c2;	IBPtr¬1,  c3;        Xbus ¬ ib,  {IB empty now}	c1;	R0¬9,	c2;	Xbus ¬ ib, GOTO[WaitTrapc1],	c3;{IBEmpty error in c1.  Should cancel mem write.}IBTestc2:	MAR ¬ [rhR2, R2+0], CANCELBR[$],	c1;	MDR ¬ 0,	c2;	R0 ¬ 0A,	c3;	MAR ¬ [rhR2, R2+0], Xbus ¬ ib,	c1;	MDR ¬ 0FF, GOTO[FastTrapc3],	c2;{Does Error register really say IBEmpty error?}IBEReg:	Xbus ¬ R1 LRot0, XwdDisp, CANCELBR[$],	c2;	DISP2[IBEE],	c3;IBEE:	GOTO[ErrRibEm],	c1, at[0,4,IBEE];	GOTO[ErrRibEm],	c1, at[1,4,IBEE];	GOTO[ErrRibEm],	c1, at[2,4,IBEE];{reset Trap-test indicators}	Noop, {EKErr=3 on IBEmpty err}	c1, at[3,4,IBEE];	UA5 ¬ 0,	c2;	R0 ¬ 0E,	c3;{was mem write canceled? Loc 1 should be 0}	MAR ¬ [rhR2, R2+0],	c1;	Noop,	c2;	R3 ¬ MD,	c3;	[] ¬ R3, ZeroBr,	c1;	BRANCH[IBEMemW, CritTime],	c2;{Wait a click for ErrorProm to decode error}WaitTrapc2:	Noop,	c2;WaitTrapc3:	Noop,	c3;WaitTrapc1:	Noop,	c1;	Noop,	c2;FastTrapc3:	Noop,	c3;	GOTO[DidntTrap],  {trap should happen by now}	c1;{6.  Test those X bus operations which have large (>134 nS) cycle times}CritTime:	TestCnt ¬ TestCnt + 1 {=0D}	,c3;{[]¬U or R, ZeroBr}	U5A ¬ 0	,c1;	UA5 ¬ ~RA xor RA	,c2;	[] ¬ U5A xor 0, ZeroBr	,c3;{[]¬U or R, NegBr}	BRANCH[UZeroBrBad, $]	,c1;UNeg:	Ybus ¬ U5A	,c2;	[] ¬ UA5 xor 0, NegBr	,c3;	BRANCH[UNegBrBad, $]	,c1;UStkp:	stackP ¬ 0	,c2;	stackP ¬ UA5 xor 0	,c3;{stackP ¬ U or R}	R0 ¬ ErrnIBnStkp	,c1;	R0 ¬ R0 and 0F	,c2;	[] ¬ R0, ZeroBr	,c3;	BRANCH[UstkpBad, $]	,c1;URot:	R0 ¬ 0F	,c2;	U5A ¬ R0	,c3;{R ¬ Rot1 U}	R1 ¬ LRot1 U5A	,c1;	UA5 ¬ R1	,c2;	R2 ¬ RRot1 UA5	,c3;	[] ¬ R2 xor 0F, ZeroBr	,c1;	BRANCH[URot1Bad, $]	,c2;UPage:	R0 ¬ 2	,c3;{R ¬ U + R, PgCarryBr, LOOPHOLE[byte]}	UA5 ¬ R0	,c1;	RA ¬ 0FE	,c2;	Xbus ¬ U5A	,c3;	[] ¬ RA + UA5, PgCarryBr, LOOPHOLE[byteTiming]	,c1;MemNib:	rhR0 ¬ 0, BRANCH[UByPgCyBad, $]	,c2;	R0 ¬ 5	,c3;	MAR ¬ [rhR0, R0+0]	,c1;	MDR ¬ 0FD	,c2;	Noop	,c3;	MAR ¬ [rhR0, R0+0]	,c1;	R1 ¬ 4	,c2;	R2 ¬ MD + R1, LOOPHOLE[niblTiming]	,c3;	R2 ¬ R2 and 0F	,c1;	R2 ¬ R2 xor 1, ZeroBr	,c2;	R4 ¬ 0, BRANCH[MNibByBad, $]	,c3;{"Freeze" test: check U reg access and D-input to F=0 output. Loop 256 times.}	R0 ¬ 0	,c1;	RD ¬ 0AA	,c2;	RD ¬ (RD LRot8) or RD	,c3;	MAR ¬ [rhR0, R0+0]	,c1;	MDR ¬ RD   {MDR¬0AAAA}	,c2;	RD ¬ uD0 ¬  ~RD  {rd¬5555}	,c3;UFZeroT:	MAR ¬ [rhR0, R0+0], IBPtr¬1	,c1;	Noop	,c2;	IB ¬ MD  {MD=0AAAA}	,c3;	Ybus ¬ RD xor uD0, NZeroBr	,c1;	R4 ¬ R4 + 1, PgCarryBr, BRANCH[$, UFZeroBad]	,c2;	BRANCH[UFZeroT, $]	,c3;{R ¬ RH + R, PgCarryBr, LOOPHOLE[Byte]}rhPage:	rhR0 ¬ 0FC	,c1;	R0 ¬ 5	,c2;	Xbus ¬ rhRF	,c3;	R0 ¬ rhR0 + R0, PgCarryBr, LOOPHOLE[byteTiming]	,c1;	R0 ¬ R0 and 0FF, BRANCH[RHByPgBad, $]	,c2;	[] ¬ R0 xor 1, ZeroBr	,c3;{[] ¬ R + Byte, CarryBr}	BRANCH[RHByArBad, $]	,c1;ByCarry:	R0 ¬ R0 xor ~R0	,c2;	R1 ¬ R0 + 0F, CarryBr	,c3;	BRANCH[ByCyBrBad, $]	,c1;	GOTO[NOERROR1]	,c2;{Bad breakpoints}MStatBad0:	RErr ¬ 81, GOTO[MStatBad0],	c*;MStatBad1:	RErr ¬ 82, GOTO[MStatBad1],	c*;{trap test which failed is in R0.  If R0 is not in [0..x] & UA5 does not equal 0E2, control reached Loc 0 not during the trap test.}BadTrapA:	RErr¬9B, GOTO[BadTrapA],	c*;BadTrapB:	RErr¬0AC, CANCELBR[BadTrapB1],	c*;BadTrapB1:	RErr¬0AC, GOTO[BadTrapB1],	c*;DidntTrap:	RErr¬0AD, GOTO[DidntTrap],	c*;ErrRStkp:	RErr¬9C, GOTO[ErrRStkp],	c*;ErrRVirt:	RErr¬9D, GOTO[ErrRVirt],	c*;ErrRMem:	RErr¬9E, GOTO[ErrRMem],	c*;ErrRibEm:	RErr¬9F, GOTO[ErrRibEm],	c*;IBEMemW:	RErr¬0A0, GOTO[IBEMemW],	c*;CSPar:	RErr¬0AE, GOTO[CSPar],	c*;{Bad Timing Test Breaks}UZeroBrBad:	RErr¬0A2, GOTO[UZeroBrBad]	,c*;UNegBrBad:	RErr¬0A3, GOTO[UNegBrBad]	,c*;UstkpBad:	RErr¬0A4, GOTO[UstkpBad]	,c*;URot1Bad:	RErr¬0A5, GOTO[URot1Bad]	,c*;UByPgCyBad:	RErr¬0A6, GOTO[UByPgCyBad]	,c*;MNibByBad:	RErr¬0A8, GOTO[MNibByBad]	,c*;RHByPgBad:	RErr¬0A9, GOTO[RHByPgBad]	,c*;RHByArBad:	RErr¬0AA, GOTO[RHByArBad]	,c*;ByCyBrBad:	RErr¬0AB, GOTO[ByCyBrBad]	,c*;UFZeroBad:	RErr¬0B1, CANCELBR[UFZeroBad1]	,c*;UFZeroBad1:	RErr¬0B1, GOTO[UFZeroBad1]	,c*;NOERROR1:	GOTO[NOERROR],	                           	c*;NOERROR:	GOTO[NOERROR],	                           	c*, at[0FFF];@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

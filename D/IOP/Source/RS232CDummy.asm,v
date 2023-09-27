@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~-----------  Dandelion Processor Program - I/O Processor  ----------- ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  DESCRIPTION:      RS232C Dummy Task. ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  - Last modification   by Dennis DEG     :	 1-Sep-84 17:53:28  Add copyright notice   by CrF   CRF, Julian JMM    :  13-Oct-83 15:52:42  File: RS232CDummy.asm  Stored:  [Iris]<WMicro>DLion>RS232CDummy.asm  Written by CrF   CRF, Julian JMM   .  Modification History:  - Created  by CrF   CRF, Julian JMM    : 13-Oct-83 15:52:39 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~}{ 	Copyright (C) 1983 by Xerox Corporation.  All rights reserved.};  IMPORTS/EXPORTS:	IMP	ErrorReport				; From MPTask	IMP	MainLoop				; From BookKeepingTask;  To Common:	EXP	FloppyActiveSwitch4	EXP	ExitInterrupt	EXP	NoMoreBytesToSend	EXP	RxAsyncDataInt	EXP	RxAsyncExternalInt	EXP	RxAsyncSpecialInt	EXP	RxSDLCDataInt	EXP	RxSDLCExternalInt	EXP	RxSDLCSpecialInt	EXP	RxBisyncExternalInt	EXP	RxBisyncSpecialInt	EXP	RxIllegalInt	EXP	TxAsyncDataInt	EXP	TxAsyncExternalInt	EXP	TxSDLCExternalInt	EXP	TxBisyncExternalInt	EXP	TxIllegalIntErrorNoRS232C	equ	1111	;  No RS232C or floppy tasks implemented	jmp	MainLoop	ExitInterrupt:NoMoreBytesToSend:RxAsyncDataInt:RxAsyncExternalInt:RxAsyncSpecialInt:RxSDLCDataInt:RxSDLCExternalInt:RxSDLCSpecialInt:RxBisyncExternalInt:RxBisyncSpecialInt:RxIllegalInt:TxAsyncDataInt:TxAsyncExternalInt:TxSDLCExternalInt:TxBisyncExternalInt:TxIllegalInt:RS232CIntr:	lxi	h,ErrorNoRS232C	jmp	ErrorReportFloppyActiveSwitch4:	db	0	END@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

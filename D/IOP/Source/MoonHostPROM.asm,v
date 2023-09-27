@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.09;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.09;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@; Copyright (C) 1980  by Xerox Corporation. All rights reserved. 	get "SysDefs.asm"	; system defs (tests defs below)        get "MOONLinkDefs.asm"	; Link defs;  EXPORTS:	EXP	HOSTSetUpHost5:	ds	1		;  Least significant byte of addressHost4:	ds	1		;  host address byteHost3:	ds	1		;  host address byteHost2:	ds	1		;  host address byteHost1:	ds	1		;  host address byteHost0:	ds	1		;  Most significant byte of addressCheckSumC:	ds	1		;  Storage for computed checksumCheckSumP:	ds	1		;  Storage for prom checksumnCheckSumP:	ds	1		;  Storage for complemented prom checksumPassCount:	ds	1		StopOnErr: 	db	0H	HostErr:	ds	1		HOSTSetUp:        LXI SP, UserStkStart        mvi a,0        sta HostErr        call ExtTEIIndexAdd   ; Returns with TestN * 16 + EIBuffer in h and l        mov	a,m		;          sta PassCount        inx  h        mov	a,m		;          sta     StopOnErr        jmp StartReadLogit:       call ExtTEIIndexAdd   ; Returns with TestN * 16 + EIBuffer in h and l       mvi e,6       mvi d,0       dad d                    lda Host0       mov	m,a		;         inx  h       lda Host1       mov	m,a		;         inx  h       lda Host2       mov	m,a		;         inx  h       lda Host3       mov	m,a		;         inx  h       lda Host4       mov	m,a		;         inx  h       lda Host5       mov	m,a		;         inx  h       lda CheckSumC       mov	m,a		;         inx  h       lda CheckSumP       mov	m,a		;         inx  h       lda nCheckSumP       mov	m,a		;         inx  h       lda HostErr       mov	m,a		;         call ExtMonitorKeyIn         lda   StopOnErr       cpi 0       jnz   HOSTSetUp       jmp   ExtMonitorTestDone               ;  Initialize the checksum algorithm.StartRead:	lxi	h,Host0		;  Point to most significant byte of Host address buffer	lxi	d,8000H+HostAddr	;  Point to the HAddr prom	call	GetHAddrByte	;  Get byte H0	mov	m,a		;  Store in buffer	dcx	h		;  Bump pointer	mov	b,a		;  Save in B	call	GetHAddrByte	;  Get the second byte	mov	m,a		;  Store in buffer	xra	b		;  Checksum ¬ Rot [H0 xor H1]	rlc		sta	ChecksumC	dcx	h		;  Bump pointer	mvi	c,4		;  Count for 4 subsequent bytes of addressReadHAddrLoop:	call	GetHAddrByte	;  Get the next byte	mov	m,a		;  Store in buffer;	lda	ChecksumC	xra	m		;  A ¬ (ChecksumC) xor (next byte)	rlc			;  Rotate checksum	sta	ChecksumC	;  Store partial checksum	dcx	h		;  Point to next byte in buffer	dcr	c		;  Decrement the count	jnz	ReadHAddrLoop		;  nz  => stil more address bytes	call	GetHAddrByte	;  Get the next byte (the prom checksum)	sta	CheckSumP	;  Save	lxi	h,CheckSumC	;  Point to computed checksum	xra	m		;  Compute CheckSumC xor ChecksumP	jz	CheckComplement		;  z => The two checksums agreeBadChecksum:	mvi  a,1     ; Computed checksum disagrees with prom checksum	sta  HostErr        jmp	LogItCheckComplement:	call	GetHAddrByte	;  Get the next byte (the prom complement checksum)	sta	nCheckSumP	;  Save	cma			;  Complement	xra	m		;  CheckSumC xor Complement(nChecksumP)	jz	ReadAddressDone		;  z => The two checksums agreeBadChecksumCompl:	mvi  a,2  ;Computed checksum disagrees with prom complemented checksum	sta  HostErr        jmp	LogItReadAddressDone:	lda PassCount        dcr a        sta PassCount        cpi 0        jz  LogIt        jmp	StartReadGetHAddrByte:	push	b		;  Save B,C	ldax	d		;  Get low nibble of byte	ani	0FH		;  Mask out garbage in high part of byte	mov	b,a		;  Save in B	inx	d		;  Point to next nibble	ldax	d		;  Get high nibble of byte	ani	0FH		;  Mask out garbage in high part of byte	inx	d		;  Point to next nibble	rlc			;  Move to high part of byte	rlc	rlc	rlc	ora	b		;  Form byte in A	pop	b	ret	END	@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.08;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.08;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. }{File name:  <JXK         >moonkernel.mc Description: moon kernel test code, Author: J. JxK , Created: 8 APRIL 80, Last Edited: }SetTask[7];StartAddress[KSTART];KSTART:	ClrIntErr, CANCELBR[$, 0F],	c*; KSTART1:	XC2npcDisp, c2;	 R3¬0F8,BRANCH[BadCy, GoodCy, 0D],	c3;BadCy:	Noop,	c*, at[0D,10,GoodCy];	Noop,	c*;	Noop, GOTO[KSTART1],	c*;GoodCy:	PCtl¬ 0 ,	c1, at[0F,10,BadCy];	Xbus ¬ IOPIData , ClrRefRq ,	c2;	IOPCtl¬ 0 ,	c3;    DCtl ¬ 2,	c1;	KCmd¬ 0 ,	c2;	KCtl¬ R3 LRot8 ,	c3;	EICtl¬ 0	c1;	EOCtl¬ 0 ,	c2;	R0 ¬ RShift1(R0 xor  R0), Cin¬ 1 ,	c3;	MCtl¬ R0{8000} or 2,	c1;	R0 ¬ 7 ,	c2;	TEST¬ R0 ,	c3;         ExitKernel,       c1;	 ClrDPRq ,	c2;	 ClrIOPRq,	c3;        Kerror: GOTO[Kerror],	c*;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

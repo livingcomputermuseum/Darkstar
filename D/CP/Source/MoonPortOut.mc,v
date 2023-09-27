@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved.  }{File name:  <JXK         >JxK .mc Description: JxK  test code, Author: J. JxK , Created: May 16, 1980  12:01 PM, Last Edited: } SetTask[7]; StartAddress[START];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c*, at[0];TERROR:	  GOTO[TERROR],   c*;{CPOut microcode test.In this test, the IOP outputs an increasing number to CPOut, which is checked by the CP.}START:	ClrIntErr, CANCELBR[$, 0F],	c*; START1:	Xbus ¬ IOPIData,         c*;			{Clear flags}	IOPCtl ¬ 5 ,     c*;	{Set mode of IOP port, + Attn to indicate proceed to IOP}	R0 ¬ 0,                            c*;				{Clear data register}	Wait:	Xbus ¬ IOPStatus, XLDisp ,     c*;	{Is IOPReq true?, Put R0 on Y bus}	BRANCH [Wait, In, XOdd],     c*;	{XOdd => IOPReq, Put R0 on Y bus}In:	IOPCtl ¬ 1 ,                       c*;		{Set mode of IOP port, clear Attn}	[]¬IOPIData xor R0, ZeroBr,     c*;	{Output value}	R0 ¬ R0 + 1, BRANCH [Bad, Good],        c*;	{Increment}Bad:	Noop, GOTO [Bad],           c*;		{Hang, put R0 on Y bus}Good:	R0¬R0 and 0FF,      c*;	{Clear high part}       R0¬R0 , ZeroBr,     c*;	{Clear high part}      BRANCH [Wait1, NOERROR],     c*;	Wait1:   GOTO[Wait],         c*;NOERROR:  IOPCtl ¬ 0, GOTO[NOERROR],	           	c*, at[0FFF];@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

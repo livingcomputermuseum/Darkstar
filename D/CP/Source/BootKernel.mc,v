@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.19;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  BootKernel.mc Last Edited: Jozef JF   , January 7, 1982  11:13 AM: loading KCtl with F000 Last Edited: Jim JXF     , August 21, 1981  10:19 AM: changes for new assembler Last Edited: PXJ   , March 23, 1981  9:32 AM Description: Production Kernel, Author: PXJ   , Created: November 7, 1980  11:22 AM, Dennis DEG     :  2-Sep-84 15:42:50, add copyright notice.}{ 	Copyright (C) 1980, 1981, 1982 by Xerox Corporation.  All rights reserved.}SetTask[7]; StartAddress[KGo];Set[IOPInMode, 1];	{IOP port input mode}Set[IOPAWMode, 3];	{IOP port alwaysWU mode}{the code at KGo runs only once can be overlaid, and therefore goes outside the kernel area}KGo:	ClrIntErr, CANCELBR[$, 0F], RCnt ¬ 0F,	c*, at[0FDE]; {reset the world}	MCtl¬ 0,	c*, at[0FDF];	KCtl¬ RCnt LRot12,	c*, at[0FDD];	DCtl¬ 3, {this saves a couple of instructions in Phase0}	c*, at[0FDC]; {display black, enable task}	PCtl¬ 0,	c*, at[0FDB];	EICtl¬ 0,	c*, at[0FDA];	EOCtl¬ 0,	c*, at[0FD9];	passTraps¬ 0,	c*, at[0FD8];Reserve[0, 0FD7];	{	Phase0Protected (Protected.mc, IOPBoot.mc) resides in 0 - 00FF	Phase0 (Phase0.mc, DiskBootDLion.mc, EtherBoot.mc) resides in 0100 - 0FDF	The BootKernel resides in 0FE0 - 0FFF	Part of the BootKernel that can be overlaid resides in 0FD8 - 0FDF	}KEntry:	uKSaveR¬ rK,	c*;	rK¬ RShift1 ~IOPStatus,	c*;	uIOPCtlSave¬ rK,	c*;	IOPCtl¬ IOPInMode,	c*; {Enable IOP port}KRefresh:	Refresh,	c*;	Refresh,	c*;	Refresh,	c*;KLoop:	Xbus¬ IOPStatus, XLDisp,	c*; {IOPReq?, x.8 guaranteed 0}	rK¬ rK+1, NibCarryBr, BRANCH[$, KCommand],	c*;	BRANCH[KLoop, KRefresh],	c*;{here for kernel command from IOP}KCommand:	Xbus¬ 0, XC2npcDisp, CANCELBR[$, 1],	c*;KCommand1:	BRANCH[$, KDisp, 1],	c*;	Xbus¬ 0, XC2npcDisp, GOTO[KCommand1],	c*;KDisp:	Noop,	c1;	Xbus¬ IOPIData, XDisp,	c2;	DISP2[KTable],	c3;KTable:	ExitKernel,	c1, at[0C, 10, KTable];	rK¬ uKSaveR,	c2;	IOPCtl¬ uIOPCtlSave, GOTO[KEntry],	c3;KRefCmd:	Refresh, GOTO[KRefresh], {sneak in an extra refresh}	c1, at[0D, 10, KTable];KCmd2:	GOTO[KCmd2],	c*, at[0E, 10, KTable];KCmd3:	GOTO[KCmd3],	c*, at[0F, 10, KTable];@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

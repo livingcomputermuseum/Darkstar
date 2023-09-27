@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.08;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.08;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. }{File name:  <JXK         >MEMTEST.mc Description: MEMORY test code, Author: J. JxK , Created: 8 APRIL 80, Last Edited: }SetTask[1];StartAddress[Task1];Task1: Noop,CANCELBR[$,0F],     c1;        R1 ¬R1,NZeroBr,       c2;        BRANCH[Task1A,Task1B],       c3;Task1A:  R1 ¬ 0FF,    c1;        DCtl ¬2,       c2;        GOTO[Task1A],  c3;Task1B: Noop,    c1;        Noop,       c2;        GOTO[Task1C],  c3;Task1C: Noop,    c1;        R1 ¬R1-1,ZeroBr,       c2;        BRANCH[Task1C,Task1D],  c3;Task1D:  DCtl ¬2,    c1;        Noop,       c2;        GOTO[Task1],  c3;SetTask[2];StartAddress[Task2];Task2: Noop,CANCELBR[$,0F],     c1;        R2 ¬R2,NZeroBr,       c2;        BRANCH[Task2A,Task2B],       c3;Task2A:  R2 ¬ 0FF,    c1;        EOCtl ¬0,       c2;        GOTO[Task2A],  c3;Task2B: Noop,    c1;        Noop,       c2;        GOTO[Task2C],  c3;Task2C: Noop,    c1;        R2 ¬R2-1,ZeroBr,       c2;        BRANCH[Task2C,Task2D],  c3;Task2D:  EOCtl ¬0,    c1;        Noop,       c2;        GOTO[Task2],  c3;SetTask[3];StartAddress[Task3];Task3: Noop,CANCELBR[$,0F],     c1;        R3 ¬R3,NZeroBr,       c2;        BRANCH[Task3A,Task3B],       c3;Task3A:  PCtl ¬0,    c1;        ClrRefRq,       c2;        R3 ¬ 0FF,GOTO[Task3A],  c3;Task3B: Noop,    c1;        Noop,       c2;        GOTO[Task3C],  c3;Task3C: Noop,    c1;        R3 ¬R3-1,ZeroBr,       c2;        BRANCH[Task3C,Task3D],  c3;Task3D:  PCtl ¬0,    c1;        ClrRefRq,       c2;        GOTO[Task3],  c3;SetTask[4];StartAddress[Task4];Task4: Noop,CANCELBR[$,0F],     c1;        R4 ¬R4,NZeroBr,       c2;        BRANCH[Task4A,Task4B],       c3;Task4A:  R4 ¬ 0FF,    c1;        KCtl ¬RB LRot8,       c2;        KCmd ¬0,GOTO[Task4A],  c3;Task4B: Noop,    c1;        Noop,       c2;        GOTO[Task4C],  c3;Task4C: Noop,    c1;        R4 ¬R4-1,ZeroBr,       c2;        BRANCH[Task4C,Task4D],  c3;Task4D:  KCtl ¬RB LRot8,    c1;        KCmd ¬0,       c2;        GOTO[Task4],  c3;SetTask[5];StartAddress[Task5];Task5: Noop,CANCELBR[$,0F],     c1;        R5 ¬R5,NZeroBr,       c2;        BRANCH[Task5A,Task5B],       c3;Task5A:  R5 ¬ 0FF,    c1;        IOPCtl ¬0,       c2;        GOTO[Task5A],  c3;Task5B: Noop,    c1;        Noop,       c2;        GOTO[Task5C],  c3;Task5C: Noop,    c1;        R5 ¬R5-1,ZeroBr,       c2;        BRANCH[Task5C,Task5D],  c3;Task5D:  IOPCtl ¬0,    c1;        Noop,       c2;        GOTO[Task5],  c3;SetTask[0];StartAddress[START];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c*, at[0];TERROR:	  GOTO[TERROR],   c*;START:	R0¬0,CANCELBR[$,0F],	c1;	R1¬0,	c2;	R2¬0,	c3;	R3¬0,	c1;	R4¬0,	c2;	R5¬0,	  c3;	    	R9¬CONF,	c1;	RA¬R9 and 0C0,	  c2;	RA¬RA xor 40, 	c3;		Noop,	c1;	Noop,	  c2;	R9¬R9 and 20, 	c3;    R9¬R9,ZeroBr,    c1;    RB¬ 0F8, BRANCH[START1,START2],       c2;START1:	R9¬0,	GOTO[START3],  c3;START2:	R9¬0F,GOTO[START3],  c3;        {No task should be running but zero}START3:  R8¬0,            c1;	pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[0,10];    Noop,            c1, at[0,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[0,10];   {Start task 1}    R1¬0F,            c1, at[0,10,CkRet];	DCtl ¬ 1,pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[1,10];       R8¬1,            c1, at[1,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[1,10];     {Start task 2}    R2¬R9,            c1, at[1,10,CkRet];	EOCtl ¬ 1,pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[2,10];       R8¬2,            c1, at[2,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[2,10];   {Start task 3}    R3¬R9,            c1, at[2,10,CkRet];	PCtl ¬ 1,pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[3,10];       R8¬3,            c1, at[3,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[3,10];   {Start task 4}    RA¬RA,ZeroBr,    c1, at[3,10,CkRet];    R4¬0F,BRANCH[StX000,LFSt],       c2;LFSt:	R0 ¬ 8,	  c3;    R0 ¬ R0 LRot8,             c1;	KCtl ¬ RB LRot8,	c2; 	KCmd ¬ R0 LRot0,GOTO[Start4],	c3; StX000:	R0 ¬ CDkStartCmdHi,  c3;        R0 ¬ R0 LRot8,             c1;	R0 ¬ R0 or CDkStartCmdLo,	c2; 	KCtl ¬ R0 LRot0,	c3; Start4: Noop,	c1;    pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[4,10];      R8¬4,            c1, at[4,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[4,10];   {Start task 5}    R5¬0F,            c1, at[4,10,CkRet];	IOPCtl ¬ 3,pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[5,10];       R8¬5,            c1, at[5,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[5,10];   {Start all task }    RA¬RA,ZeroBr,    c1, at[5,10,CkRet];    R4¬0F,BRANCH[AStX000,ALFSt],       c2;ALFSt:	R0 ¬ 8,	  c3;    R0 ¬ R0 LRot8,             c1;	KCtl ¬ RB LRot8,	c2; 	KCmd ¬ R0 LRot0,GOTO[StartA],	c3; AStX000:	R0 ¬ CDkStartCmdHi,  c3;        R0 ¬ R0 LRot8,             c1;	R0 ¬ R0 or CDkStartCmdLo,	c2; 	KCtl ¬ R0 LRot0,	c3;     R0 ¬ CDkStartCmdHi,            c1;	R0 ¬ R0 LRot8,	c2; 	R0 ¬ R0 or CDkStartCmdLo,	c3; StartA: R5¬0F,            c1;	R1¬0F,	c2;	R2¬R9,	c3;    IOPCtl ¬ 3,	c1;    DCtl ¬ 1,	c2;	EOCtl¬1,	c3;        R3¬R9,            c1;	PCtl ¬ 1,pCall4,	c2;	R0 ¬ 0FF,CALL[Delay],	c3, at[6,10];     R8¬6,            c1, at[6,10,DelRet];	pCall4,	c2;	CALL[CkRZero],	c3, at[6,10];        GOTO[NOERROR],            c1, at[6,10,CkRet];NOERROR: R8¬R8, GOTO[NOERROR],	                           	c*, at[0FFF];{SUBROUTINES*************************************}CkRZero: R0 ¬ R1,NZeroBr,	c1;	R0 ¬ R0 or R2,NZeroBr,BRANCH[$,ErrorTask1],	c2;	R0 ¬ R0 or R3,NZeroBr,BRANCH[$,ErrorTask2],	c3;    R0 ¬ R0 or R4,NZeroBr,BRANCH[$,ErrorTask3],	c1;	R0 ¬ R0 or R5 ,NZeroBr,BRANCH[$,ErrorTask4],	c2;	BRANCH[CkENRET,ErrorTask5],	c3;ErrorTask1: CANCELBR[ErrorTask1],GOTO[ErrorTask1],	c*;ErrorTask2: CANCELBR[ErrorTask2],GOTO[ErrorTask2],	c*;ErrorTask3: CANCELBR[ErrorTask3],GOTO[ErrorTask3],	c*;ErrorTask4: CANCELBR[ErrorTask4],GOTO[ErrorTask4],	c*;ErrorTask5: CANCELBR[ErrorTask5],GOTO[ErrorTask5],	c*;Delay: Noop,	c1;	R0 ¬ R0 -1,ZeroBr,	c2;	BRANCH[Delay,DelENRET],	c3;DelENRET: Noop,	c1;             pRet4,	c2;	RET[DelRet],	c3;CkENRET: R7¬0,	c1;             pRet4,	c2;	RET[CkRet],	c3;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

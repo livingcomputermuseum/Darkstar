@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.09;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.09;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@; Copyright (C) 1980  by Xerox Corporation. All rights reserved. 	get "SysDefs.asm"	; system defs (tests defs below)        get "MOONLinkDefs.asm"	; Link defs;  EXPORTS:	EXP	LearSSetUpOSCcmd	EQU	36H		;  Counter#0, LSB & MSB, Mode3, BinaryReset0	EQU	80H		;  First character of reset sequence (see notes)Reset1	EQU	00H		;  Second character of reset sequenceReset2	EQU	40H		;  Third character of reset sequencePTMode	EQU	0CEH		;  2 stop, parity none, 8 bits, 16XErrRst	EQU	10H		;  Error Reset CommandEnable	EQU	25H		;  Rx /TxEnable, CTSTTYERROR	EQU	38H		;  Framing, Overrun, Parity ErrorDSR	EQU	80H		;  Data Set Ready Flag of UART StatusCRCode	EQU	0DH		;  Carrige Return CodeLFCode	EQU	0AH		;  Line Feed CodeTest:	db	0		;  PassCount:	db	0		;  StopOnErr: 	db	0H	OutData:	db	0		;  InData:	db	0		;  LearSError:	db	0		;  LearSSetUp:       mvi a,0       sta LearSError       call ExtTEIIndexAdd   ; Returns with TestN * 16 + EIBuffer in h and l       mov	a,m		;         sta Test       inx  h       mov	a,m		;         sta PassCount       inx  h       mov	a,m		;         sta     StopOnErr       mvi e,10       mvi d,0       dad d                    mov	a,m		;         sta OutData       jmp   Loopbacktest        Logit:       LXI SP, UserStkStart       call ExtTEIIndexAdd   ; Returns with TestN * 16 + EIBuffer in h and l       mvi e,13       mvi d,0       dad d                    lda OutData       mov	m,a		;         inx  h       lda InData       mov	m,a		;         inx  h       lda LearSError       mov	m,a		;         call ExtMonitorKeyIn         lda   StopOnErr       cpi 0       jnz   LearSSetUp       jmp   ExtMonitorTestDone        USARTINIT:				;  Initiate USART    MVI	B,0H		;  B ¬ MSB, C ¬ LSB    MVI	C,12		;  12D=Devisor for 9600Hz of Async mode(X16)    MVI	A,OSCcmd		;  Frequncy and Mode Set to i8253 (for USART)    OUT	TimerMode		;  Counter#0, LSB & MSB, Mode3, Binary    MOV	A,C    OUT	TimerCount0    MOV	A,B    OUT	TimerCount0	;  End of Initiatlize Baud-Rate generator    MVI	A,Reset0		; Reset UART    OUT	PrinterCommand	    MVI	A,Reset1    OUT	PrinterCommand	    MVI	A,Reset2    OUT	PrinterCommand	    NOP			;  Needed for B-step chips    MVI	A,PTMode		;  Set Mode value (assumed asynchronous)     OUT	PrinterCommand	    retLoopbacktest:				    call    USARTINIT    MVI	A,Enable		; Set UART Command    OUT	PrinterCommandLoopbacktest1:				    call    Loopback    lhld 	OutData    mov   a,l        xra    h        jnz	Derror    lda Test    cpi 1    jnz Loopbacktest2    lda OutData    inr a    sta OutDataLoopbacktest2:		    lda PassCount    dcr a    sta PassCount    cpi 0    jz  LogIt    jmp	Loopbacktest1	Loopback:    IN	PrinterStatus	; Check Error    ANI	DSR    JZ	StatusError    IN	IntReq		; Watch Condition of USART    ANI	PtrTxReqMask    JNZ	NoTxReq    LDA	OutData    OUT	PrinterData		; Data Send    call    RXWait    IN	PrinterData		; Data Receive    sta InData		;  Store away.    ret    RXWait:	 lxi	h,0	;  ConstantRXWaitLoop:	IN	PrinterStatus	; Check Error        ANI	DSR        JZ	StatusError        IN	IntReq		; Watch Condition of USART        ANI	PtrRxReqMask        RZ	        dcx	h	mov	a,l		;  Check low	cpi	0	jnz	RXWaitLoop	mov	a,h		;  Check high	cpi	0	jnz	RXWaitLoop         jmp NoRxReqStatusError:    mvi a,1    jmp StErrorNoTxReq:    mvi a,2    jmp StErrorNoRxReq:    mvi a,3StError:    sta LearSError    jmp	LogItDerror:    mvi a,4    jmp	StError        end@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

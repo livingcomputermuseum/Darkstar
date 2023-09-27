@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.06;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.06;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@; Copyright (C) 1980  by Xerox Corporation. All rights reserved. ;  Test Programs for CP:  TPC, control store,CPport, and INSTRUCTION Tests.;  Last modification by ;  Modification History:;	- Created (June 4, 1980  12:59 PM)	get "SysDefs.asm"	; system defs (tests defs below)        get "MOONBootDefs.asm"	; system defs (tests defs below)        get "MOONBootLinkDefs.asm"	; system defs (tests defs below)        get "MOONLinkDefs.asm"	; system links         get "MOONSysDefs.asm"	; system defs         ;-----------------------------------------------------------------         jmp WriteBank	          ;  Temporary data area.OutCSData:	db	0,0,0,0,0,0	;  Write control store data (6 bytes)Bank:	db	0	;---------------- START of Program -------------------------WriteBank:	mvi	a,3WriteBank1:       	sta     Bank	call	Loader	call    WriteCS	lda     Bank	cpi     0	jz      ReadBank 	dcr	a	        jmp     WriteBank1ReadBank:       	sta     Bank	call	Loader	call    ReadCS	lda     Bank	cpi     3	jz      Done 	inr	a	        jmp     ReadBankDone:   mvi   a,0        sta     Bank	call	Loader	mvi   a,0        sta   ObservedData        jmp	ExtLogPError	PortOut:	lda     Bank	call	ExtWriteCPport        mvi  a,6        sta  ObservedData        in	CPStatus     ;  Check for error condition (CPAttn).	ani	CPAttnMask	jz	ExtLogPError		;  (CPAttn inactive)	retLoader:       call	ExtPhase1Entry       call	ExtStartCP       call	PortOut       call	ExtStartDelay       call	ExtStopCP       call	ExtTimeDelay       ret       	;  Write TPC.;  On entry:;    TPC address is in C (3 bits right-justified).;    TPC data is in DE (12 bits right-justified).;  Format of TPCHigh (write):  TPCAddr[0:2],,TPCData[0:4]';  Format of TPCLow (write):  don't care,,TPCData[5:11]'WriteTPC:	mvi	a,60H	;  Use TPC address 6	        sta	 Task        lhld	BootIndexes+3	;  start with initial address	xchg	call	ExtLeftAlignTPCAddr	; Left align 3 bits of address in C	ori 0        mov	a,e		;  Move TPC[4] into B for TPCHigh format	ral			;  TPC[4] into carry	mov	a,d		;  get high part	ral			;  TPC[4] into B[7]	cma			;  complement for port	ani	1FH		;  Clear High 3 bits	ora	c		;  OR in address	out	TPCHigh	;  Set address, high data	mov	a,e		;  Get low part (C[0] is don't care)	cma			;  complement for port	out	TPCLow	;  send low data, Write TPC	retWriteCS:	call	GetNextCSData	;  Data stored in OutCSData array	call	WriteTPC  ;  Write the TPC slot with the control store address	lda   	OutCSData+0		;  Get byte	cma			;  [4]  Complement for CP LS240	out	CSa		;  Write it	lda   	OutCSData+1		;  Get byte	cma			;  [4]  Complement for CP LS240	out	CSb	lda   	OutCSData+2		;  Get byte	cma			;  [4]  Complement for CP LS240	out	CSc	lda   	OutCSData+3		;  Get byte	cma			;  [4]  Complement for CP LS240	out	CSd	lda   	OutCSData+4		;  Get byte	cma			;  [4]  Complement for CP LS240	out	CSe	lda   	OutCSData+5		;  Get byte	cma			;  [4]  Complement for CP LS240	out	CSf	ret		ReadCS:	call	GetNextCSData	;  Data stored in OutCSData array	call	WriteTPC  ;  Write the TPC slot with the control store address	call	ExtReadCS	;  Read data into InCSData	        CheckCS:	mvi     e,0   ;COUNT        lxi	h,OutCSData	lxi	b,InCSData+0CheckCS1:        ldax	b	cmp	m	rnz	inx	h	inx	b	inr     e	mov	a,e	cpi     6        jnz	CheckCS1	lda Bank	rlc	ani 6	mov  e,a	lda Conf	ani 0F9H	ora e	sta Conf	ret;  Subroutine to generate next CS data byte.GetNextCSData:	lda	  Bank		;  Get constant data to be written        mov	d,a	cma				mov	e,a		DoAddressCSData:	mov	a,d		;  High part.	sta	 OutCSData+0	sta	 OutCSData+2	sta	 OutCSData+4	mov	a,e		;  Low part.	sta	 OutCSData+1	sta	 OutCSData+3	sta	 OutCSData+5	ret			;  RETURN	       end@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

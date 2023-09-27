@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.23;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.23;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  Dandelion Processor Program - Input/Output Processor  **********************************  *  Development Kernel Definitions      *  **********************************  Last modification by Roy RXO : September 27, 1981  4:22 PM  File: IOPKernelDefs.asm  Stored:  [IRIS]<Workstation>Boot25>BootEProm.dm  Written by Roy RXO .  Dennis DEG     :  2-Sep-84 15:27:39, add copyright notice.}{ 	Copyright (C) 1981 by Xerox Corporation.  All rights reserved.};  Modification History:;;    Version 0.0 contains code to exercise the core system without the Alto.;    Version 1.0 contains the basic core system functions.;	- Created (March 30, 1979  3:00 PM);	- EndOfRam defined at end of RAM bank 0 (April 27, 1979  4:06 PM);	- This version for reversed Prom, PPI cmds (May 4, 1979  12:04 AM);	- EndOfRam defined at end of RAM bank 7 (May 7, 1979  4:58 PM);	- Upgraded to IOP Rev. B (fixed Prom, PPI cmds) (May 10, 1979  2:37 PM);    Version 2.0 incorporates the CP control functions.;	- Created (November 5, 1979  10:29 PM);    Version 2.1 incorporates the CP breakpoint code.;	- Created (November 26, 1979  11:09 PM);    Version 2.2 contains updates for Rev. F IOP.;	- Created (March 5, 1980  1:53 PM);    Version 2.3 contains new commands, misc. changes.;	- Created (May 16, 1980  11:56 AM);    Version 2.4 contains new Burdock Tasks;	- Created (July 17, 1980  9:54 PM);    Version 2.5 contains Boot HNH  ;	- Created (November 11, 1980  2:02 PM);    Version 2.6 contains default boot;	- Created (January 6, 1981  3:38 PM);    Version 2.7 contains new RST assignments;	- Created (January 20, 1981  12:03 PM);;;  Command codes:;;   Burdock -> IOP;     Kernel Commands (see description in IOPKernel-23.asm):;     Any modifications should also be reflected in kernel's CommandTable.AltoStop	equ	04H	; Command 4: Burdock halt (mouse halt)DataForCP	equ	14H	; Command 14: DataForBurdock command;    Cold start commands:ColdStartGo	equ	10H	; Proceed after ColdStart (no memtest)ColdStartTest	equ	15H	; Proceed after ColdStart (do memtest);;   IOP -> BurdockIOPAlive	equ	0FFH	; Cold Start acknowledgeKernelHere	equ	0FEH	; Good Kernel StartIOPBreak	equ	0FDH	; IOP breakpointCPBreak	equ	0FCH	; CP breakpoint IOPHalt		equ	0FBH	; Stopped after Burdock haltIOPHaltError	equ	0FAH	; Stopped after Burdock halt, but Burdock data				;   is not DebugIntrDataForBurdock	equ	0F9H	; CP data for BurdockBootMemError	equ	0F8H	; Bad Kernel Start;  TimeOut constant.TimeOutConst	equ	0A000H	;  Approx. .25 sec;  Maintenance Panel constants.KernelHereCode	equ	100	;  Kernel has startedErrorBadIntr	equ	101	;  Spurious RST 5.5 interrupt (Kernel 2.7 and later);  CPU constants.EnableRST55	equ	1EH	; Enable RST 5.5, disable 6.5, 7.5, clear 7.5 FF (SIM)EnableRST65	equ	1CH	; Enable RST 6.5, RST 5.5, disable 7.5, clear 7.5 FF (SIM)RSTMasks	equ	7H	; RST masks in RIM inputRSTIntMasks	equ	0FH	; RST, Int enable masks in RIM inputIntEnableBit	equ	8H	; Interrupts Enabled bit in RIM inputEnMaskSet	equ	8H	; EnableMaskSet bit for SIM;ResetRST75	equ	10H	; Reset RST 7.5 FF bit for SIMRes75EnMask	equ	ResetRST75+EnMaskSet	; Sum of above two for SIMBootMode	equ	1H	; Set BootMode flag in KernelFlags (bit 7)NoBootMode	equ	0H	; Clear BootMode, CPSave flags in KernelFlagsCPInSaveFull	equ	80H	; CPInSaveFull flag in KernelFlags (bit 0)CPOutSaveFull	equ	40H	; CPOutSaveFull flag in KernelFlags (bit 1); CPKernel constants.CPExitKernel	equ	00H	; Command to CPKernel to exit CPKernel.CPRefresh	equ	01H	; Command to CPKernel to refresh.; Memory configuration parameters (in SysDefs.asm);EndOfProm2K	equ	7FFH		; 3777B;EndOfProm8K	equ	1FFFH		; 17777B;EndOfProm	equ	;EndOfProm8K	; Set up for 8K Prom;StartOfRAM	equ	2000H		; 20000B;EndOfRAM1K	equ	23FFH		; ;End of 1K RAM (21777B);EndOfRAM8K	equ	3FFFH		; ;End of 8K RAM (37777B);EndOfRAM16K	equ	5FFFH		; ;End of 16K RAM (57777B);EndOfRAM	equ	;EndOfRAM16K	; Set up for 16K RAM;  Fixed addresses in Prom:;  Hook to get to Boot code:BootGoProm	equ	40H	;  Boot version 2.5: Transfer location to Boot Code;BootGo	equ	600H	;  Boot version 2.2: Transfer location to Boot Code;BootGo	equ	800H	;  Boot version 2.1: Transfer location to Boot Code;  Transfer vectors for interrupts:GoToBurdockCPIntr	equ	2003H	;  RST 5.5 Transfer location in DominoGoToRS232CIntr	equ	2006H	;  RST 6.5 Transfer location in DominoGoToFloppyIntr	equ	2009H	;  RST 7.5 Transfer location in DominoGoToIOPBreakTrap	equ	200CH	;  RST 2 Transfer location in Domino (trap);  Fixed Memory Above Stack: Machine State, stack underflow, data, breakpoint restart; ***** Be Sure to Correct the following expressions as necessary *****BRAreaSize	equ	6		;Breakpoint restart areaMachStateSize	equ	13		;Machine state areaDataSize	equ	1+1+1+6+1+1+1	;Data variable area (12 bytes)StkUndSize	equ	4		;Stack Underflow Area; Initial Stack pointer valueStackStart	equ	EndOfRAM-BRAreaSize-MachStateSize-DataSize-StkUndSize+1; Stack areaStack	equ	StackStart		;Stack Underflow Area;;  Writable Data;DataArea	equ	StackStart+StkUndSize	;start of data areaCPDataMode	equ	DataArea	; Transparent mode for interrupt (1 byte)WhyKernel	equ	DataArea+1	; Temp for reason entered kernel (1 byte)CSCount	equ	DataArea+2	; Control store count (1 byte)CSBuffer	equ	DataArea+3	; Control store buffering (6 bytes)KernelFlags	equ	DataArea+9	; Kernel Flags (1 byte):					;   bit 0: CPInSaveFull					;   bit 1: CPOutSaveFull					;   bit 7: BootModeCPInSave	equ	DataArea+10	; Save area for CPIn (IOPOData) (1 byte)CPOutSave	equ	DataArea+11	; Save area for CPOut (IOPIData) (1 byte)SaveArea	equ	DataArea+DataSize	; start of machine state save areaSaveFLG	equ	SaveArea		;Flags S, Z, X, AC, X, P, X, CarrySaveAC	equ	SaveArea+1		;Register Save LocationsSaveC	equ	SaveArea+2SaveB	equ	SaveArea+3SaveE	equ	SaveArea+4SaveD	equ	SaveArea+5SaveL	equ	SaveArea+6SaveH	equ	SaveArea+7SavePC	equ	SaveArea+8		;More StateSaveSP	equ	SaveArea+10SaveRIM	equ	SaveArea+12		;Interrupt Mask (page 3-23);  Breakpoint Restart Area (6 Bytes);BRArea	equ	SaveArea+13;;  MAP of high RAM.; Values for 	8K RAM		16K RAM; User stack start	3FCE		5FCE	Stack pointer value; Kernel stack start	3FDE		5FDE	Stack pointer value; CPDataMode	3FE1		5FE1	DataArea; WhyKernel	3FE2		5FE2; CSCount		3FE3		5FE3; CSBuffer		3FE4		5FE4; KernelFlags	3FEA		5FEA; CPInSave	3FEB		5FEB; CPOutSave	3FEC		5FEC; SaveFLG		3FED		5FED	SaveArea; SaveAC		3FEE		5FEE; SaveC		3FEF		5FEF; SaveB		3FF0		5FF0; SaveE		3FF1		5FF1; SaveD		3FF2		5FF2; SaveL		3FF3		5FF3; SaveH		3FF4		5FF4; SavePC		3FF5		5FF5; SaveSP		3FF7		5FF7; SaveRIM		3FF9		5FF9; BRArea		3FFA		5FFA;    End BRArea	3FFF		5FFF	END	KernelDefs@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

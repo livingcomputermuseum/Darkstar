@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  File: [Iris]<WMicro>DLion>Start.asmModification History:	DEG     .PA:	 1-Sep-84 17:58:05 add copyright notice	DEG     .PA:	14-Nov-83 14:35:52	AEF     .PA:    8-Nov-83  9:53:21}	{ 	Copyright (C) 1983 by Xerox Corporation.  All rights reserved.}		GET	"RS232CDefs.asm"	GET	"SysDefs.asm"	GET	"CommonDefs.asm"	IMP	ClearMiscControl1Bit	;Common	IMP	DisableRST	;Common	IMP	GetTOD		;BookKeepingTask	IMP	MainLoop	;BookKeepingTask	IMP	PutMPanel	;Common	IMP	ReadKeyboard	;BookKeepingTask	IMP	SetMiscControl1Bit	;Common	IMP	Wait		;Common	EXP	StartStart:	DI			;For Initializing	LXI	SP,UserStkStart	;Initialize user stack pointer	MVI	A,ResetRst75+Rst75DisableMsk+Rst65DisableMsk	CALL	DisableRST	;Disable RST 6.5 and 7.5, clear 7.5 FF (RS232C, Floppy)	MVI	A,DisableFDC	;Disable floppy controller, Enable Waits	OUT	FDCState	IN	DmaStatus	;Clear the DMA status register	XRA	A		;Clear A	OUT	DmaMode		;Disable controller	EI			;For mouse halting	CMA			;Set all clock bits high	OUT	MiscClocks1		LXI	H,MPStartDomino	;Initialize the Maintenance Panel	CALL	PutMPanel	;MP ¬ StartDomino (500)	OUT	MouseClr	;Clear hardware counters	MVI	A,KBDiag	;Set KB diag mode	CALL	SetMiscControl1Bit	LXI	H,KBDiagWait	;Initialize delay for KBDiag signal	CALL	Wait		;Wait 15 msec	MVI	A,nKBDiag		;Clear KB diag mode	CALL	ClearMiscControl1Bit	;clear bit in register{Initialize the TOD state.}	LXI	H,MPInitTOD	CALL	PutMPanel	;MP ¬ InitTOD (501)	CALL	GetTOD	LXI	H,MPInitTODDone	CALL	PutMPanel	;MP ¬ InitTODDone (502) and RET	CALL	ReadKeyboard	;Initialize KeyMap in IO Page	JMP	MainLoop	END	Start@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

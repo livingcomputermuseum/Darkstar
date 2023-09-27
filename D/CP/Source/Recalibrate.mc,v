@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{Recalibrate.mc  debugging hack for Initial.mc last edit by Dennis DEG       1-Sep-84 22:19:10: add copyright notice last edit by Jim JXF      December 16, 1981  3:29 PM: remove stepCount RegDef}{	Copyright (C) 1981 by Xerox Corporation.  All rights reserved. }SetTask[0];{control bits, high byte}	Set[driveSelectBit, 4], Set[faultClearBit, 2];{useful combinations}	Set[faultClearCmd, Or[driveSelectBit, faultClearBit]];recal:	rE¬ 20,	c1;	stepCount¬ rE,	c2;	Noop,	c3;	rE¬ faultClearCmd,	c1;	KCtl¬ rE LRot8,	c2;	KCtl¬ 0,	c3;recal0:	Xbus¬ KStatus, XRefBr,	c1;	rE¬ driveSelectBit, BRANCH[$, recal1],	c2; {check for drive ready}	rE¬ KCtl¬ rE LRot8, GOTO[recal0],	c3;{disk is ready}recal1:	rE¬ driveSelectBit,	c3; {step out first}	rE¬ rE LRot8,	c1;	rE¬ rE or inBit,	c2;	KCtl¬ rE LRot0,	c3;{Step bit must be high for at least one microsecond and then low for at least one microsecond.  Since a click is 411 ns, stepBit can change only once every third click.}check00:	rD¬ ~KStatus, CANCELBR[$, 1],	c1, at[0B, 10, check00];	rD¬ rD LRot8, XDisp,	c2; {pick up status}	[]¬ rD and 2, ZeroBr, DISP4[check00, 0B],	c3; {check for seek complete}seekComplete:	rE¬ rE or stepBit, BRANCH[at00, $],	c1, at[0F, 10, check00];	KCtl¬ rE LRot0,	c2;	rD¬ 3,	c3;seekWait:	rE¬ rE and ~stepBit,	c1;	rD¬ rD-1, ZeroBr,	c2;	BRANCH[seekWait, $],	c3;	rD¬ stepCount, ZeroBr,	c1;	KCtl¬ rE LRot0, BRANCH[$, countedOut],	c2;	rD¬ rD-1,	c3;	stepCount¬ rD,	c1;	Noop,	c2;	GOTO[check00],	c3;countedOut:	Noop,	c3;	rD¬ rE and inBit,	c1;	[]¬ rD, ZeroBr,	c2;	rE¬ rE xor inBit, BRANCH[$, recalLost],	c3;	rD¬ 0FF+1, {max is 256 cylinders  for SA1000}	c1;	rD¬ LShift1 rD,	c2;	stepCount¬ rD, GOTO[check00],	c3;recalLost:	Noop,	c1;	Noop,	c2;	GOTO[recalLost],	c3;at00:	Noop,	c2;	Noop,	c3;	GOTO[at00],	c1;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

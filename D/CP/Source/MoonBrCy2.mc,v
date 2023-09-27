@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.06;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.06;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980  by Xerox Corporation. All rights reserved. } {File name:  <JXK         >moonkernel.mc Description: moon kernel test code, Author: J. JxK , Created: 8 APRIL 80, Last Edited: }SetTask[7];StartAddress[START];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c*, at[0];TERROR:	  GOTO[TERROR],   c*;START:	ClrIntErr, CANCELBR[$, 0F],	c*; START1:	XC2npcDisp, c2;	 BRANCH[BadCy, GoodCy, 0D],	c3;BadCy:	Noop,	c*, at[0D,10,GoodCy];	Noop,	c*;	GOTO[START1]	c*;GoodCy:	IOPCtl¬ 0 ,	c1, at[0F,10,BadCy];	MCtl¬ 0 ,	c2;	KCmd¬ 0 ,	c3;    DCtl ¬ 2,	c1;	PCtl¬ 0 ,	c2;	EOCtl¬ 0 ,	c3;  NOERROR:   GOTO[NOERROR],	                           	c*, at[0FFF];@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

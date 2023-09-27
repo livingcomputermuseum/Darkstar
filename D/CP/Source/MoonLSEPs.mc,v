@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.10;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{ Copyright (C) 1980 by Xerox Corporation. All rights reserved. }SetTask[0]; StartAddress[Start];TERROR1:	  ClrIntErr,CANCELBR[$,0F],   c1, at[0];	  Noop,   c2;TERROR:	  GOTO[Start1],   c3;Start:	RE¬1,CANCELBR[$,0F],c1;	RE¬RE LRot8	,c2;	PCtl¬ 3,GOTO[RecieveU]	,c3;Start1:	R6 ¬4,	,c1;	[]¬ TEST and R6, ZeroBr	,c2;	BRANCH [EthStart, LsepStart] ,   c3;LsepStart:	R5¬ LINITIAL	,c1;	R4¬ R4  LRot8	,c2;	R4¬ R4 or R5,c3;RecieveU:	RD¬ R4,         c1;			{Clear flags}	IOPCtl ¬ 5 ,  c2; {Set mode of IOP port, + Attn to indicate proceed to IOP}	R1¬0,                            c3;  	{Clear data register}	WaitIn:	Xbus ¬ IOPStatus, XLDisp ,     c1; {Is IOPReq true?, Put R0 on Y bus}	R3¬10,BRANCH [WaitIn1, In, XOdd], c2;{XOdd => IOPReq}WaitIn1:	GOTO[WaitIn],        c3;	In:	IOPCtl ¬ 1 ,         c3; {Set mode of IOP port, clear Attn}	StoreU:	R0¬IOPIData   ,              c1;			[]¬ R1, AltUaddr,   c2;     	TEST¬ R0, GOTO[CHECKLU]  ,              c3;			CHECKLU:	R1 ¬ R1 +1 ,              c1;			[] ¬ R1 and R3, ZeroBr  ,              c2;			R4¬UINITIAL,BRANCH [Start1, WaitIn] ,   c3;	EthStart:	 RE ¬ 1F,CANCELBR[$,0F],	c1;	RE ¬ RE LRot8,	c2;	RE ¬ RE or 61,	c3;               RF ¬ 16,	c1;	RF ¬ RF LRot8,	c2;	Noop,	c3;SendBits:	EICtl ¬ 4, CANCELBR[$, 0F],	c1;	EOCtl ¬ 1,	c2;	R2 ¬ 10,	c3;Delay:	R2 ¬ R2 - 1, ZeroBr,	c1;	BRANCH[Delay1, TimeUp],	c2;Delay1:	R3 ¬ 0,	c3;DelayLp:	R0 ¬ EStatus,	c1;	R0 ¬ R0 and RE,	c2;	[] ¬ R0 xor RF, ZeroBr,	c3;	R3 ¬ R3 - 1, ZeroBr,BRANCH[NoTrn, DelayLp1],	c1;DelayLp1:BRANCH[DelayLp2, CkDelay],	c2;DelayLp2:	GOTO[DelayLp],	c3;CkDelay:	GOTO[Delay],	c3;TimeUp:	GOTO[SendBits],	c3;NoTrn:	EICtl ¬ 0,CANCELBR[$],	c2;	 EOCtl ¬ 0,GOTO[SendBits], {something is wrong}	c3;SetTask[2]; StartAddress[Task2];Task2:	EStrobe, CANCELBR[$, 0F],	c1;	R4 ¬ 0,	c2;	EOData ¬ ~R4 LRot0, GOTO[Task2],	c3;SetTask[1];StartAddress[StartP];StartP:          RA ¬ RD, CANCELBR[$, 0F]	,c1;	RB¬ RE	,c2;VData:	RB¬RB-1,ZeroBr,c3;	POData ¬ RA LRot0,BRANCH[Continue,ResetLSink], 	,c1;Continue:	RA ¬  ~RA , ClrDPRq, GOTO[VData]	,c2;ResetLSink:	Noop	,c2;	Noop	,c3;        Noop,     c1;        Noop,       c2;        Noop,       c3;        Noop,     c1;        Noop,       c2;        Noop,       c3;        Noop,     c1;        ClrDPRq,       c2;        PCtl¬3,GOTO[StartP],       c3;SetTask[3];StartAddress[LOOP];LOOP: Refresh,CANCELBR[$,0F],     c1;        Noop,       c2;        ClrRefRq, GOTO[LOOP],       c3;        SetTask[5];StartAddress[Task5];Task5: CANCELBR[Task5, 0F],     c*;        SetTask[4];StartAddress[Task4];Task4: CANCELBR[Task4,0F],     c*;@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2001.08.12.22.22.21;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.21;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File name:  EtherInitial.mcCopyright (C) 1981, 1982, 1983, 1984, 1987 by Xerox Corporation.  All rights reserved.Description:  Ethernet Initial microcodeAuthor:  AeF AEF     Created:  September 24, 1981Last edited by:RDH      22-Apr-87 10:05:51 - MDS relieve. see comment at label GFT.Dennis DEG       1-Sep-84 22:02:03 - Add copyright notice.AeF AEF      30-Nov-83 10:54:32 - Don't fetch the Germ during diagnostic bootAeF AEF      22-Nov-83 11:57:38 - Change checksum calculation loop exit condition to ZeroBr instead of NegBr, since counter is cardinal in range.AeF AEF      11-Nov-83 10:56:30 - Set up the packet to be transmitted at location 20200 instead of 20000 (don't write the IOPage).AeF AEF       8-Nov-83 15:35:52 - Fix bug when Germ checksum is wrong.JMM    19-Sep-83 18:49:21 - fixed Germ request initialization to get correct location also fixed socket bug.JMM    - 28-Jul-83 13:57:57 - remove addressing bug caused by growth of germ request-data address offset beyond byte size.JMM    - 22-Jul-83 11:07:00 - Accomodate changes for Germ as a result of going over to 32-bit procedure descriptors.Last edited by:  AeF AEF     , July 9, 1982  6:48 PM:  Reinitialize dY when finishedLast edited by:  AeF AEF     , January 29, 1982  11:01 AM:  Change socket numbers, add diagnostic bootLast edited by:  AeF AEF     , January 28, 1982  10:05 AM:  Implement 3-word file numbers, set up constants for the GermLast edited by:  AeF AEF     , January 15, 1982  10:51 AM:  Delete miscRet return pointLast edited by:  AeF AEF     , January 13, 1982  11:17 AM:  Change algorithm for file checksums to the standard rotate-and-add instead of simple addition.Last edited by:  AeF AEF     , January 11, 1982  10:27 AM:  Delete setting of DCtl registerLast edited by:  AeF AEF     , December 15, 1981  12:49 PM:  Comment changesLast edited by:  AeF AEF     , December 2, 1981  1:41 PM:  Modify to run on Trident machineLast edited by:  AeF AEF     , November 24, 1981  9:43 AM:  Set up boot file typeLast edited by:  AeF AEF     , November 20, 1981  1:47 PM:  Remove checking packet checksums}Reserve[ProtectStart, ProtectFence], Reserve[0FE0, 0FFF];	{save room for boot kernel}	{	Phase0Protected (Protected.mc, IOPBoot.mc) resides in 0 - 00FF	Phase0 (Phase0.mc, DiskBootDLion.mc, EtherBootDLion.mc) resides in 0100 - 0FDF	The BootKernel resides in 0FE0 - 0FFF	Part of the BootKernel that can be overlaid resides in 0FD8 - 0FDF	}{Link register values used in 16-way dispatch InputReturn}Set[L6.Host1, 0];Set[L6.Host0, 1];Set[L6.Host2, 2];Set[L6.Sequence, 3];Set[L6.File1, 4];Set[L6.File2, 5];Set[L6.Source2, 6];Set[L6.Source1, 7];Set[L6.DontUseThisValue, 8];Set[L6.Checksum, 0A];Set[L6.Length, 0C];Set[L6.PacketType, 9];Set[L6.Source0, 0E];{The Laws of the Ethernet Hardware:	-- EICtl¬ and EOCtl¬ can occur in any cycle.  They must occur in c1 or c2  when turning off wakeups.	-- ¬EIData must occur in c2.  When read in c3, it retrieves the previous input word.	-- EOData¬ can occur in any cycle.	-- EStrobe for throwing out input packet must occur in c2.	-- EStrobe for writing the data from EOData into the FIFO must occur in c1 or c3.}@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

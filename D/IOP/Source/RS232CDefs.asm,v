@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.26;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{  File: [Iris]<WMicro>DLion>RS232CDefs.asmModification History:JAC	       :  31-Jul-85 13:16:29   Added more new constants for Multiport board for MAT  JAC	       :  11-Jun-85 15:08:01   Added new constants for Multiport board for MAT  Dennis DEG   :   1-Sep-84 17:26:38   Added copyright notice.  Mike MAT     :  29-Aug-84 23:53:19   Added new masks for state variable FCState  Mike MAT     :  22-Dec-83 16:08:07:  Added Async Flow Control  Dennis DEG     :  9-Oct-83 14:09:45: add Siemens 9750 correspondent & change TxBufferSize from 1200 to 1000  AEF AEF      :   4-Mar-83 15:59:41: Change TxBufferSize from 600 to 1200  CRF   CRF :  8-Nov-82 16:52:16: Added FifoOverflowed.  Jim JXF      :  May 20, 1982  7:11 PM  Jim JXF      :  March 25, 1982  8:31 AM: Created file.}{ 	Copyright (C) 1982, 1983, 1984 by Xerox Corporation.  All rights reserved.}Aborted		EQU	2HAddressSearchMode	EQU	4H	; 00000100	;SDLC OnlyAltoETX		EQU	83HAscii		EQU	0AsciiBELL	EQU	07BAsciiENQ	EQU	05BAsciiEOT	EQU	04BAsciiETB	EQU	27BAsciiNAK	EQU	25BAsciiSYN	EQU	26BASyncOSCMode	EQU	0AutoEnables	EQU	20H	; 00100000	BisyncCRC	EQU	4BreakAbort	EQU	80H	; 10000000	ChannelReset	EQU	18H	; 00011000	 ClearToSend	EQU	20HClock0Mask	EQU	1Clock1Mask	EQU	2Clock2Mask	EQU	4Clock3Mask	EQU	8CommandMask	EQU	0FHcmcII		EQU	3CPAsyncMode	EQU	2	;From RS232CParameter2HiCPSDLCMode	EQU	0	;From RS232CParameter2HiCPBisyncMode	EQU	1	;From RS232CParameter2HiCPCharLMask 	EQU	18H	;From RS232CParameter2CPDTRMask	EQU	8H	;From RS232CParameter2HiCPEvenParity	EQU	40H	;From RS232CParameter2CPLineSpeedMask EQU	0FH	;From RS232CParameter2HiCPLineTypeMask	EQU	3H	;From RS232CParameter2HiCPOddParity	EQU	20H	;From RS232CParameter2CPOneParity	EQU	60H	;From RS232CParameter2CPParityMask	EQU	0E0H	;From RS232CParameter2CPRRHMask	EQU	80H	;From RS232CParameter2HiCPRTSMask	EQU	10H	;From RS232CParameter2HiCPStopBitsMask	EQU	4H	;From RS232CParameter2HiCPSyncCntMask 	EQU	7H	;From RS232CParameter2CPZeroParity	EQU	80H	;From RS232CParameter2CRC16		EQU	4H	; 00000100	; CRC16/SDLC' ( 1=CRC16 )CRCError	EQU	20H	;Code to return to headCTS		EQU	20H	; 00100000	; Clear To SendDataLost	EQU	1HDataSetReady	EQU	2DCD		EQU	8H	; 00001000	; Data Carry DetectDeviceError 	EQU	80HDoneMask	EQU	7FH	;Mask to reset FullFlagDLE		EQU	20BDSRMask0	EQU	10HDSRMask1	EQU	20HDSRMask2	EQU	40HDSRMask3	EQU	80HDTR		EQU	80H	; 10000000	; Data Terminal ready Ebicdic		EQU	1EbcdicBELL	EQU	77BEbcdicENQ	EQU	55BEbcdicEOT	EQU	67BEbcdicETB	EQU	46BEbcdicNAK	EQU	75BEbcdicSYN	EQU	62BEnterHuntPhase	EQU	10H	; 00010000ErrorReset	EQU	30H	; 00110000ETX		EQU	3ExternalIntEnable	EQU	1H	; 00000001	FifoOverflowed	EQU	2	;ORed into FrameReadyFlag to indicate fifo overflowFiller		EQU	0FFHFillerCount	EQU	3FramingError	EQU	8	;Code to return to headFTOandClk	EQU	0C1H	;IOPSel.4 write register for Frame				;time out and the clock source				;for the baud rate generatorFTOandRD	EQU	0C1H	;IOPSel.4 read register which has channels 				;from which characters have been read.FullFlag	EQU	80H	; Done Flag of CSBHighWaterMark	EQU	738	;for Flow controlIBM3270Host	EQU	6IntOnAllRxCharacters	EQU	10H	;00010000 (parity affects vector)InvalidCharacter	EQU	4ITB		EQU	37BModemSYN	EQU	55HoisSystemElement	EQU	5oisSystemElementBSC	EQU	11On		EQU	0H	; On CommandOSCCMD		EQU	76H	; i8253 Programmable Interval Timer Counter#1;{The following are offsets into the parameter area used by the Multipport version of the RS232C modules}FrameTimeout	EQU	0Channel		EQU	FrameTimeout+2	;bits 0..2ChannelMask	EQU	7RsetRingheard	EQU	Channel+1	;bit 7 OnlyLineType	EQU	RsetRingheard	;bits 0..1LineTypeMask	EQU	3ClockSourcMask	EQU	40H		;bit 6 of RsetRingheard byteRsetTimeOutDetect	EQU	RsetRingheardRsetTimeOutDetectMask	EQU	20H		;bit 5 of RsetRingheard byteAsyncTimeout	EQU	LineType+1NakedMask	EQU	AsyncTimeout+2RS232CParmSize	EQU	NakedMask+2;;ParityEven	EQU	3ParityError	EQU	10H	;Return codeParityOdd	EQU	1PointToWR0	EQU	0	; Z80-SIO Register Address 0PointToWR1	EQU	1	; Z80-SIO Register Address 1PointToWR2	EQU	2	; Z80-SIO Register Address 2PointToWR3	EQU	3	; Z80-SIO Register Address 3PointToWR4	EQU	4	; Z80-SIO Register Address 4PointToWR5	EQU	5	; Z80-SIO Register Address 5PointToWR6	EQU	6	; Z80-SIO Register Address 6PointToWR7	EQU	7	; Z80-SIO Register Address 7PutFlag		EQU	16ResetExternalStatusInterrupts	EQU	10H	;00010000ResetRxCRCChecker		EQU	40HResetTxCRCGenerator		EQU	80HResetTxEOM			EQU	0C0H	;11000000ReturnFromInterrupt		EQU	38H	;00111000SendingCRC	EQU	64	;01000000{ the following are masks for the state variable FCState}XoffSent	EQU	1SendingXoff	EQU	2SendXon		EQU	4StoppedTx	EQU	8RIandDSR	EQU	0C0H	;IOPSel.4 (Bank4) register with RI and DSR statusRIMask0		EQU	1RIMask1		EQU	2RIMask2		EQU	4RIMask3		EQU	8RingHeard	EQU	1HRingIndicator	EQU	1HResetExtStatusInterrupts	EQU	10H	; 00010000	; Reset Ext/Status Int Command ResetTxIntPending		EQU	28H	; 00101000	RS366InvMask	EQU	30HRS366ResetMask	EQU	0C0HRS366StatusMask	EQU	3FHRxCRCEnable	EQU	8	;00001000RxEnable	EQU	1RxFifoSize	EQU	2000Rx8BitsPerCharacter	EQU	0C0H	;11000000RTS		EQU	2H	; 00000010	; Request to SendSDLCFlag 	EQU	7EH		; Opening/Closing Flag of SDLC modeSendAbort	EQU	8	;00001000SendBreak	EQU	10H	;00010000StatusAffectsVector	EQU	4H	; 00000100SDLCMode	EQU	20H	; 00100000	;(01111110 FLAG)SOH		EQU	1StopBits1	EQU	4H	; 00000100StopBits2	EQU	0CH	; 00001100STX		EQU	2Success		EQU	80HSyncCharacter16Bits		EQU	10H	;00010000SyncCharacterLoadInhibit:	EQU	2SyncOSCMode	EQU	1siemens9750	EQU	12system6		EQU	2TimeCommand	EQU	0B0H	;i8253 Interval Timer Counter #2ttyHost		EQU	4TxBufferEmpty	EQU	4H	; 00000100TxCRCEnable	EQU	1TxUnderrun	EQU	40H	;01000000TimeCMD		EQU	0B0H	; i8253 Programmable Interval Timer Counter#2TxBufferSize    EQU	1000		; Size Of Tx Buffer(in Byte)TxEnable	EQU	8H	; 00001000TxIntEnable	EQU	2H	; 00000010WaitReadyEnable	EQU	80H	; 10000000	; Wait/Ready EnableWaitReadyFunction	EQU	40H	; 01000000WaitReadyOnRT	EQU	20H	; 00100000X1ClockMode	EQU	0H	; 00000000	X16ClockMode	EQU	40H	; 01000000	xerox800	EQU	0xerox850	EQU	1xerox860	EQU	10XferSuccess	EQU	8000H TxDmaReady	EQU	WaitReadyEnable+WaitReadyFunctionRxDmaRdy	EQU	WaitReadyEnable+WaitReadyFunction+WaitReadyOnRTDmaRdy		EQU	WaitReadyEnable+WaitReadyFunction+WaitReadyOnRT	END	RS232CDefs.asm@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

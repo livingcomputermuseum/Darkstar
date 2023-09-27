@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{File: [Iris]<WMicro>DLion>SIOSubs.asmModification History:Dennis DEG     :  1-Sep-84 17:15:51  Added copyright notice.Mike MAT     : 16-Mar-84 10:25:09  Fix SetBaud so OSC gets enabled/disabled as appropriate.Jim JXF      : May 25, 1982  3:57 PMCreated by Jim JXF      : March 25, 1982  8:58 AM}{ 	Copyright (C) 1982, 1984 by Xerox Corporation.  All rights reserved.}	Get	"SysDefs.asm"		Get	"CommonDefs.asm"		Get	"RS232CDefs.asm"		IMP	AsyncTimerValue	;From RS232CInterrupts	IMP	CurrentRS366Status	;From RS232CMisc	IMP	RxWR1		;From Rs232CMisc	IMP	RxWR3		;From Rs232CMisc	IMP	RxWR4		;From Rs232CMisc	IMP	TxWR1		;From Rs232CMisc	IMP	TxWR4		;From Rs232CMisc	IMP	TxWR5		;From Rs232CMisc	EXP	AsynchronousDivisor	EXP	AsyncTimerCounter	EXP	AsyncTimerStoppedFlag	EXP	BisyncTimerTable	EXP	HLPlus2A	EXP	ResetChannels	EXP	SetAsyncTimer	EXP	SetBaudRate	EXP	SetRS366	EXP	SynchronousDivisor	EXP	TestAsyncTimer;SetAsyncTimer:{This entry is called whenever a new timeout value is set. This is called by Misc when we get a SetParameters command. The client supplies the timeout value in RS232CParameer4. We set the TimerStoppedFlag.}	STA	AsyncTimerStoppedFlag	; set/reset timer stopped flag	SHLD	AsyncTimerValue	; set initial iteration counter value	SHLD	AsyncTimerCounter	; set iteration counterStartAsyncTimer:{This entry is called by TestAsyncTimer when we get a timeout. We restart the timer.}	MVI	A,0B0H		;timer channel 2, mode 0, binary	OUT	TimerMode	LXI	H,TimerCount2+8000H	MVI	M,0FEH		;Send low byte of 1840 decimal	MVI	M,47H		;Send high byte	RETTestAsyncTimer:{This entry is called by the Async Get Loop while we are waiting for the interrupt routine to fill a frame. When we get a timeout, we end the current frame. Note that we will not get a timeout until we have received at least one character because the TimerStoppedFlag is set until we receive the first character. When we return:	Condition Flag = Zero if timeout	Condition Flag # Zero if no timeout}	DB	opMVIA		;A ¬ AsyncTimerStoppedFlagAsyncTimerStoppedFlag:	DB	0	ORA	A	RNZ			; if timer not running{Continue if timer is running. AsyncTimerStoppedFlag=0.}	IN	IntReq		; read timer service request register	ANI	MiscTimerReqMask	; test timer output	RNZ			; if timer output not active (Z flag false!){Continue if 1 msc timeout.}	CALL	StartAsyncTimer	; restart timer chip	DB	opLXIH		;HL ¬ AsyncTimerCounterAsyncTimerCounter:	DW	0	DCX	H		; update iteration counter	MOV	A,L	ORA	H	JNZ	TestAsyncTimer10	; if iteration counter not exhausted	LHLD	AsyncTimerValue	; - else restart with initial valueTestAsyncTimer10:	SHLD	AsyncTimerCounter	; update iteration counter	RNZ		;No timeout{Continue if timeout. Set the TimerStoppedFlag.}	CMA			;A ¬ FF	STA	AsyncTimerStoppedFlag	; set timer stopped flag	RET			; Z flag set if timeout occurred;ResetChannels:{Reset Rx and Tx channels. If the DMA Channel2 is being used for Rx, or if DMA Channel3 is being used for Tx, disable these also. This subroutine is called by Off and by SetParameters.}	MVI	A,ChannelReset	DI	OUT	TxCont	OUT	RxCont	EI	RET;SetBaudRate:{ This Routine sets the Frequency Divisor and Oscillation Mode for the i8253 Programmable Interval Timer. Counter #1 of i8253 is used for the Tx Clock generator, #2 is used for the Rx generator.On entry, HL points to Baud rate divisor table: AsynchronousDivisor or SynchronousDivisor.}	CALL	HLPlus2A	MVI	A,OSCCMD		; Frequncy and Mode Set to i8253 	OUT	OSCCont		; Counter#1, LSB & MSB, Mode3, Binary	MOV	A,M		; A ¬ ((H,L))	OUT	OSCReg	INX	H		; H,L ¬ (H,L)+1	MOV	A,M		; A ¬ ((H,L))	OUT	OSCReg	XRA	A		; A ¬ 0 {Fall thru to RS366 to Enable/Disable OSC clock }	SetRS366:{Set the RS366 register to the value in A. We do this for the SetRS366Status command. This comes from the SetStatus366 procedure in the head. Parameter bits are as follows:	10	callRequest	11	digitPresent	12..15	digitThe two high order bits are not disturbed:	8	test loop back enable bit	9	local OSC Enable bit}	XRI	RS366InvMask		;30H	MOV	D,A	LDA	CurrentRS366Status	; Read Current RS366 Status	ANI	RS366ResetMask	; Save Loop connection and Clock Sel.	ORA	D	OUT	RS366Reg	RET;HLPlus2A:{ On entry:	A = number to add to HL.On exit:	HL = HL + 2A }	ADD	A		;A*2 Makes Table Reference Address	MOV	E,A	MVI	D,0	DAD	D		;HL ¬ (H,L)+(B,C)	RETAsynchronousDivisor:	DW	2304		; Divisor for 50Hz Asynchronus mode	DW	1536		; Divisor for 75Hz Asynchronus mode	DW	1047		; Divisor for 110Hz Asynchronus mode	DW	856		; Divisor for 134.5Hz Asynchronus mode	DW	768		; Divisor for 150Hz Asynchronus mode	DW	384		; Divisor for 300Hz Asynchronus mode	DW	192		; Divisor for 600Hz Asynchronus mode	DW	96		; Divisor for 1200Hz Asynchronus mode	DW	48		; Divisor for 2400Hz Asynchronus mode	DW	32		; Divisor for 3600Hz Asynchronus mode	DW	24		; Divisor for 4800Hz Asynchronus mode	DW	16		; Divisor for 7200Hz Asynchronus mode	DW	12		; Divisor for 9600Hz Asynchronus mode	DW	6		; Divisor for 19200Hz Asynchronus mode	DW	3		; Divisor for 38400Hz Asynchronus mode	DW	2		; Divisor for 57600Hz Asynchronus modeSynchronousDivisor:	DW	36864		; Divisor for 50Hz Synchronus mode	DW	24576		; Divisor for 75Hz Synchronus mode	DW	16756		; Divisor for 110Hz Synchronus mode	DW	13704		; Divisor for 134.5Hz Synchronus mode	DW	12288		; Divisor for 150Hz Synchronus mode	DW	6144		; Divisor for 300Hz Synchronus mode	DW	3072		; Divisor for 600Hz Synchronus mode	DW	1536		; Divisor for 1200Hz Synchronus mode	DW	768		; Divisor for 2400Hz Synchronus mode	DW	512		; Divisor for 3600Hz Synchronus mode	DW	384		; Divisor for 4800Hz Synchronus mode	DW	256		; Divisor for 7200Hz Synchronus mode	DW	192		; Divisor for 9600Hz Synchronus modeBisyncTimerTable:	DW	50		; 50Baud 1 Sec	DW	75		; 75Baud 1 Sec	DW	110		; 110Baud 1 Sec	DW	135		; 134.5Baud 1 Sec	DW	150		; 150Baud 1 Sec	DW	300		; 300Baud 1 Sec	DW	600		; 600Baud 1 Sec	DW	1200		; 1200Baud 1 Sec	DW	2400		; 2400Baud 1 Sec	DW	3600		; 3600Baud 1 Sec	DW	4800		; 4800Baud 1 Sec	DW	7200		; 7200Baud 1 Sec	DW	9600		; 9600Baud 1 Sec	DW	19200		; 19200Baud 1 Sec	END@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

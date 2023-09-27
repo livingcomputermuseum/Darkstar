@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.07;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.07;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@; Copyright (C) 1980  by Xerox Corporation. All rights reserved. ;  Test Programs for CP:  TPC, control store,CPport, and INSTRUCTION Tests.;	- Created (June 4, 1980  12:56 PM)	 get "MOONSysDefs.asm"	; system defs (tests defs below); This buffer contains inst counts inst address's, and instructions to test 	;TestNI   db  0 ;TestNE   db 0 ;TestN   db 0 ;CFBoot   db MemP ;CFReportF   db 1FH ;CFTIndexF   db 32 ;CFNumBias   db 88    db 2 ;CFConF   db 0    db 14 ;CFConF1   db 0    db 14 ;CFConF2   db 0    db 14 ;CFConF3   db 0    db 14 ;CFConF4   db 0    db 14 ;CFConF5   db 0    db 14 ;CFConF6   db 0    db 0 ;CFConF7   db 0    db 0 ;CFConF8   db 0    db 0 ;CFConF9   db 0    db 0 ;CFConF10   db 0    db 0  ;CFConF11   db 0    db 0 ;CFConF12   db 0    db 0 ;CFConF13   db 0    db 0 ;CFConF14   db 0    db 0   ;CFConF15   db 0    db 0 ;CFConF16   db 0    db 0 ;CFConF17   db 0    db 0 ;CFConF18   db 0    db 0 ;CFConF19   db 0    db 0 ;CFConF20   db 0    db 0 ;CFConF21   db 0    db 0 ;CFConF22   db 0    db 0 ;CFConF23   db 0    db 0 ;CFConF24   db 0    db 0 ;CFConF25   db 0    db 0 ;CFConF26   db 0    db 0 ;CFConF27   db 0    db 0 ;CFConF28   db 0    db 0 ;CFConF29   db 0    db 0 ;CFConF30   db 0    db 0 ;CFConF31   db 0    db 0  	end@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

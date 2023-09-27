@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.28;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{-----------  Dandelion Processor Program - I/O Processor  -----------  DESCRIPTION:      RAM-specific variables.  Last modification by Roy RXO : December 3, 1980  12:01 PM  File: StartIOPBootRAM.asm  Stored:  [Iris]<WMicro>DLion>  Written by Roy RXO .  Dennis DEG     :  2-Sep-84 15:40:36, add copyright notice.}{ 	Copyright (C) 1980 by Xerox Corporation.  All rights reserved.};  Modification History:;;	- Created (November 11, 1980  10:38 AM){  This file contains one word containing a pointer to the IOP Boot file during Phase 0.There are two versions of this file:	StartIOPBootRAM.asm  -  containing the pointer for the RAM version of the boot code.	StartIOPBootProm.asm  -  containing the pointer for the EProm version of the boot code.There are two different configuration files for the RAM and EProm versions:	BootEPromRAM.cfg,  and	BootEProm.cfgIn addition, this file contains an entry point to the DiagnosticProm containing the PreBoot diagnostics.};  EXPORTS:	EXP	StartIOPBoot	;  For Boot code	EXP	StartPreBoot	;  For Boot codeStartIOPBootFileRAM	equ	2000H	;  IOP memory (RAM)StartIOPBoot:	dw	StartIOPBootFileRAMStartPreBoot:	jmp	StartPreBoot+3		;  Go to the start of the PreBoot Diagnostics (next)	END	StarIOPBootRAM@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@

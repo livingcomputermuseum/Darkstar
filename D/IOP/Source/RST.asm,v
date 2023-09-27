@@ -1,0 +1,38 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  start:1.1.1.1 Xerox:1.1.1;
+locks    ; strict;
+comment  @;; @;
+
+
+1.1
+date     2001.08.12.22.22.27;  author freier;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2001.08.12.22.22.27;  author freier;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@{-----------  Dandelion Processor Program - I/O Processor  -----------  DESCRIPTION:      Restart instruction area in EProm  Last modification by Roy RXO : January 13, 1982  4:20 PM  File: RST.asm  Stored:  [IRIS]<Workstation>Boot30>BootEProm.dm  Written by Roy RXO .  Dennis DEG     :  2-Sep-84 15:35:49, add copyright notice.}  { 	Copyright (C) 1981, 1982 by Xerox Corporation.  All rights reserved.}  ;  Modification History:;;  -  Created  (September 17, 1981  6:00 PM);  -  Added ORG statements  (September 22, 1981  4:07 PM);  -  Added version number  (January 13, 1982  4:14 PM);  DEFNITIONS:	get "SysDefs"	get "BootDefs";  IMPORTS/EXPORTS:;	(none)		NOTE:  This module should never import or export variables!;  This module contains the code jumps that will be executed whenever the IOP executes a RST;    instruction, either due to a program, or due to an interrupt.;  Together with this file are the files:;	RSTLinksF	-  RST link table for PreBoot EProm;	RSTLinksK	-  RST link table for Kernel EProm;  The RST instructions are found in EProm in addresses 0 - 3FH.;  The RST link table starts in the 4th EProm at address 1800H.;  The version number is also in this area.;  Location:  0000H		;  RST 0 - Hardware Reset ONLY				;*** All Interrupts off and masked	org	0000HRST0:	jmp	RST0LinkLoc;  Location:  0008H		;  RST 1 - Manual Kernel restart	org	0008HRST1:	jmp	RST1LinkLoc;  Location:  0010H		;  RST 2 - IOP breakpoint	org	0010HRST2:	jmp	RST2LinkLoc;  Location:  0018H		;  RST 3 - (unused)	org	0018HRST3:	jmp	RST3LinkLoc;  Location:  0020H		;  RST 4 - (unused)	org	0020HRST4:	jmp	RST4LinkLoc;  Location:  0024H		;  RST TRAP - (unused)	org	0024HTRAP:	jmp	TRAPLinkLoc;  Location:  0028H		;  RST 5 - (unused)	org	0028HRST5:	jmp	RST5LinkLoc;  Location:  002CH		;  RST 5.5 - Burdock or CP Interrupt	org	002CHRST55:	jmp	RST55LinkLoc;  Location:  0030H		;  RST 6 - (unused)	org	0030HRST6:	jmp	RST7LinkLoc;  Location:  0034H		;  RST 6.5 - RS232C Interrupt (to Domino)	org	0034HRST65:	jmp	GoToRS232CIntr;  Location:  0038H		;  RST 7 - (unused)	org	0038HRST7:	jmp	RST7LinkLoc;  Location:  003CH		;  RST 7.5 - Floppy Interrupt (to Domino)	org	003CHRST75:	jmp	GoToFloppyIntr;  Version number (address 3FH):;  Pre-version 3.0 EProms have a value of 0FFH in this location.VersionNo:	db	10H*EPromVersion	;  Store in left nibble for later use	END	RST@
+
+
+1.1.1.1
+log
+@first add
+@
+text
+@@
