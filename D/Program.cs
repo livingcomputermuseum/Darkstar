@@ -37,6 +37,8 @@ namespace D
         public static string ConfigurationFile;
 
         public static string RomPath;
+        
+        public static bool Start = false;
 
     }
     public class Program
@@ -77,6 +79,10 @@ namespace D
                             }
                             break;
 
+                        case "-start":
+                            StartupOptions.Start = true;
+                            break;
+                            
                         default:
                             PrintUsage();
                             return;
@@ -122,7 +128,7 @@ namespace D
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Usage: Darkstar [-config <configurationFile>] [-rompath <path>]");
+            Console.WriteLine("Usage: Darkstar [-config <configurationFile>] [-rompath <path>] [-start]");
         }
     }
 }

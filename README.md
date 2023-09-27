@@ -1,4 +1,4 @@
-Readme.txt for Darkstar v1.1:
+Readme.txt for Darkstar v1.1.9.0:
 
 
 1.0 Introduction and Overview
@@ -23,14 +23,14 @@ Darkstar currently emulates the following Star hardware:
    - 8 inch floppy drive
    - 10mbit Ethernet
    - Real-time clock
+   - Keyboard beeper
 
 1.2 What's Not
 --------------
 
 At this time, the below are not emulated by Darkstar:
-    - Sound
-    - Serial ports
-    - The LSEP printer interface
+   - Serial ports
+   - The LSEP printer interface
 
 2.0 Requirements
 ================
@@ -58,7 +58,17 @@ use.
 
 If you wish to make use of the emulated Star's Ethernet interface, you
 will need to have WinPCAP installed (on Windows) or libpcap (on the Unix of 
-your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.
+your choice).  WinPCAP can be downloaded from http://www.winpcap.org/.    
+Using the Ethernet interface allows to access services on the network through
+the protocols supported by the guest operating system running in Darkstar. These
+can be TCP/IP based services like an FTP server or XNS (Xerox Network System)
+services. Real Xerox XNS server installations are rather seldom today, so
+using an XNS emulation like Dodo (see https://github.com/devhawala/dodo for
+setup and configuration details) may be an alternative for building up a virtual
+Xerox machines network.    
+If only Dodo emulated XNS services are to be accessed from Darkstar, a direct
+connection to the Dodo NetHub can be configured instead of using a pcap device
+for accessing a real network.
 
 
 3.0 Getting Started
@@ -133,8 +143,7 @@ Alternate Boot - Allows selection of an alternate boot device.  On a real Star,
         this is accomplished by holding down the Alt Boot button during
         power-up until the appropriate code appears in the MP display.
         Selecting a device in this menu will simulate holding the Alt Boot 
-        button as appropriate to select the boot device.
-
+        button as appropriate to select the boot device.    
         In general you won't need to change this unless you are installing or
         performing maintenance on an operating system.  However: Selecting
         "Rigid" rather than the default ("DiagnosticRigid") can save time
@@ -151,7 +160,7 @@ Hard Disk - Allows loading or creating new hard disk images, which typically
         have a ".IMG" file extension. If an image is currently loaded, its 
         name will be displayed in the space at the bottom of the submenu; 
         hovering over this space will show the full path to the image.
-        See Section 9.0 for information on the image format.
+        See Section 10.0 for information on the image format.
 
 Configuration - Invokes the Configuration dialog.  See Section 4.0 for more
         details on configuration options.
@@ -174,32 +183,32 @@ The Star's keyboard has many keys that are not present on a standard PC
 keyboard.  Darkstar maps F1-F12, the arrow keys, and the home/end/pgup/pgdown
 keys to these special keys, as below:
 
-Star Key        PC Key
-----------------------
-Again           F1
-Delete          F2
-Find            F3
-Copy            F4
-Same            F5
-Move            F6
-Open            F7 or Left Control 
-Props           F8 or Right Control
-Center          F9
-Bold            F10
-Italics         F11
-Underline       F12
-Superscript     Print Screen
-Subscript       Scroll Lock
-Larger/Smaller  Pause
-Defaults        Num Lock
-Skip/Next       Home
-Undo            Page Up
-Defn/Expand     End
-Stop            Page Down
-Help            Up Arrow
-Margins         Left Arrow
-Font            Backslash
-Keyboard        Down
+Star Key|PC Key
+--------|------
+Again|F1
+Delete|F2
+Find|F3
+Copy|F4
+Same|F5
+Move|F6
+Open|F7 or Left Control 
+Props|F8 or Right Control
+Center|F9
+Bold|F10
+Italics|F11
+Underline|F12
+Superscript|Print Screen
+Subscript|Scroll Lock
+Larger/Smaller|Pause
+Defaults|Num Lock
+Skip/Next|Home
+Undo|Page Up
+Defn/Expand|End
+Stop|Page Down
+Help|Up Arrow
+Margins|Left Arrow
+Font|Backslash
+Keyboard|Down
 
 
 3.3 Software
@@ -268,89 +277,89 @@ floppy disk.
 When starting the installation of a new operating system from scratch, there 
 are a few steps that are not well documented and which are fairly unintuitive:
 
-    1) In general it is useful to have the time and date set in the Star's TOD
-       clock before booting.  Many Star operating systems and installers 
-       *really* want to know what time it is, and they don't trust you to type 
-       it in. If the TOD has an invalid time / date it will attempt to get it 
-       from the network and in many cases will not proceed until the network 
-       responds.  Unless you have an XNS timeserver running on your network 
-       (you probably do not), use the Configuration dialog to set the time 
-       before booting (See section 4.0).
+1) In general it is useful to have the time and date set in the Star's TOD
+   clock before booting.  Many Star operating systems and installers 
+   *really* want to know what time it is, and they don't trust you to type 
+   it in. If the TOD has an invalid time / date it will attempt to get it 
+   from the network and in many cases will not proceed until the network 
+   responds.  Unless you have an XNS timeserver running on your network 
+   (you probably do not), use the Configuration dialog to set the time 
+   before booting (See section 4.0).
 
-    2) If you are starting with a new unformatted hard disk the installer will
-       hang waiting for the disk microcode to read the disk, usually after
-       printing the initial banner ("Installer Version X.Y of DD-MMM-YY 
-       HH:MM:SS, etc.").  It will sit here indefinitely.
+2) If you are starting with a new unformatted hard disk the installer will
+   hang waiting for the disk microcode to read the disk, usually after
+   printing the initial banner ("Installer Version X.Y of DD-MMM-YY 
+   HH:MM:SS, etc.").  It will sit here indefinitely.
 
-       To get past this, you will need to boot the Diagnostic floppy (usually
-       provided with each set of installation floppies) and use the diagnostics
-       to format the disk.  This is still more complicated than it should be
-       due to the way the disk microcode interacts with an unformatted disk.
-       After booting the diagnostic floppy you will be prompted to enter
-       timezone and time / date information.
+   To get past this, you will need to boot the Diagnostic floppy (usually
+   provided with each set of installation floppies) and use the diagnostics
+   to format the disk.  This is still more complicated than it should be
+   due to the way the disk microcode interacts with an unformatted disk.
+   After booting the diagnostic floppy you will be prompted to enter
+   timezone and time / date information.
 
-       After entering this information, the diagnostic will print something
-       similar to:
-          XX Megabyte Storage Diagnostic Program 8.0 of 11-Mar-88 11:16:45 PST
-          >Fault Analysis
+   After entering this information, the diagnostic will print something
+   similar to:    
+      `XX Megabyte Storage Diagnostic Program 8.0 of 11-Mar-88 11:16:45 PST`    
+      `>Fault Analysis`
 
-       And then it will pause for 30-45 seconds and fail with:
-          Fatal error: Microcode.
-       
-       After which the system halts and will not respond to input.
+   And then it will pause for 30-45 seconds and fail with:    
+      `Fatal error: Microcode.`
+   
+   After which the system halts and will not respond to input.
 
-       This is because the Fault Analysis step is expecting a formatted disk
-       and your disk is not yet formatted.  The disk microcode is unable to
-       cope and goes off into the weeds.
+   This is because the Fault Analysis step is expecting a formatted disk
+   and your disk is not yet formatted.  The disk microcode is unable to
+   cope and goes off into the weeds.
 
-       To work around this, when the ">Fault Analysis" line appears during
-       boot, hit the "Stop" key on the Star's keyboard (this is mapped to
-       "Page Down.")  The diagnostic will print:
-          <STOP> key acknowledged
-          Command stopped
-        
-       And leave you at the ">" prompt.  Now you can format your disk!
+   To work around this, when the `>Fault Analysis` line appears during
+   boot, hit the "Stop" key on the Star's keyboard (this is mapped to
+   "Page Down.")  The diagnostic will print:    
+      `<STOP> key acknowledged`
+      Command stopped
+    
+   And leave you at the ">" prompt.  Now you can format your disk!
 
-       Or can you?  Typing a "?" will give you a list of available commands
-       but there's nothing related to disk formatting in that list!
+   Or can you?  Typing a "?" will give you a list of available commands
+   but there's nothing related to disk formatting in that list!
 
-       Xerox didn't want the average person to be able to format disks so this
-       functionality is hidden by default.  To enable it, you use the Logon
-       command -- Type "Logon" and hit return, and it will ask you for a user 
-       name.  Use "Xerox" and then provide the password "wizard" (or "elf", 
-       depending on your stature.)  Your privileges will be upgraded and now
-       "?" will reveal a host of fun commands!  The "Format" command is what
-       you want, and is mostly self-explanatory.  Do *not* save the bad page
-       table (as there isn't one, and the microcode will hang trying to read
-       it.)  Formatting will take several minutes after which you will be 
-       asked if you want to recreate the bad page table (say "yes.").  You 
-       will given the option to do a media scan (you can if you want, but 
-       emulated disks have no bad spots so there isn't much point.)
+   Xerox didn't want the average person to be able to format disks so this
+   functionality is hidden by default.  To enable it, you use the Logon
+   command -- Type "Logon" and hit return, and it will ask you for a user 
+   name.  Use "Xerox" and then provide the password "wizard" (or "elf", 
+   depending on your stature.)  Your privileges will be upgraded and now
+   "?" will reveal a host of fun commands!  The "Format" command is what
+   you want, and is mostly self-explanatory.  Do *not* save the bad page
+   table (as there isn't one, and the microcode will hang trying to read
+   it.)  Formatting will take several minutes after which you will be 
+   asked if you want to recreate the bad page table (say "yes.").  You 
+   will given the option to do a media scan (you can if you want, but 
+   emulated disks have no bad spots so there isn't much point.)
 
-       Once the disk has been formatted, you can boot the Installer disk and
-       go about doing the actual installation.
+   Once the disk has been formatted, you can boot the Installer disk and
+   go about doing the actual installation.
 
-    3) Yes, it really does take ViewPoint 10-15 minutes to boot the first time.
-       It's not particularly swift on subsequent boots, either.  Patience is a
-       virtue when using a Star.
+3) Yes, it really does take ViewPoint 10-15 minutes to boot the first time.
+   It's not particularly swift on subsequent boots, either.  Patience is a
+   virtue when using a Star.
 
-    4) If you get stuck at MP Code 937 during boot, first try the advice in 
-       (1) above.
-       Setting dates post-Y2K may cause issues with some operating systems.
-       On Viewpoint you might also want to install the Set Time utility
-       (see the official Viewpoint docs and installer help for details).
+4) If you get stuck at MP Code 937 during boot, first try the advice in 
+   (1) above.
+   Setting dates post-Y2K may cause issues with some operating systems.
+   On Viewpoint you might also want to install the Set Time utility
+   (see the official Viewpoint docs and installer help for details).
 
-    5) The default startup diagnostics that run during Viewpoint or XDE
-       boot may fail the RTC test (with flashing MP code 0323 / 0007).
-       This occurs if the emulated Star is not running at 100% speed --
-       either because Throttling is off (See Section 4.1) or because your
-       computer isn't capable of running the emulation at full speed. This is
-       because the emulated Star is running faster or slower than the test 
-       expects relative to the RTC -- the test thinks that the RTC is behaving
-       incorrectly.  In these cases, you can either (1) Enable Throttling
-       during boot (if the system is running too fast) or (2) use the 
-       "System->Alternate Boot" menu to select "Rigid" rather than "Default" --
-       this will bypass startup diagnostics entirely.
+5) The default startup diagnostics that run during Viewpoint or XDE
+   boot may fail the RTC test (with flashing MP code 0323 / 0007).
+   This occurs if the emulated Star is not running at 100% speed --
+   either because Throttling is off (See Section 4.1) or because your
+   computer isn't capable of running the emulation at full speed. This is
+   because the emulated Star is running faster or slower than the test 
+   expects relative to the RTC -- the test thinks that the RTC is behaving
+   incorrectly.  In these cases, you can either (1) Enable Throttling
+   during boot (if the system is running too fast) or (2) use the 
+   "System->Alternate Boot" menu to select "Rigid" rather than "Default" --
+   this will bypass startup diagnostics entirely.
 
 The following passwords will allow you to run Viewpoint in perpetuity.  When
 using them, ensure the emulated Star's TOD clock is set to a date in
@@ -395,8 +404,13 @@ The System Configuration tab provides configuration for three options:
 --------------------------
 
 The Ethernet Configuration tab allows the selection of the host network interface
-to use with Darkstar.  If WinPcap or libpcap is unavailable, no interfaces will
-be listed.
+to use with Darkstar. The listbox for the available interfaces contains at least
+the entries `None` (for no ethernet adapter) and `[[ Dodo-Nethub ]]` (for a direct
+connection to a [Dodo](https://github.com/devhawala/dodo) NetHub).  If WinPcap or libpcap
+is available, further network interfaces will be listed.
+
+If the `[[ Dodo-Nethub ]]` entry is selected, the 2 input fields for the NetHub
+Host and Port will be activated for specifying the destination NetHub.
 
 
 4.3 Display Configuration
@@ -466,7 +480,94 @@ The "?" or "help" command at the Console window will give you a brief
 synopsis of the various commands at your disposal.
 
 
-6.0 Known Issues
+6.0 Running from the command line
+=================================
+
+The Darkstar program accepts the following optional command line parameters:
+
+- `-config` _configurationFile_    
+  specify the configuration file (see below) defining the presets
+  for the configuration to be used (these presets can be overriden
+  using the configuration dialog)
+  
+- `-rompath` _path_    
+  specify the path where the ROM files are located
+  
+- `-start`    
+  start the emulator when the UI is ready, this requires that the
+  disk image to be used is defined (either through the configuration
+  file or by the Windows defaults)
+
+(on the Windows platform, these parameters can be given either on the
+command line prompt or can be included in the program invocation line
+specified for a reference icon)
+
+Using configuration files simplifies using several Star machines, each
+consisting of a hard disk image file with the required presettings,
+each defined by a specific machine configuration file.
+
+The configuration file is a text file with "`parameter =` _value_" lines
+for setting configuration values; empty lines and lines starting with
+a hash character are ignored.
+
+The following configuration parameters can be given, matching the
+corresponding entries in the configuration dialog or the system menu:
+
+- `MemorySize =` _nnn_        
+  system memory size, in KWords as decimal value.
+
+- `HardDriveImage =` _filename_    
+  filename for the hard disk image to load
+
+- `FloppyDriveImage =` _filename_    
+  filename for the floppy disk image to load
+  
+- `HostID =` _12-hex-digits_    
+  the Ethernet host address for this machine, given as hexadecimal
+  number for the 48 bit machine id
+
+- `HostPacketInterfaceName =` _device_     
+  the name of the Ethernet adaptor on the emulator host to use for
+  Ethernet emulation, one of: `None`, `[[ Dodo-Nethub ]]` or any 
+  network adapter listed in the configuration dialog (as recognized
+  by WinPcap or libpcap, if present)
+
+- `ThrottleSpeed =` _boolean_    
+  whether to cap execution speed at native execution speed or not
+
+- `DisplayScale =` _n_    
+  scale factor to apply to the display
+
+- `FullScreenStretch =` _boolean_    
+  whether to apply linear or nearest-neighbor filtering to the display,
+  when scaled
+
+- `SlowPhosphor =` _boolean_    
+  whether to apply a fake "slow phosphor" persistence to the emulated
+  display
+
+- `TODSetMode =` _mode_    
+  how to set the TOD clock at power up/reset, one of:    
+  HostTimeY2K, HostTime, SpecificDateAndTime, SpecificDate, NoChange
+
+- `TODDateTime =` _iso-datetime_    
+  the specific date/time to set the TOD clock to if TODSetMode is
+  "SpecificDateAndTime"
+
+- `TODDate =` _iso-date_    
+  the specific date to set the TOD clock to if TODSetMode is "SpecificDate"
+
+- `AltBootMode =` _mode_    
+  the preferred Alt-Boot mode for starting the machine, one of:
+  None, DiagnosticRigid, Rigid, Floppy, Ethernet, DiagnosticEthernet,
+  DiagnosticFloppy, AlternateEthernet, DiagnosticTrident1, DiagnosticTrident2,
+  DiagnosticTrident3, HeadCleaning
+
+- `Start =` _boolean_    
+  start the system when the UI is ready? (default: false)
+
+
+7.0 Known Issues
 ================
 
 - Speed throttling is not implemented on Unix platforms.
@@ -475,7 +576,7 @@ synopsis of the various commands at your disposal.
   result.
 
 
-7.0 Reporting Bugs
+8.0 Reporting Bugs
 ==================
 
 If you believe you have found a new issue (or have a feature request) please
@@ -492,7 +593,7 @@ The more detailed the bug report, the more possible it is for me to track down
 the cause.
 
 
-8.0 Source Code
+9.0 Source Code
 ===============
 
 The complete source code is available under the BSD license on GitHub at:
@@ -502,8 +603,8 @@ https://github.com/livingcomputermuseum/Darkstar
 Contributions are welcome!
 
 
-9.0 Hard Disk Image Format
-==========================
+10.0 Hard Disk Image Format
+===========================
 
 The Star's hard drive controller is implemented in microcode and controls the
 drive at a very low level, so the hard drive image format is not simply a dump
@@ -547,8 +648,8 @@ extract data, parse each track, looking for the address marks and CRCs to
 delineate the actual data.
 
 
-10.0 Thanks and Acknowledgements
-===============================
+11.0 Thanks and Acknowledgements
+================================
 
 Darkstar would not have been possible without the amazing preservation work of 
 Bitsavers.org
@@ -561,8 +662,18 @@ https://www.libsdl.org/ and is accessed using the SDL2-CS wrapper, see:
 https://github.com/flibitijibibo/SDL2-CS.
 
 
-11.0 Change History
+12.0 Change History
 ===================
+
+v1.1.9.0
+--------
+- new network device for direct connection to a Dodo NetHub
+- new optional command line parameter "-start" (start system when the UI is up)
+- new parameters in configuration-file to match relevant UI items
+- fix to Ethernet device for receiving packets larger than 56 bytes
+- fix to configuration-dialog to permit 48 significant bits for Host ID
+- fix to display for border pattern lines
+- added StarOS 5.0 disk image (including configuration file) to Disks subdirectory
 
 v1.1
 ----

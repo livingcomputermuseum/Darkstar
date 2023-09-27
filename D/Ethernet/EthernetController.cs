@@ -848,8 +848,13 @@ namespace D.Ethernet
             try
             {
 
-                if (Configuration.HostRawEthernetInterfacesAvailable &&
-                    !string.IsNullOrWhiteSpace(Configuration.HostPacketInterfaceName))
+                if (Configuration.HostPacketInterfaceName == NethubInterface.NETHUB_NAME)
+                {
+                    _hostInterface = new NethubInterface();
+                    _hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
+                }
+                else if (Configuration.HostRawEthernetInterfacesAvailable &&
+                         !string.IsNullOrWhiteSpace(Configuration.HostPacketInterfaceName))
                 {
                     _hostInterface = new HostEthernetEncapsulation(Configuration.HostPacketInterfaceName);
                     _hostInterface.RegisterReceiveCallback(OnHostPacketReceived);
@@ -858,7 +863,10 @@ namespace D.Ethernet
             catch (Exception e)
             {
                 _hostInterface = null;
-                Log.Write(LogComponent.HostEthernet, "Unable to configure network interface.  Error {0}", e.Message);
+                Log.Write(LogType.Error, LogComponent.HostEthernet,
+                          "Unable to configure network interface '{0}':  Error {1}",
+                          Configuration.HostPacketInterfaceName,
+                          e.Message);
             }
         }
 
